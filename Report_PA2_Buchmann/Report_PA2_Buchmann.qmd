@@ -3,7 +3,7 @@ title: "Robuste Regression und Outlier Erkennung"
 subtitle: "Einfache Regression"
 institut: "Institut für Umwelt und Natürliche Ressourcen"
 keywords: "Robuste Regression, Ausreisser, Allometrie, Säugetiere, Gehirngrösse, Statistik"
-lang: de
+lang: en
 confidential: true
 cover-image:
   src: cover.png
