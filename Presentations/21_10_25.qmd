@@ -34,6 +34,10 @@ editor: visual
 
 ![SwissTLM3D and Corine Landcover Data combined and harmonized](landcover_combined.png){fig-align="center" width="50%"}
 
+## Landcover Cost Surface
+
+![Cost Surface of Landcover in Schaffhausen](cost_landcover.png){fig-align="center" width="50%"}
+
 ## Water Data
 
 ![Cost Map of Flooting and Standing water in Schaffhausen](water.png){fig-align="center" width="50%"}
