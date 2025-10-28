@@ -1,51 +1,38 @@
 layer_type,objektart,resistance_cost
-swisstlm,Wald,5
-swisstlm,Gebueschwald,10
-swisstlm,Gehoelzflaeche,15
-swisstlm,Wald offen,8
-swisstlm,Feuchtgebiet,45
-swisstlm,Fels,100
-swisstlm,Felsbloecke locker,90
-swisstlm,Lockergestein,80
-swisstlm,Lockergestein locker,70
-corine,Broad-leaved forest,5
-corine,Coniferous forest,5
-corine,Mixed forest,5
-corine,"Land principally occupied by agriculture, with significant areas of natural vegetation",25
-corine,Complex cultivation patterns,30
-corine,Fruit trees and berry plantations,20
-corine,Pastures,40
-corine,Non-irrigated arable land,50
-corine,Vineyards,35
-corine,Sport and leisure facilities,75
-corine,Mineral extraction sites,100
-corine,"Road and rail networks and associated land",150
-corine,Discontinuous urban fabric,200
-corine,Continuous urban fabric,250
-corine,Industrial or commercial units,220
-water,See,1000
-water,Fliessgewaesser,500
-water,Seeachse,1000
-water,Seeinsel,50
-water,Druckleitung einfach,350
-water,Trockenrinne,150
-roads,Autobahn,1000
-roads,Autostrasse,500
-roads,Dienstzufahrt,300
-roads,Ausfahrt,500
-roads,Einfahrt,500
-roads,Faehre,50
-roads,Raststaette,300
-roads,"10m Strasse",400
-roads,"8m Strasse",350
-roads,"6m Strasse",300
-roads,"4m Strasse",200
-roads,"3m Strasse",150
-roads,"2m Weg",100
-roads,"1m Weg",80
-roads,"1m Wegfragment",80
-roads,"2m Wegfragment",100
-roads,Markierte Spur,50
-roads,Platz,100
-roads,Verbindung,10
-roads,Zufahrt,200
+landcover_summary,Forest,5.0
+landcover_summary,Shrubland/Transitional,20.0
+landcover_summary,Open Forest/Edge,10.0
+landcover_summary,Agriculture,40.0
+landcover_summary,Grassland/Pasture,50.0
+landcover_summary,Wetland,65.0
+landcover_summary,Bare Rock/Soil,130.0
+landcover_summary,Urban/Built-up,650.0
+landcover_summary,Industrial/Commercial,600.0
+landcover_summary,Infrastructure/Built-up,400.0
+landcover_summary,Extraction/Bare,225.0
+water,Druckleitung einfach,300.0
+water,Fliessgewaesser,800.0
+water,See,1000.0
+water,Seeachse,1000.0
+water,Seeinsel,50.0
+water,Trockenrinne,80.0
+roads,10m Strasse,500.0
+roads,"1m Weg",20.0
+roads,"1m Wegfragment",25.0
+roads,"2m Weg",40.0
+roads,"2m Wegfragment",45.0
+roads,"3m Strasse",150.0
+roads,"4m Strasse",250.0
+roads,"6m Strasse",350.0
+roads,"8m Strasse",450.0
+roads,Ausfahrt,700.0
+roads,Autobahn,1000.0
+roads,Autostrasse,900.0
+roads,Dienstzufahrt,300.0
+roads,Einfahrt,700.0
+roads,Faehre,100.0
+roads,"Markierte Spur",10.0
+roads,Platz,150.0
+roads,Raststaette,400.0
+roads,Verbindung,1.0
+roads,Zufahrt,200.0

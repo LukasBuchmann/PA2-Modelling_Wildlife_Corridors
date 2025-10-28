@@ -1,32 +1,27 @@
 ---
-title: "Robuste Regression und Outlier Erkennung" 
-subtitle: "Einfache Regression"
-institut: "Institut für Umwelt und Natürliche Ressourcen"
-keywords: "Robuste Regression, Ausreisser, Allometrie, Säugetiere, Gehirngrösse, Statistik"
+title: "Modelling Wildlife Corridors: Spatial Analysis of Topographic and
+Landscape Barriers to determine Ecological Connectivity" 
+subtitle: "Project Work 2"
+institut: "INSTITUT FÜR COMPUTATIONAL LIFE SCIENCES "
+keywords: "Wildlife Corridors, Connectivity Modeling, Ecological Connectivity, Least-Cost Path (LCP) Analysis, Spatial Analysis"
 lang: en
-confidential: true
+confidential: no
 cover-image:
   src: cover.png
   max-width: 100%
   max-height: 5cm
-thesis-type: "Projektarbeit 2"
-degree-type: "Bachelorstudiengang"
-study-year: "2009"
-submission-date: "2024-12-15"
-study-direction: "Umweltingenieurwesen"
+thesis-type: "Projekt Work 2"
+degree-type: "Bachelor's degree program"
+study-year: "2025"
+submission-date: "2025-12-11"
+study-direction: "Applied Digital Life Sciences (ADLS)"
 supervisors:
-  - title: "Prof. Dr."
-    name: "Max Mustermann"
+  - title: ""
+    name: "Ratnaweera Nils"
     affiliation: "ZHAW Life Sciences und Facility Management, Wädenswil"
-  - title: "Dr."
-    name: "Anna Beispiel"
-    affiliation: "ETH Zürich, Institut für Umweltingenieurwissenschaften, Zürich"
-  - title: "Prof. Dr."
-    name: "Susanne Müller"
-    affiliation: "Universität Zürich, Institut für Evolutionsbiologie und Umweltwissenschaften, Zürich"
 bibliography: references.bib
 author: 
-  - Peter Rousseeuw
+  - Lukas Buchmann
 format: 
   zhaw-lsfm-typst: default
   html: default
@@ -77,7 +72,7 @@ beschrieben, wobei der Exponent b in der Regel zwischen 0.6 und 0.8 liegt. @jeri
 
 Statistische Probleme bei der Analyse solcher Daten wurden von @weisberg1980 diskutiert, insbesondere bezüglich der Normalitätsannahmen in linearen Regressionsmodellen bei grossen Stichproben.
 
-# Material und Methoden
+# Material and Methods
 
 ## Datensatz
 
@@ -91,9 +86,12 @@ Der Datensatz wurde ursprünglich von @weisberg1980 zusammengestellt und enthäl
 
 Einige Messungen stammen aus älteren Studien und könnten methodische Ungenauigkeiten aufweisen. Besonders bei sehr grossen Tieren wie Elefanten können die Gehirngewichte schwer präzise zu bestimmen sein.
 
-## Statistische Analyse
+## Resistance Surface
 
-Die Daten wurden logarithmisch transformiert, um eine lineare Beziehung zu erhalten:
+
+
+
+
 
 ```{.r}
 log(Gehirngewicht) = log(a) + b * log(Körpergewicht)
