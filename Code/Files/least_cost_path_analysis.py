@@ -1,216 +1,248 @@
 import rasterio
 import numpy as np
-import skimage.graph
 import matplotlib.pyplot as plt
-from rasterio.plot import plotting_extent
-import random
-import time 
-from matplotlib.colors import Normalize
+import matplotlib.colors as colors
+from skimage.graph import route_through_array
+import os
+from tqdm.notebook import tqdm # For a progress bar
 
-# --- Settings ---
-FINAL_RESISTANCE_RASTER = "C:/ZHAW/5.Semester/PA2/PA2-Modelling_Wildlife_Corridors/Results/final_resistance_surface.tif"
-TRAVERSAL_COUNT_RASTER = "C:/ZHAW/5.Semester/PA2/PA2-Modelling_Wildlife_Corridors/Results/traversal_count_map.tif"
-DEFAULT_NODATA = 0
-ABSOLUTE_BARRIER_COST = 500 # Cost value used for absolute barriers
 
-# --- Sampling Parameters ---
-# How many random pairs of points to calculate paths between?
-# Start small (e.g., 100-1000) and increase if needed. More pairs = longer runtime.
-num_pairs_to_sample = 500 
+BASE_DIR = os.path.abspath('../..') # Gets the current directory of the notebook
+RESULTS_DIR = os.path.join(BASE_DIR, "Results")
 
-# Minimum resistance value to consider a pixel a potential start/end node
-# Avoids starting/ending directly on high barriers. Adjust as needed.
-max_cost_for_nodes = 250 
 
-# --- 1. Load Resistance Raster ---
-print(f"Loading resistance surface: {FINAL_RESISTANCE_RASTER}")
-try:
-    with rasterio.open(FINAL_RESISTANCE_RASTER) as src:
-        resistance_array = src.read(1)
-        profile = src.profile # Metadata for saving later
-        # Use the actual nodata value from the file if available
-        nodata_val = src.nodata or DEFAULT_NODATA 
-except rasterio.errors.RasterioIOError:
-    print(f"Error: Could not open {FINAL_RESISTANCE_RASTER}")
-    raise
+# --- 1. Define Paths and Settings ---
+FINAL_RASTER = os.path.join(RESULTS_DIR, "final_resistance_surface.tif")
+GRID_SPACING_METERS = 10000  # 10km grid, as you suggested
+EXTREME_BARRIER_COST = 1000  # A very high cost
 
-# --- 2. Identify Potential Node Locations ---
-print(f"Identifying potential node locations (pixels with cost <= {max_cost_for_nodes})...")
-# Find coordinates (row, col) of pixels that are NOT NoData and below the threshold
-valid_pixels_indices = np.argwhere(
-    (resistance_array != nodata_val) & 
-    (resistance_array <= max_cost_for_nodes)
-)
 
-if len(valid_pixels_indices) < 2:
-    print("Error: Not enough valid pixels found to create node pairs. Check max_cost_for_nodes or raster.")
-    exit()
 
-print(f"Found {len(valid_pixels_indices)} potential node locations.")
+# --- 2. Load Final Resistance Raster ---
+print(f"Loading FINAL cost surface from {FINAL_RASTER}...")
+with rasterio.open(FINAL_RASTER) as src:
+    resistance_array = src.read(1)
+    meta = src.meta.copy()
+    nodata_val = meta['nodata']
+    
 
-# --- 3. Initialize Traversal Count Raster ---
-traversal_count_array = np.zeros_like(resistance_array, dtype=np.uint32)
+    # Get resolution from metadata
+    resolution = meta['transform'][0] 
+    
 
-# --- 4. Sample Node Pairs ---
-print(f"Sampling {num_pairs_to_sample} random node pairs...")
-# Ensure we don't sample more pairs than possible unique pairs
-max_possible_pairs = len(valid_pixels_indices) * (len(valid_pixels_indices) - 1) // 2
-num_pairs_to_sample = min(num_pairs_to_sample, max_possible_pairs) 
-print(f"Adjusted sample size to {num_pairs_to_sample} based on available nodes.")
+    # Convert NoData to an extreme barrier cost
+    resistance_array[resistance_array == nodata_val] = EXTREME_BARRIER_COST
 
-# Efficiently sample pairs without replacement
-sampled_indices = random.sample(range(len(valid_pixels_indices)), k=min(num_pairs_to_sample * 2, len(valid_pixels_indices)))
-node_pairs_indices = []
-# Create pairs from the sampled indices
-for i in range(0, len(sampled_indices) -1, 2):
-     idx1 = sampled_indices[i]
-     idx2 = sampled_indices[i+1]
-     # Ensure start != end
-     if idx1 != idx2:
-        node_pairs_indices.append( (valid_pixels_indices[idx1], valid_pixels_indices[idx2]) )
+    # Ensure no costs are zero or negative
+    resistance_array[resistance_array <= 0] = 1 
 
-# Ensure we have the requested number of pairs if possible
-node_pairs_indices = node_pairs_indices[:num_pairs_to_sample]
+    
+    # Get the total height and width of the raster in pixels
+    height, width = resistance_array.shape
 
-if not node_pairs_indices:
-     print("Error: Could not generate any node pairs for sampling.")
-     exit()
 
-print(f"Generated {len(node_pairs_indices)} pairs for LCP calculation.")
+print(f"Cost matrix loaded. Shape: {height}x{width}")
 
-# --- 5. Calculate LCPs and Accumulate Traversal Counts (REVISED) ---
-print("Calculating LCPs and accumulating traversal counts...")
-start_time = time.time()
-paths_calculated_count = 0
-path_calculation_errors = 0
 
-# --- MODIFICATION: Use a very large number instead of np.inf ---
-# Replace NoData with this large value
-VERY_LARGE_COST = 1e12 # Or adjust based on your cost scale
-cost_surface_for_mcp = np.where(resistance_array == nodata_val, VERY_LARGE_COST, resistance_array.astype(np.float64)) # Ensure float64 for large numbers
-# Also apply to absolute barriers
-cost_surface_for_mcp = np.where(cost_surface_for_mcp >= ABSOLUTE_BARRIER_COST, VERY_LARGE_COST, cost_surface_for_mcp)
+# --- 3. Create the Structured Grid of Nodes ---
+# Convert 10,000m spacing to pixel spacing
+spacing_pixels = int(GRID_SPACING_METERS / resolution)
+print(f"Creating a node grid with {spacing_pixels}-pixel spacing...")
 
-# --- Add check for min/max values ---
-min_cost_in_mcp = np.min(cost_surface_for_mcp[cost_surface_for_mcp != VERY_LARGE_COST]) if np.any(cost_surface_for_mcp != VERY_LARGE_COST) else 'N/A'
-max_cost_in_mcp = np.max(cost_surface_for_mcp[cost_surface_for_mcp != VERY_LARGE_COST]) if np.any(cost_surface_for_mcp != VERY_LARGE_COST) else 'N/A'
-print(f"  Cost surface prepared for MCP: Min Cost={min_cost_in_mcp}, Max Cost (excl. barriers)={max_cost_in_mcp}, Barrier Cost={VERY_LARGE_COST}")
 
-# Initialize MCP object *once* outside the loop for efficiency
-# fully_connected=True means diagonal movement is allowed (8 neighbors)
-print("  Initializing MCP object...")
-try:
-    mcp = skimage.graph.MCP_Geometric(cost_surface_for_mcp, fully_connected=True)
-    print("  MCP object initialized successfully.")
-except Exception as init_e:
-    print(f"  FATAL ERROR: Could not initialize MCP object. Check cost surface values (NaNs, Infs?). Error: {init_e}")
-    # Cannot proceed if MCP fails to initialize
-    exit() 
+# Create arrays of all row and column indices
+rows = np.arange(0, height, spacing_pixels)
+cols = np.arange(0, width, spacing_pixels)
 
-for i, (start_node_rc, end_node_rc) in enumerate(node_pairs_indices):
-    if (i + 1) % 50 == 0: # Print progress update every 50 pairs
-        elapsed = time.time() - start_time
-        print(f"  Processed {i+1}/{len(node_pairs_indices)} pairs... ({paths_calculated_count} successful paths, {path_calculation_errors} errors, {elapsed:.1f} seconds)")
+
+# Use meshgrid to create a coordinate pair for each grid point
+xx, yy = np.meshgrid(cols, rows)
+
+
+# Flatten the arrays and zip them into (row, col) tuples
+all_grid_nodes = list(zip(yy.ravel(), xx.ravel()))
+
+
+# --- 4. Filter Nodes ---
+# We must remove nodes that fall on "NoData" (now EXTREME_BARRIER_COST) areas
+valid_grid_nodes = [
+    (r, c) for r, c in all_grid_nodes 
+    if resistance_array[r, c] < EXTREME_BARRIER_COST
+]
+
+
+print(f"Total nodes created: {len(all_grid_nodes)}")
+print(f"Valid (reachable) nodes: {len(valid_grid_nodes)}")
+
+
+# --- 5. All-Pairs Path Calculation (The Corrected Logic) ---
+print(f"Calculating all-pairs paths between {len(valid_grid_nodes)} nodes...")
+# This array will store our "traffic" counts
+traffic_array = np.zeros(resistance_array.shape, dtype=np.int32)
+
+
+# We use tqdm to show a progress bar, as this will take some time
+for i in tqdm(range(len(valid_grid_nodes)), desc="Processing Node Pairs"):
+    # This inner loop ensures we only calculate each pair *once* (e.g., A->B, not B->A)
+    for j in range(i + 1, len(valid_grid_nodes)):
         
-    # --- MODIFICATION: More detailed error handling ---
-    try:
-        # Calculate cumulative cost from the start node
-        cumulative_costs, traceback_pts = mcp.find_costs(starts=[start_node_rc])
+
+        start_node = valid_grid_nodes[i] # (row, col)
+        end_node = valid_grid_nodes[j]   # (row, col)
+
         
-        # Check if end node is reachable (cost is not infinite/very large)
-        if cumulative_costs[tuple(end_node_rc)] >= VERY_LARGE_COST:
-            # print(f"  Warning: End node {end_node_rc} unreachable from start node {start_node_rc} for pair {i+1}.")
-            path_calculation_errors += 1
-            continue # Skip to next pair
+        try:
+            # Calculate the single path between these two specific nodes
+            indices, cost = route_through_array(
+                resistance_array,
+                start=start_node,
+                end=end_node,
+                fully_connected=True, # Allows 8-direction movement
+                geometric=True      # Corrects for diagonal distance
+            )
+
             
-        # Trace the path from the end node back to the start
-        path_indices = mcp.traceback(end_node_rc)
-        
-        # Check if path is valid (non-empty)
-        if path_indices is None or len(path_indices[0]) == 0:
-             # print(f"  Warning: Traceback returned empty path for pair {i+1}.")
-             path_calculation_errors += 1
-             continue
+            # Add this path to our traffic map
+            if indices:
+                rows, cols = zip(*indices)
+                traffic_array[rows, cols] += 1
 
-        # Increment the traversal count for each pixel in the path
-        rows, cols = np.array(path_indices)
-        # --- Add boundary check ---
-        valid_rows = rows < traversal_count_array.shape[0]
-        valid_cols = cols < traversal_count_array.shape[1]
-        valid_indices = valid_rows & valid_cols
-        
-        if np.any(valid_indices):
-             traversal_count_array[rows[valid_indices], cols[valid_indices]] += 1
-             paths_calculated_count += 1
-        else:
-             # print(f"  Warning: Path indices out of bounds for pair {i+1}.")
-             path_calculation_errors += 1
-             
-    except ValueError as ve:
-        # Catch specific errors like start/end outside cost surface
-        # print(f"  ERROR calculating path for pair {i+1} (Start: {start_node_rc}, End: {end_node_rc}). ValueError: {ve}")
-        path_calculation_errors += 1
-    except IndexError as ie:
-        # Catch errors if traceback goes wrong
-        # print(f"  ERROR during traceback for pair {i+1} (Start: {start_node_rc}, End: {end_node_rc}). IndexError: {ie}")
-        path_calculation_errors += 1
-    # except Exception as e: 
-        # Catch any other unexpected errors, but be cautious with broad exceptions
-        # print(f"  UNEXPECTED ERROR for pair {i+1} (Start: {start_node_rc}, End: {end_node_rc}). Error: {e}")
-        # path_calculation_errors += 1
+                
+        except Exception as e:
+            # This can still fail if a node is truly on an 'island'
+            # print(f"Could not find path between {start_node} and {end_node}: {e}")
+            continue # Skip this pair
 
 
-total_time = time.time() - start_time
-print(f"\nFinished LCP calculations in {total_time:.2f} seconds.")
-print(f"  Total successful paths: {paths_calculated_count}")
-print(f"  Total path calculation errors/unreachable: {path_calculation_errors}")
+print("Path accumulation complete.")
 
-# --- Check if traversal array was updated ---
-if np.max(traversal_count_array) == 0:
-    print("\nWARNING: The traversal count array is still all zeros.")
-    print("Possible reasons:")
-    print(" - No paths were successfully calculated (check error count).")
-    print(" - Start/End nodes might be isolated by high costs/barriers.")
-    print(f" - Check 'max_cost_for_nodes' ({max_cost_for_nodes}) setting.")
-    print(" - Inspect the intermediate cost surface for unexpected large barrier areas.")
+
+# --- 6. Plot and Save the Final Traffic Map ---
+print("Plotting results...")
+traffic_masked = np.ma.masked_equal(traffic_array, 0)
+max_crossings = traffic_array.max()
+print(f"Maximum crossings on a single pixel: {max_crossings}")
+
+
+fig, ax = plt.subplots(figsize=(12, 12))
+cmap = plt.cm.get_cmap('RdYlGn').copy()
+cmap.set_bad(color='black') # Color for 0-traffic pixels
+
+
+# Use robust plotting logic to avoid the LogNorm error
+if max_crossings == 0:
+    print("ANALYSIS RESULT: No paths were accumulated.")
+    im = ax.imshow(traffic_masked, cmap=cmap)
+   
+
+elif max_crossings == 1:
+    print("Warning: Max crossings is 1. Switching to a linear scale.")
+    norm = colors.Normalize(vmin=1, vmax=1)
+    im = ax.imshow(traffic_masked, cmap=cmap, norm=norm)
+    cbar = fig.colorbar(im, ax=ax, shrink=0.7, ticks=[1])
+    cbar.set_label('Number of LCP Crossings (Linear Scale)')
+    
+
 else:
-    print(f"\nTraversal count array updated. Max count: {np.max(traversal_count_array)}")
+    print("Using logarithmic scale for plotting.")
+    norm = colors.LogNorm(vmin=1, vmax=max_crossings)
+    im = ax.imshow(traffic_masked, cmap=cmap, norm=norm)
+    cbar = fig.colorbar(im, ax=ax, shrink=0.7)
+    cbar.set_label('Number of LCP Crossings (Log Scale)')
 
-# --- 6. Save Traversal Count Raster ---
-print(f"Saving traversal count map to: {TRAVERSAL_COUNT_RASTER}")
-profile.update(dtype=traversal_count_array.dtype, nodata=0) # Update profile for the count data
-with rasterio.open(TRAVERSAL_COUNT_RASTER, 'w', **profile) as dst:
-    dst.write(traversal_count_array, 1)
 
-# --- 7. Visualize Traversal Count Map ---
-print("Plotting traversal count map...")
+ax.set_title("Accumulated LCP Traffic (Corridor Hotspots)", fontsize=16)
+ax.set_xlabel('Easting (Pixel Coordinates)')
+ax.set_ylabel('Northing (Pixel Coordinates)')
+plt.tight_layout()
 
-# Mask zero values for better visualization (optional)
-traversal_masked = np.ma.masked_equal(traversal_count_array, 0)
 
-fig, ax = plt.subplots(figsize=(10, 10))
-
-# Use a sequential colormap like 'viridis' or 'plasma' where bright colors indicate high counts
-cmap = plt.cm.get_cmap('plasma') 
-cmap.set_bad('white') # Color for masked (zero or NoData) areas
-
-# Normalize based on the max count found
-norm = Normalize(vmin=1, vmax=np.ma.max(traversal_masked) if traversal_masked.count() > 0 else 1)
-
-try:
-    with rasterio.open(FINAL_RESISTANCE_RASTER) as src_for_extent: # Use original raster for extent
-        extent = plotting_extent(src_for_extent)
-except Exception:
-    extent = None # Fallback if original raster can't be opened
-
-image = ax.imshow(traversal_masked, cmap=cmap, norm=norm, extent=extent)
-
-cbar = fig.colorbar(image, ax=ax, shrink=0.7)
-cbar.set_label('Traversal Frequency (Number of Paths)')
-
-ax.set_title(f'Path Density Map ({len(node_pairs_indices)} Sampled Paths)')
-ax.set_xlabel('Easting (m, LV95)')
-ax.set_ylabel('Northing (m, LV95)')
+# Save the plot image
+PLOT_FILE_OUT = os.path.join(RESULTS_DIR, "corridor_traffic_map_grid.png")
+plt.savefig(PLOT_FILE_OUT, dpi=300)
 plt.show()
 
-print("\n--- Path Density Analysis Complete ---")
+
+# Save the data as a GeoTIFF
+traffic_meta = meta.copy()
+traffic_meta.update(dtype='int32', nodata=0)
+TRAFFIC_RASTER_OUT = os.path.join(RESULTS_DIR, "corridor_traffic_grid.tif")
+
+
+print(f"Saving traffic raster to {TRAFFIC_RASTER_OUT}...")
+with rasterio.open(TRAFFIC_RASTER_OUT, 'w', **traffic_meta) as dest:
+    dest.write(traffic_array, 1)
+
+
+print("Analysis and plotting complete.")
+
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import numpy as np
+import os
+
+print("Plotting combined results map with enhanced highlighting...")
+
+# --- 1. Prepare Data for Plotting ---
+plot_resistance = resistance_array.copy().astype(float)
+plot_resistance[plot_resistance == EXTREME_BARRIER_COST] = np.nan
+traffic_masked = np.ma.masked_equal(traffic_array, 0)
+max_crossings = traffic_array.max()
+node_rows, node_cols = zip(*valid_grid_nodes)
+
+# --- 2. Create the Plot ---
+fig, ax = plt.subplots(figsize=(15, 15))
+
+# --- LAYER 1: Plot the Resistance Basemap (Faded) ---
+print("Plotting faded basemap...")
+cmap_base = plt.cm.get_cmap('Blues').copy()
+cmap_base.set_bad(color='white')
+
+im_base = ax.imshow(plot_resistance, 
+                    cmap=cmap_base, 
+                    norm=colors.LogNorm(vmin=1, vmax=1000),
+                    alpha=0.5)  # <-- Added transparency
+
+# Add a colorbar for the resistance
+cbar_base = fig.colorbar(im_base, ax=ax, shrink=0.7, pad=0.02, label='Resistance Cost (Log Scale)')
+
+# --- LAYER 2: Plot the Traffic Overlay (Highlighted) ---
+print("Plotting highlighted traffic overlay...")
+# We use 'cyan' for a bright, high-contrast color
+cmap_traffic = plt.cm.get_cmap('RdYlGn').copy()
+cmap_traffic.set_bad(color='none') # Make 0-traffic pixels TRANSPARENT
+
+# Use the same robust normalization logic
+if max_crossings == 0:
+    print("No traffic to plot.")
+    
+elif max_crossings == 1:
+    norm_traffic = colors.Normalize(vmin=1, vmax=1)
+    im_traffic = ax.imshow(traffic_masked, cmap=cmap_traffic, norm=norm_traffic)
+    
+else:
+    norm_traffic = colors.LogNorm(vmin=1, vmax=max_crossings)
+    im_traffic = ax.imshow(traffic_masked, cmap=cmap_traffic, norm=norm_traffic)
+
+# --- LAYER 3: Plot the Grid Nodes (Bigger) ---
+print("Plotting larger, highlighted nodes...")
+ax.scatter(node_cols, node_rows, 
+           s=75,            # <-- Increased size
+           c='red',         # <-- Changed to bright red
+           marker='x',      
+           label='Grid Nodes (10km)')
+
+# --- 3. Final Touches ---
+ax.set_title("LCP Corridors on Resistance Surface (Highlighted)", fontsize=20)
+ax.set_xlabel('Easting (Pixel Coordinates)')
+ax.set_ylabel('Northing (Pixel Coordinates)')
+ax.legend(loc='upper right', facecolor='white', framealpha=0.7)
+plt.tight_layout()
+
+# Save the final composite image
+PLOT_FILE_OUT = os.path.join(RESULTS_DIR, "final_composite_map_highlighted.png")
+plt.savefig(PLOT_FILE_OUT, dpi=300, bbox_inches='tight')
+
+plt.show()
+
+print("Highlighted composite map saved.")

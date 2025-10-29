@@ -340,3 +340,18 @@ def plot_raster_layer(raster_path: str, title: str, cmap='RdYlGn_r', nodata_colo
 #         ax.set_title(title, fontsize=16); ax.set_xlabel('Easting (m, LV95)'); ax.set_ylabel('Northing (m, LV95)')
 #         plt.tight_layout(); plt.show()
 
+
+
+
+# In gis_utils.py
+import rasterio
+
+def world_to_pixel(raster_path: str, x_coord: float, y_coord: float) -> tuple[int, int]:
+    """
+    Converts a real-world (map) coordinate to a raster's (row, col)
+    pixel coordinate.
+    """
+    with rasterio.open(raster_path) as src:
+        # Use the 'index' method to get the row and column
+        row, col = src.index(x_coord, y_coord)
+    return row, col

@@ -74,9 +74,13 @@ Statistische Probleme bei der Analyse solcher Daten wurden von @weisberg1980 dis
 
 # Material and Methods
 
-## Datensatz
+## Data
 
-Die Analyse basiert auf dem `Animals` Datensatz aus dem R-Paket MASS, der Gehirn- und Körpergewichtsdaten für 28 verschiedene Säugetierarten enthält.
+Different layers from different data sets were used to create the resistance surface. This section describes and explains all of the data sets used in detail.
+
+### swissTLM3D
+
+The most important data for creating the resistance surface is the high-resolution, vector-based dataset, [swissTLM3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) from the Swiss Federal Office of Topography (Swisstopo). It provides a detailed, three-dimensional representation of Switzerland's landscape features. For this project, it serves as the primary data source for critical inputs, including detailed landcover polygons (tlm_bb_bodenbedeckung), the road network (tlm_strassen_strasse), and the complete hydrographic network, distinguishing between flowing water (tlm_gewaesser_fliessgewaesser) and standing water (tlm_gewaesser_stehendes_gewaesser). 
 
 ### Datenquelle und Charakteristika
 
@@ -88,8 +92,19 @@ Einige Messungen stammen aus älteren Studien und könnten methodische Ungenauig
 
 ## Resistance Surface
 
+The creation of the resistance surface is the foundational step for this project, and it is built as a modular, reproducible workflow using Python, primarily with the GeoPandas, Rasterio, and NumPy libraries. Three documents are required to execute the workflow. The `resistance_costs.csv` file, which stores the resistance costs for each landcover, water and roads type, the `gis_utils.py` file, which containes all gis, loading and plotting functions for processing the data and the `cost_surface_model.ipynb` file, which executes the workflow step by step.
 
+The process starts with defining the study area. Because the canton of Schaffhausen has two large exclaves, it is geographically fragmented. Therefore it is insufficient to just use its base geometry. To create a contiguous study region that connects the mainland to its exclaves, first the canton's geometry is buffered by 10,000 meters. Since the project focus is exclusively on Swiss territory, this large, buffered area is then clipped to the national boundary of Switzerland, which gave the final, unified Area of Schaffhausen with connections to its exclaves. It should also be noted that the exclaves of Schaffhausen are located in Switzerland and are not completely surrounded by German territory.
 
+In the next step, the data layers are loaded and clipped to the study area. Since the water and roads layer are linestrings, which have no area and cannot be properly represented in a 10-meter raster, they are buffered (by 5 meters) to transform them into 10-meter-wide polygons, giving them a realistic spatial footprint for a better rasterization afterwards. Then the flowing and standing water layer are combined to create a single, comprehensive water barrier layer. Because the Landcover layer from swissTLM3D and Corine Landcover have different type names, the names are harmonized in a new column called `lc_type`. This harmonization is carried out arbitrarily according to the author's understanding.
+
+To ensure that all subsequent raster layers are perfectly aligned for analysis, the study area is used to define a "master grid." This grid serves as a non-negotiable template, establishing the spatial bounds, the 10.0-meter resolution, and the EPSG:2056 (LV95) coordinate system for every raster file which is created.
+
+Once all vector layers are prepared, the resistance costs are assigned. Therefore the CSV file (resistance_costs.csv) is loaded. With the map and get functions these costs are then  mapped to the four main vector layers: swissTLM Landcover, CORINE Landcover, the combined Water layer, and the buffered Roads layer. Then each of these layers is "burned", with their new cost values, onto the master grid, resulting in four separate 10-meter GeoTIFFs.
+
+The final stage is to combine these four intermediate rasters into one. This is a two-step process. First, the two landcover rasters are harmonized. The swissTLM3D raster is more detailed and is therfore used as the high-priority layer, but it has NoData gaps. However,  performing a "priority-fill" using numpy.where to create a new raster (harmonized_landcover_type.tif) fills up these NoData gaps with the data from Corine Landcover. This function iterates pixel by pixel, using the swissTLM3D value if it is valid, but filling the pixel with the CORINE value if the swissTLM3D value is NoData.
+
+Second, this new harmonized landcover raster is combined with the water and road rasters. For this final combination, a "maximum-value" logic is used. First, all three rasters are  stacked and then, using numpy.maximum.reduce, select the highest cost value at each pixel location. This is crucial as it ensures that a high-cost feature, like a highway (cost 500), correctly overwrites the low-cost forest (cost 50) it passes through. The result of this entire workflow is the final_resistance_surface.tif: a single, comprehensive 10-meter raster where each pixel's value represents the ecological cost for roe deer movement, now ready for the least-cost path analysis.
 
 
 
