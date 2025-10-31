@@ -249,7 +249,7 @@ def plot_vector_layer(gdf: gpd.GeoDataFrame, title: str, column_to_plot: str = N
     fig, ax = plt.subplots(figsize=figsize)
     if column_to_plot and column_to_plot in gdf.columns:
         gdf.plot(column=column_to_plot, ax=ax, legend=True, cmap=cmap,
-                 legend_kwds={'label': column_to_plot, 'orientation': "vertical", 'shrink': 0.6})
+                 legend_kwds={'title': column_to_plot, 'loc': 'upper left', 'bbox_to_anchor': (1, 1)})
     else:
         gdf.plot(ax=ax, color='blue', edgecolor='black')
     ax.set_title(title, fontsize=16)
