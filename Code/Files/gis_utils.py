@@ -136,19 +136,16 @@ def rasterize_layer(gdf: gpd.GeoDataFrame, master_meta: dict, cost_column: str, 
 
 
 # --- Combine Rasters with MAXIMUM Logic ---
-def combine_rasters_max_logic(input_rasters: list, output_path: str, min_valid_cost: float = 1.0):
+def combine_rasters_max_logic(input_rasters: list, output_path: str):
     """ Combines multiple rasters using MAXIMUM logic. Replaces NoData with min_valid_cost. """
 
     with rasterio.open(input_rasters[0]) as src:
         master_meta = src.meta.copy()
-        nodata_val = DEFAULT_NODATA_FLOAT
      
     arrays = []
     for path in input_rasters:
         with rasterio.open(path) as src:
             arr = src.read(1)
-            current_nodata = src.nodata or nodata_val
-            arr = np.where(arr == current_nodata, min_valid_cost, arr)
             arrays.append(arr)
 
     stacked_arrays = np.stack(arrays)
@@ -184,63 +181,6 @@ def combine_cost_rasters_priority_fill(high_priority_path: str, low_priority_pat
     print(f"Saved harmonized landcover COST raster to {output_path}")
 
 
-# # # --- Rasterization Function ---
-# def rasterize_layer(gdf: gpd.GeoDataFrame, master_meta: dict, cost_column: str, output_path: str, dtype='float64', nodata_val=DEFAULT_NODATA_FLOAT):
-#     """ Rasterizes a GDF onto the master grid using values from cost_column. """
-#     # (Same function definition as in the previous 'resistance first' version)
-#     print(f"Rasterizing GDF to {output_path}...")
-#     raster_meta = master_meta.copy()
-#     raster_meta.update(dtype=dtype, nodata=nodata_val)
-#     gdf_to_burn = gdf.dropna(subset=[cost_column])
-#     if dtype == 'float64': gdf_to_burn = gdf_to_burn[gdf_to_burn[cost_column] != DEFAULT_NODATA_FLOAT]
-#     elif dtype == 'uint16': gdf_to_burn = gdf_to_burn[gdf_to_burn[cost_column] != DEFAULT_NODATA_FLOAT] # Check int nodata
-
-#     if gdf_to_burn.empty:
-#         print(f"Warning: No valid features to burn for {output_path}. Creating empty raster.")
-#         raster_array = np.full((raster_meta['height'], raster_meta['width']), raster_meta['nodata'], dtype=raster_meta['dtype'])
-#     else:
-#         shapes_to_burn = list(zip(gdf_to_burn.geometry, gdf_to_burn[cost_column]))
-#         print(f"Burning {len(shapes_to_burn)} features...")
-#         raster_array = rasterize( shapes=shapes_to_burn, out_shape=(raster_meta['height'], raster_meta['width']), transform=raster_meta['transform'], fill=raster_meta['nodata'], dtype=raster_meta['dtype'] )
-#     with rasterio.open(output_path, 'w', **raster_meta) as dest: dest.write(raster_array, 1)
-#     print(f"Saved raster to {output_path}")
-
-
-# # # --- Combine Rasters with MAXIMUM Logic ---
-# def combine_rasters_max_logic(valid_paths: list, output_path: str):
-#     """ Combines multiple rasters using MAXIMUM logic. 
-#     Replaces NoData with min_valid_cost. """
-
-#     with rasterio.open(valid_paths[0]) as src:
-#         master_meta = src.meta.copy()
-#         # Ensure output metadata uses the standard float NoData value and dtype
-#         nodata_val = src.nodata if src.nodata is not None else DEFAULT_NODATA_FLOAT
-#         master_meta.update(nodata=DEFAULT_NODATA_FLOAT, dtype='float32')
-
-#     arrays = []
-#     all_nodata_mask = np.ones((master_meta['height'], master_meta['width']), dtype=bool)
-
-#     for path in valid_paths:
-#         with rasterio.open(path) as src:
-#             arr = src.read(1)
-#             current_nodata = src.nodata if src.nodata is not None else nodata_val
-#             # Update the mask: a pixel is NOT all NoData if the current layer is valid
-#             all_nodata_mask = all_nodata_mask & (arr == current_nodata)
-#             arrays.append(arr)
-
-#     stacked_arrays = np.stack(arrays)
-#     nodata_numeric = nodata_val
-#     stacked_arrays_masked = np.where(stacked_arrays == nodata_numeric, -np.inf, stacked_arrays)
-#     # Calculate the maximum, ignoring the -np.inf where possible
-#     final_array = np.maximum.reduce(stacked_arrays_masked, axis=0)
-#     # Where ALL original inputs were NoData, force the output back to NoData
-#     final_array[all_nodata_mask] = DEFAULT_NODATA_FLOAT # Use the standard output NoData
-
-    # # Save the final raster
-    # with rasterio.open(output_path, 'w', **master_meta) as dest:
-    #     dest.write(final_array.astype(master_meta['dtype']), 1) # Ensure correct dtype
-    # print(f"Saved combined MAX raster (preserving NoData) to {output_path}")
-
 
 # --- Plotting Functions ---
 # --- Plotting single Vector Layer ---
@@ -266,25 +206,20 @@ def plot_raster_layer(raster_path: str, title: str, cmap='RdYlGn_r', nodata_colo
 
     with rasterio.open(raster_path) as src:
         data = src.read(1)
-        DEFAULT_NODATA_FLOAT = src.nodata
-        # Mask based on src.nodata or default if None
-        if DEFAULT_NODATA_FLOAT is not None:
-            data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
-        else:
-            # If no nodata set in file, assume DEFAULT_NODATA_FLOAT was used during creation
-            data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
+
+        data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
 
         extent = plotting_extent(src)
 
         fig, ax = plt.subplots(figsize=(10, 10))
-            
+        
         # Get the colormap and set the nodata color
         current_cmap = plt.cm.get_cmap(cmap).copy()
         current_cmap.set_bad(color=nodata_color)
 
         # Determine normalization range
-        if vmin is None: vmin = data_masked.min()
-        if vmax is None: vmax = data_masked.max()
+        if vmin is None: vmin = data.min()
+        if vmax is None: vmax = data.max()
         norm = Normalize(vmin=vmin, vmax=vmax) if vmin is not None and vmax is not None else None
 
         image = ax.imshow(data_masked, cmap=current_cmap, norm=norm, extent=extent)
@@ -295,63 +230,20 @@ def plot_raster_layer(raster_path: str, title: str, cmap='RdYlGn_r', nodata_colo
         plt.tight_layout()
         plt.show()
 
-# def plot_vector_layer(gdf: gpd.GeoDataFrame, title: str, column_to_plot: str = None, cmap='tab20', figsize=(10,10)):
-#     """ Plots a GeoDataFrame, optionally coloring by a column. """
-#     print(f"Plotting vector layer: {title}")
-#     fig, ax = plt.subplots(figsize=figsize)
-#     plot_args = {'ax': ax}
-#     if column_to_plot and column_to_plot in gdf.columns:
-#         # Check if column is numeric for continuous cmap, otherwise categorical
-#         if pd.api.types.is_numeric_dtype(gdf[column_to_plot]):
-#             plot_args['column'] = column_to_plot
-#             plot_args['legend'] = True
-#             plot_args['cmap'] = cmap
-#             plot_args['legend_kwds'] = {'label': column_to_plot, 'orientation': "vertical", 'shrink': 0.6}
-#         else: # Categorical plot
-#             plot_args['column'] = column_to_plot
-#             plot_args['legend'] = True
-#             plot_args['cmap'] = cmap # Use categorical map like tab20
-#             # Adjust legend location for categorical data if needed
-#             plot_args['legend_kwds'] = {'title': column_to_plot, 'loc': 'upper left', 'bbox_to_anchor': (1, 1)}
-#     else:
-#         plot_args['color'] = 'grey'
-#         plot_args['edgecolor'] = 'black'
-#     gdf.plot(**plot_args)
-#     ax.set_title(title, fontsize=16); ax.set_xlabel('Easting (m, LV95)'); ax.set_ylabel('Northing (m, LV95)')
-#     plt.tight_layout(); plt.show()
 
-# def plot_raster_layer(raster_path: str, title: str, cmap='viridis', nodata_color='white', vmin=None, vmax=None):
-#     """ Plots a single raster layer, handling NoData. """
 
+
+
+
+# # In gis_utils.py
+# import rasterio
+
+# def world_to_pixel(raster_path: str, x_coord: float, y_coord: float) -> tuple[int, int]:
+#     """
+#     Converts a real-world (map) coordinate to a raster's (row, col)
+#     pixel coordinate.
+#     """
 #     with rasterio.open(raster_path) as src:
-#         data = src.read(1); DEFAULT_NODATA_FLOAT = src.nodata
-#         if DEFAULT_NODATA_FLOAT is not None: data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
-#         # Use specific nodata for types if it's a type raster
-#         elif data.dtype in [np.uint8, np.uint16, np.int16, np.int32]: data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
-#         else: data_masked = np.ma.masked_equal(data, DEFAULT_NODATA_FLOAT)
-#         extent = plotting_extent(src)
-#         fig, ax = plt.subplots(figsize=(10, 10))
-#         current_cmap = plt.cm.get_cmap(cmap).copy(); current_cmap.set_bad(color=nodata_color)
-#         effective_vmin = vmin if vmin is not None else data_masked.min()
-#         effective_vmax = vmax if vmax is not None else data_masked.max()
-#         norm = Normalize(vmin=effective_vmin, vmax=effective_vmax) if effective_vmin is not None and effective_vmax is not None and effective_vmin != effective_vmax else None
-#         image = ax.imshow(data_masked, cmap=current_cmap, norm=norm, extent=extent)
-#         fig.colorbar(image, ax=ax, shrink=0.7).set_label('Pixel Value')
-#         ax.set_title(title, fontsize=16); ax.set_xlabel('Easting (m, LV95)'); ax.set_ylabel('Northing (m, LV95)')
-#         plt.tight_layout(); plt.show()
-
-
-
-
-# In gis_utils.py
-import rasterio
-
-def world_to_pixel(raster_path: str, x_coord: float, y_coord: float) -> tuple[int, int]:
-    """
-    Converts a real-world (map) coordinate to a raster's (row, col)
-    pixel coordinate.
-    """
-    with rasterio.open(raster_path) as src:
-        # Use the 'index' method to get the row and column
-        row, col = src.index(x_coord, y_coord)
-    return row, col
+#         # Use the 'index' method to get the row and column
+#         row, col = src.index(x_coord, y_coord)
+#     return row, col

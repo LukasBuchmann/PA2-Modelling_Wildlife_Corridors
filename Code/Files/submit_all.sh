@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# This script submits the LCP job array (throttled) and the aggregation/cleanup jobs
+# This script submits the LCP job array and the aggregation/cleanup jobs
 
-# --- 1. Submit the Array Job (Throttled) ---
+# --- 1. Submit the Array Job ---
 echo "Submitting LCP array job (890 tasks, 32 at a time)..."
 ARRAY_JOB_ID=$(sbatch --parsable <<EOF
 #!/bin/bash
 #SBATCH --job-name=LCP_Array_SH
 #SBATCH --output=lcp_job_%A_%a.out  # %A = Job ID, %a = Task ID
 #SBATCH --error=lcp_job_%A_%a.err
-#SBATCH --time=02:00:00        # Each *task* gets 2 hours
-#SBATCH --array=0-889%32       # <-- *** THIS IS THE CHANGE ***
+#SBATCH --time=02:00:00
+#SBATCH --array=0-889%32
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1      # Each task is single-threaded
 #SBATCH --mem=8G               # 8GB for each task
@@ -33,7 +33,6 @@ fi
 echo "Array Job submitted with ID: $ARRAY_JOB_ID"
 
 # --- 2. Submit the Aggregation Job ---
-# (This part is unchanged)
 echo "Submitting aggregation job, dependent on $ARRAY_JOB_ID"
 AGG_JOB_ID=$(sbatch --parsable --dependency=afterok:$ARRAY_JOB_ID <<EOF
 #!/bin/bash
@@ -82,6 +81,11 @@ echo "Job started on $(hostname) at $(date)"
 echo "Cleaning up log files..."
 rm -f lcp_job_${ARRAY_JOB_ID}_*.out
 rm -f lcp_job_${ARRAY_JOB_ID}_*.err
+
+# Delete the aggregation job logs
+rm -f lcp_aggregate_${AGG_JOB_ID}.out
+rm -f lcp_aggregate_${AGG_JOB_ID}.err
+
 echo "Cleanup complete."
 EOF
 )

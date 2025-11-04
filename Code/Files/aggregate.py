@@ -61,7 +61,7 @@ print("Plotting results...")
 traffic_masked = np.ma.masked_equal(traffic_array, 0)
 max_crossings = traffic_array.max()
 print(f"Maximum crossings on a single pixel: {max_crossings}")
-# ... (rest of your plotting code) ...
+
 fig, ax = plt.subplots(figsize=(12, 12))
 cmap = plt.colormaps.get('RdYlGn').copy()
 cmap.set_bad(color='black')
@@ -92,16 +92,25 @@ plt.savefig(PLOT_FILE_OUT, dpi=300)
 print("Plotting combined results map with enhanced highlighting...")
 plot_resistance = resistance_array.copy().astype(float)
 plot_resistance[plot_resistance == EXTREME_BARRIER_COST] = np.nan
+
+# --- THIS IS THE CRITICAL PART ---
+# Re-calculate nodes *and filter them* for plotting
 spacing_pixels = int(GRID_SPACING_METERS / resolution)
 rows = np.arange(0, height, spacing_pixels)
 cols = np.arange(0, width, spacing_pixels)
 xx, yy = np.meshgrid(cols, rows)
 all_grid_nodes = list(zip(yy.ravel(), xx.ravel()))
+
+# This line filters out the "wrong" nodes
 valid_grid_nodes = [
     (r, c) for r, c in all_grid_nodes 
     if resistance_array[r, c] < EXTREME_BARRIER_COST
 ]
+# --- END CRITICAL PART ---
+
+# This line plots ONLY the valid nodes
 node_rows, node_cols = zip(*valid_grid_nodes)
+
 fig, ax = plt.subplots(figsize=(15, 15))
 cmap_base = plt.colormaps.get('Blues').copy()
 cmap_base.set_bad(color='white')
@@ -109,10 +118,12 @@ im_base = ax.imshow(plot_resistance, cmap=cmap_base, norm=colors.LogNorm(vmin=1,
 cbar_base = fig.colorbar(im_base, ax=ax, shrink=0.7, pad=0.02, label='Resistance Cost (Log Scale)')
 cmap_traffic = plt.colormaps.get('RdYlGn').copy()
 cmap_traffic.set_bad(color='none')
+
 if max_crossings > 0:
     norm_traffic = colors.LogNorm(vmin=1, vmax=max_crossings) if max_crossings > 1 else colors.Normalize(vmin=1, vmax=1)
     im_traffic = ax.imshow(traffic_masked, cmap=cmap_traffic, norm=norm_traffic)
-ax.scatter(node_rows, node_cols, s=75, c='red', marker='x', label='Grid Nodes (1km)')
+
+ax.scatter(node_cols, node_rows, s=75, c='red', marker='x', label='Grid Nodes (1km)') # <-- This now plots the correct nodes
 ax.set_title("LCP Corridors on Resistance Surface (Highlighted)", fontsize=20)
 ax.set_xlabel('Easting (Pixel Coordinates)')
 ax.set_ylabel('Northing (Pixel Coordinates)')
@@ -121,13 +132,5 @@ plt.tight_layout()
 PLOT_FILE_OUT_COMPOSITE = os.path.join(RESULTS_DIR, "final_composite_map_highlighted.png")
 print(f"Saving composite plot to {PLOT_FILE_OUT_COMPOSITE}...")
 plt.savefig(PLOT_FILE_OUT_COMPOSITE, dpi=300, bbox_inches='tight')
-
-# --- 6. Save the Data as a GeoTIFF ---
-traffic_meta = meta.copy()
-traffic_meta.update(dtype='int32', nodata=0)
-TRAFFIC_RASTER_OUT = os.path.join(RESULTS_DIR, "corridor_traffic_grid.tif")
-print(f"Saving traffic raster to {TRAFFIC_RASTER_OUT}...")
-with rasterio.open(TRAFFIC_RASTER_OUT, 'w', **traffic_meta) as dest:
-    dest.write(traffic_array, 1)
 
 print("Analysis and plotting complete.")
