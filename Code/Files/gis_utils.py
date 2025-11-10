@@ -126,6 +126,7 @@ def rasterize_layer(gdf: gpd.GeoDataFrame, master_meta: dict, cost_column: str, 
         shapes=shapes_to_burn,
         out_shape=(raster_meta['height'], raster_meta['width']),
         transform=raster_meta['transform'],
+        all_touched=True,
         fill=raster_meta['nodata'],
         dtype=raster_meta['dtype']
         )
