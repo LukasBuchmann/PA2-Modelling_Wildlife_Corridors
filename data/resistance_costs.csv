@@ -1,38 +1,27 @@
-layer_type,objektart,resistance_cost
-landcover_summary,Forest,5.0
-landcover_summary,Shrubland/Transitional,20.0
-landcover_summary,Open Forest/Edge,10.0
-landcover_summary,Agriculture,40.0
-landcover_summary,Grassland/Pasture,50.0
-landcover_summary,Wetland,65.0
-landcover_summary,Bare Rock/Soil,130.0
-landcover_summary,Urban/Built-up,650.0
-landcover_summary,Industrial/Commercial,600.0
-landcover_summary,Infrastructure/Built-up,400.0
-landcover_summary,Extraction/Bare,225.0
-water,Druckleitung einfach,300.0
-water,Fliessgewaesser,1000.0
-water,See,1000.0
-water,Seeachse,1000.0
-water,Seeinsel,50.0
-water,Trockenrinne,80.0
-roads,10m Strasse,1000.0
-roads,"1m Weg",40.0
-roads,"1m Wegfragment",45.0
-roads,"2m Weg",60.0
-roads,"2m Wegfragment",65.0
-roads,"3m Strasse",250.0
-roads,"4m Strasse",350.0
-roads,"6m Strasse",650.0
-roads,"8m Strasse",850.0
-roads,Ausfahrt,700.0
-roads,Autobahn,1000.0
-roads,Autostrasse,900.0
-roads,Dienstzufahrt,300.0
-roads,Einfahrt,700.0
-roads,Faehre,1000.0
-roads,"Markierte Spur",10.0
-roads,Platz,150.0
-roads,Raststaette,400.0
-roads,Verbindung,200.0
-roads,Zufahrt,400.0
+osm_key,osm_value,resistance,priority
+landuse,forest,1,1
+natural,wood,1,1
+landuse,meadow,3,1
+natural,grassland,3,1
+landuse,orchard,8,1
+landuse,farmland,10,1
+waterway,stream,100,2
+highway,path,5,3
+highway,footway,5,3
+highway,track,10,3
+waterway,river,800,3
+highway,residential,100,4
+highway,unclassified,100,4
+highway,tertiary,150,4
+natural,water,800,4
+highway,secondary,250,5
+highway,primary,500,5
+highway,motorway,1000,5
+highway,trunk,1000,5
+highway,motorway_link,1000,5
+railway,rail,1000,5
+barrier,fence,500,6
+landuse,residential,2000,6
+landuse,industrial,4000,6
+building,yes,5000,7
+
