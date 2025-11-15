@@ -2,8 +2,12 @@
 
 # This script submits the LCP job array and the aggregation/cleanup jobs
 
+# Define RESULTS_DIR relative to this script's location
+BASE_DIR=$(dirname $(realpath $0))
+RESULTS_DIR="${BASE_DIR}/Results"
+
 # --- 1. Submit the Array Job ---
-echo "Submitting LCP array job (890 tasks, 32 at a time)..."
+echo "Submitting LCP array job (1056 tasks, 32 at a time)..."
 ARRAY_JOB_ID=$(sbatch --parsable <<EOF
 #!/bin/bash
 #SBATCH --job-name=LCP_Array_SH
@@ -64,7 +68,6 @@ fi
 echo "Aggregation job submitted with ID: $AGG_JOB_ID"
 
 # --- 3. Submit the Cleanup Job ---
-# (This part is unchanged)
 echo "Submitting cleanup job, dependent on $AGG_JOB_ID"
 CLEANUP_JOB_ID=$(sbatch --parsable --dependency=afterok:$AGG_JOB_ID <<EOF
 #!/bin/bash
@@ -81,6 +84,8 @@ echo "Job started on $(hostname) at $(date)"
 echo "Cleaning up log files..."
 rm -f lcp_job_${ARRAY_JOB_ID}_*.out
 rm -f lcp_job_${ARRAY_JOB_ID}_*.err
+
+
 
 # Delete the aggregation job logs
 rm -f lcp_aggregate_${AGG_JOB_ID}.out

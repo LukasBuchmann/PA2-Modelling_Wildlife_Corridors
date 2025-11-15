@@ -20,7 +20,7 @@ TEMP_DIR = os.path.join(RESULTS_DIR, "temp_traffic")
 # --- 1. Load Metadata ---
 FINAL_RASTER = os.path.join(RESULTS_DIR, "final_resistance_surface.tif")
 GRID_SPACING_METERS = 1000
-EXTREME_BARRIER_COST = 1000.0
+EXTREME_BARRIER_COST = 10000.0
 
 try:
     with rasterio.open(FINAL_RASTER) as src:
@@ -28,9 +28,17 @@ try:
         resistance_array = src.read(1).astype(np.float32)
         nodata_val = meta['nodata']
         resolution = meta['transform'][0]
-        resistance_array[resistance_array == nodata_val] = EXTREME_BARRIER_COST
-        resistance_array[resistance_array <= 0] = 1.0
         height, width = resistance_array.shape
+        resistance_array = np.nan_to_num(
+            resistance_array, 
+            nan=EXTREME_BARRIER_COST,
+            posinf=EXTREME_BARRIER_COST,
+            neginf=1.0 
+        )
+        if nodata_val is not None:
+            resistance_array[resistance_array == nodata_val] = EXTREME_BARRIER_COST    
+        resistance_array[resistance_array <= 0] = 1.0
+
 except rasterio.errors.RasterioIOError:
     print(f"Error: Could not open {FINAL_RASTER} to get metadata.")
     sys.exit(1)
@@ -52,9 +60,30 @@ for f in tqdm(all_worker_files, desc="Aggregating Files"):
         print(f"Warning: Could not load file {f}: {e}")
 print("Aggregation complete.")
 
-# --- 3. Clean up temporary files ---
-print(f"Cleaning up temporary directory: {TEMP_DIR}")
-shutil.rmtree(TEMP_DIR)
+# --- 3. Save the Final Traffic GeoTIFF ---
+print("Saving final aggregated traffic array to GeoTIFF...")
+
+# Update metadata for the new traffic raster
+# The traffic array is int32 and 0 represents 'no crossings'.
+output_meta = meta.copy()
+output_meta.update({
+    'dtype': np.int32,
+    'count': 1,
+    'nodata': 0, 
+    # Ensure the dimensions match the aggregated array
+    'height': height,
+    'width': width
+})
+
+FINAL_TRAFFIC_TIF = os.path.join(RESULTS_DIR, "final_corridor_traffic.tif")
+
+try:
+    with rasterio.open(FINAL_TRAFFIC_TIF, 'w', **output_meta) as dst:
+        dst.write(traffic_array.astype(np.int32), 1)
+    print(f"GeoTIFF saved successfully to {FINAL_TRAFFIC_TIF}")
+except Exception as e:
+    print(f"Error saving GeoTIFF: {e}")
+    sys.exit(1)
 
 # --- 4. Plot and Save the Final Traffic Map ---
 print("Plotting results...")
@@ -89,11 +118,11 @@ print(f"Saving plot to {PLOT_FILE_OUT}...")
 plt.savefig(PLOT_FILE_OUT, dpi=300)
 
 # --- 5. Plot and Save Composite Map ---
+
 print("Plotting combined results map with enhanced highlighting...")
 plot_resistance = resistance_array.copy().astype(float)
 plot_resistance[plot_resistance == EXTREME_BARRIER_COST] = np.nan
 
-# --- THIS IS THE CRITICAL PART ---
 # Re-calculate nodes *and filter them* for plotting
 spacing_pixels = int(GRID_SPACING_METERS / resolution)
 rows = np.arange(0, height, spacing_pixels)
@@ -101,12 +130,11 @@ cols = np.arange(0, width, spacing_pixels)
 xx, yy = np.meshgrid(cols, rows)
 all_grid_nodes = list(zip(yy.ravel(), xx.ravel()))
 
-# This line filters out the "wrong" nodes
+# This line filters out the "wrong" nodes and CASTS to int
 valid_grid_nodes = [
-    (r, c) for r, c in all_grid_nodes 
-    if resistance_array[r, c] < EXTREME_BARRIER_COST
+    (int(r), int(c)) for r, c in all_grid_nodes 
+    if resistance_array[int(r), int(c)] < EXTREME_BARRIER_COST
 ]
-# --- END CRITICAL PART ---
 
 # This line plots ONLY the valid nodes
 node_rows, node_cols = zip(*valid_grid_nodes)
@@ -114,7 +142,12 @@ node_rows, node_cols = zip(*valid_grid_nodes)
 fig, ax = plt.subplots(figsize=(15, 15))
 cmap_base = plt.colormaps.get('Blues').copy()
 cmap_base.set_bad(color='white')
-im_base = ax.imshow(plot_resistance, cmap=cmap_base, norm=colors.LogNorm(vmin=1, vmax=1000), alpha=0.5)
+# Calculate a reasonable max, e.g., the 99th percentile
+vmax_resistance = np.nanpercentile(plot_resistance, 99) 
+if vmax_resistance <= 1: # Handle edge case
+     vmax_resistance = 1000 
+im_base = ax.imshow(plot_resistance, cmap=cmap_base, norm=colors.LogNorm(vmin=1, vmax=vmax_resistance), alpha=0.5)
+
 cbar_base = fig.colorbar(im_base, ax=ax, shrink=0.7, pad=0.02, label='Resistance Cost (Log Scale)')
 cmap_traffic = plt.colormaps.get('RdYlGn').copy()
 cmap_traffic.set_bad(color='none')
