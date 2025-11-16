@@ -1,40 +1,45 @@
-clc_code,resistance
-111,5000
-112,2000
-121,4000
-122,1000
-123,4000
-124,4000
-131,100
-132,2000
-133,2000
-141,100
-142,250
-211,10
-212,10
-213,15
-221,10
-222,8
-223,8
-231,3
-241,10
-242,10
-243,5
-311,1
-312,1
-313,1
-321,3
-322,5
-323,100
-324,5
-331,100
-332,100
-333,15
-334,15
-411,800
-421,800
-422,500
-511,800
-512,800
-521,800
-522,5000
+clc_code,LABEL3,resistance,citation_key
+111,"Continuous urban fabric",5000,"[Expert-Comp]"
+112,"Discontinuous urban fabric",3500,"[Expert-Comp]"
+121,"Industrial or commercial units",4500,"[Expert-Comp]"
+122,"Road and rail networks and associated land",3000,"[Infra-COST341]"
+123,"Port areas",4000,"[Expert-Comp]"
+124,"Airports",4500,"[Infra-COST341]"
+131,"Mineral extraction sites",1500,"[Expert-Comp]"
+132,"Dump sites",2000,"[Expert-Comp]"
+133,"Construction sites",2500,"[Expert-Comp]"
+141,"Green urban areas",200,"[Hab-Ziolkowska]"
+142,"Sport and leisure facilities",300,"[Hab-Ziolkowska]"
+211,"Non-irrigated arable land",20,"[Hab-Ziolkowska]"
+212,"Permanently irrigated land",25,"[Hab-Ziolkowska]"
+213,"Rice fields",100,"[PA2-Logic]"
+221,"Vineyards",15,"[Hab-Ziolkowska]"
+222,"Fruit trees and berry plantations",10,"[Hab-Ziolkowska]"
+223,"Olive groves",15,"[Hab-Ziolkowska]"
+231,"Pastures",8,"[Hab-Ziolkowska]"
+241,"Annual crops associated with permanent crops",12,"[Hab-Ziolkowska]"
+242,"Complex cultivation patterns",10,"[Hab-Ziolkowska]"
+243,"Land principally occupied by agriculture, with significant areas of natural vegetation",5,"[Hab-Ziolkowska]"
+244,"Agro-forestry areas",3,"[Hab-Ziolkowska]"
+311,"Broad-leaved forest",1,"[Hab-Ziolkowska]"
+312,"Coniferous forest",3,"[Hab-Ziolkowska]"
+313,"Mixed forest",1,"[Hab-Ziolkowska]"
+321,"Natural grasslands",5,"[Hab-Ziolkowska]"
+322,"Moors and heathland",8,"[Hab-Ziolkowska]"
+323,"Sclerophyllous vegetation",10,"[Hab-Ziolkowska]"
+324,"Transitional woodland-shrub",2,"[Hab-Ziolkowska]"
+331,"Beaches, dunes, sands",100,"[Expert-Comp]"
+332,"Bare rocks",300,"[Expert-Comp]"
+333,"Sparsely vegetated areas",50,"[Expert-Comp]"
+334,"Burnt areas",25,"[PA2-Logic]"
+335,"Glaciers and perpetual snow",1000,"[PA2-Logic]"
+411,"Inland marshes",75,"[Expert-Comp]"
+412,"Peat bogs",100,"[Expert-Comp]"
+421,"Salt marshes",150,"[Expert-Comp]"
+422,"Salines",1000,"[Expert-Comp]"
+423,"Intertidal flats",200,"[Expert-Comp]"
+511,"Water courses",800,"[Expert-Comp]"
+512,"Water bodies",800,"[Expert-Comp]"
+521,"Coastal lagoons",800,"[Expert-Comp]"
+522,"Estuaries",800,"[Expert-Comp]"
+523,"Sea and ocean",5000,"[Expert-Comp]"

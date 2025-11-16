@@ -56,13 +56,38 @@ Diese Arbeit untersucht die Beziehung zwischen Gehirngröße und Körpergewicht 
 | g       | Gramm                            |
 +---------+----------------------------------+  
 
-# Einleitung
+# Introduction
 
-Die Beziehung zwischen Gehirngrösse und Körpergewicht ist ein fundamentaler Aspekt der vergleichenden Neurobiologie und Evolution. Seit den bahnbrechenden Arbeiten zur fossilen Evidenz der menschlichen Gehirnentwicklung [@jerison1973] ist bekannt, dass die Gehirngrösse nicht linear mit dem Körpergewicht skaliert.
+## 1.1 The Challenge of Habitat Fragmentation
+Across Europe, landscapes are undergoing rapid transformation driven by the expansion of transportation infrastructure, urban sprawl, and the intensification of agriculture (European Environment Agency, 2024). This process leads to habitat fragmentation: the division of large, continuous habitats into smaller, more isolated patches. Fragmentation is recognized as a primary driver of global biodiversity loss (Haddad et al., 2015). Its ecological consequences are severe: it limits wildlife mobility, isolates populations, and restricts gene flow (Kuehn et al., 2007; Wang et al., 2016). This, in turn, can lead to inbreeding, a loss of adaptive genetic diversity, and reduced long-term population resilience, making populations more vulnerable to local extinction (Haddad et al., 2015; Kuehn et al., 2007).
 
-Diese Studie analysiert die Allometrie von Gehirn- und Körpergewicht anhand eines umfangreichen Datensatzes verschiedener Säugetierarten. Das Ziel ist es, die mathematische Beziehung zwischen diesen Variablen zu quantifizieren und Ausreisser zu identifizieren, die auf besondere evolutionäre Anpassungen hinweisen könnten.
+The situation in Switzerland is particularly acute (Jaeger, 2007; Jaeger et al., 2011). The Swiss Federal Office for the Environment (FOEN) has identified fragmentation from artificial barriers as a key pressure on biodiversity (FOEN, 2010; Jaeger et al., 2011). This fragmentation is most severe in the Swiss Central Lowlands (FOEN, 2010). A comprehensive study by the Swiss Federal Institute for Forest, Snow and Landscape Research (WSL) identified the Canton of Schaffhausen as one of the eight most fragmented cantons in the country, underscoring the urgent need for regional connectivity planning (Jaeger, 2007).
 
-# Literaturübersicht oder Theorie
+## 1.2 The Role of Ecological Connectivity
+To counteract these effects, conservation efforts increasingly focus on maintaining and restoring ecological connectivity, defined as the unimpeded movement of species and the flow of natural processes that sustain life. A primary tool for achieving this is the identification and protection of wildlife corridors. These are linear landscape elements that link otherwise isolated habitat patches. By facilitating animal movement, corridors are essential for enabling dispersal, maintaining genetic diversity, and allowing species to migrate in response to seasonal needs or long-term climate change (Hilty et al., 2020).
+
+## 1.3 Focal Species: The Roe Deer (Capreolus capreolus)
+The successful planning of such corridors depends on a species-specific approach (Beier et al., 2008). This project focuses on the roe deer (Capreolus capreolus), an ideal focal species for connectivity modelling in the Swiss landscape. As one of Europe's most common wild ungulates, the roe deer is highly adaptable. It demonstrates significant behavioral flexibility, inhabiting not only its traditional forest-mosaic habitats but also does well in open agricultural plains (Jepsen et al., 2012).
+
+Despite this adaptability, roe deer are highly vulnerable to fragmentation. Transportation networks pose a dual threat: direct mortality from wildlife-vehicle collisions and the barrier effect, where high-traffic roads hinder access to critical resources (Maertz et al., 2024). This barrier effect can be as damaging as direct habitat loss, leading to the genetic isolation of populations. A study on roe deer in Central Switzerland, for example, demonstrated significant genetic differentiation between populations separated by a fenced motorway. Because roe deer are widespread, mobile, and frequently interact with infrastructure, they serve as an excellent model for assessing landscape-level connectivity for large mammals (Kuehn et al., 2007).
+
+## 1.4 Methodology: Least-Cost Path (LCP) Analysis
+This study employs Least-Cost Path (LCP) analysis, a standard and widely used methodology in GIS-based connectivity modelling (Beier et al., 2008; Cushman et al., 2013). The LCP approach is built on the concept of a resistance surface (Cushman et al., 2013). This is a GIS raster layer where each pixel is assigned a "cost" value representing the difficulty, energy expenditure, or mortality risk a species encounters when moving through that specific landscape type (Zeller et al., 2012). This "cost" is derived from expert knowledge and ecological literature, assigning low resistance to preferred habitats and high resistance to barriers (Beier et al., 2008). The LCP algorithm then calculates the most efficient route between defined core habitat patches, the path of least cumulative resistance (Cushman et al., 2013).
+
+## 1.5 Project Objectives
+The primary objective of this project is to develop, improve, and evaluate a GIS-based connectivity model for roe deer (Capreolus capreolus) in the highly fragmented landscape of the Canton of Schaffhausen, implemented using the Python programming language.
+
+The specific aims are to:
+
+- Create a detailed resistance surface from the OpenStreetMap dataset.
+
+- Perform a Least-Cost Path (LCP) analysis to compute cumulative movement costs and identify potential wildlife corridors connecting suitable habitat patches.
+
+- Analyze the resulting model to identify and map key bottlenecks, major obstacles, and other landscape patterns that limit ecological connectivity.
+
+The final output will be a reproducible connectivity model and a set of cartographic products. This work is intended to serve as a practical, data-driven decision-making aid for regional conservation and spatial planning.
+
+<!-- # Literaturübersicht oder Theorie
 
 Die theoretische Grundlage für Gehirn-Körper-Allometrie basiert auf dem Konzept, dass biologische Strukturen häufig Potenzgesetzen folgen. Die erwartete Beziehung wird typischerweise als:
 
@@ -70,17 +95,169 @@ $$\text{Gehirngewicht} = a \times \text{Körpergewicht}^b$$
 
 beschrieben, wobei der Exponent b in der Regel zwischen 0.6 und 0.8 liegt. @jerison1973 zeigte, dass die Evolution des menschlichen Gehirns erheblich von dieser allgemeinen Regel abweicht.
 
-Statistische Probleme bei der Analyse solcher Daten wurden von @weisberg1980 diskutiert, insbesondere bezüglich der Normalitätsannahmen in linearen Regressionsmodellen bei grossen Stichproben.
+Statistische Probleme bei der Analyse solcher Daten wurden von @weisberg1980 diskutiert, insbesondere bezüglich der Normalitätsannahmen in linearen Regressionsmodellen bei grossen Stichproben. -->
 
 # Material and Methods
 
-## Data
+## Study Area
+The study area for this project is the Canton of Schaffhausen, located in Northern Switzerland. This region was selected specifically because it has been identified as one of the eight most fragmented cantons in the nation, primarily due to its dense transportation network and expanding settlements (Jaeger, 2007). The landscape is a heterogeneous mosaic of forests and agricultural lands, intersected by the Rhine river and human infrastructure. This environment represents a typical, pressured landscape for Central European wildlife and serves as a critical case study for connectivity modeling.
+
+## Software and Data Acquisition
+
+### Software and Reproducibility
+This project was conducted using the Python 3.10 programming language. It was carried out in three different steps. The first step was about, creating the resistance surface. The second step involved calculating the least cost paths between predefined points on this resistance surface. This allowed the habitats and movement corridors of the deer to be modeled and stored as georeferenced GIS data formats. The third step then aimed to analyze these GIS data formats, identify problems, and recommend solutions.
+
+The key open-source Python libraries used for geospatial analysis included:
+
+- GeoPandas (v. 1.0+) for vector data manipulation (clipping, buffering).
+
+- Rasterio (v. 1.3+) for all raster operations (re-projection, rasterization, and weighted overlays).
+
+- scikit-image (v. 0.2x) for executing the Least-Cost Path algorithm.
+
+### Geospatial Datasets
+All geospatial datasets used in this study were open-source data provided by OpenStreetMap and Corine Landcover.
+
+#### Primary Feature Data: OpenStreetMap (OSM)
+The primary dataset for landscape features was derived from OpenStreetMap (OSM), a global, high-resolution, volunteered geographic information (VGI) project.
+
+Description: OSM data provides detailed, up-to-date geospatial information on fine-scale features critical to wildlife movement, such as roads, railways, fences, buildings, land use polygons, and minor waterways.
+
+Acquisition and Processing: Raw data was downloaded in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH, using separate files for Baden-Württemberg (Germany) and Switzerland to cover the transboundary study area. The data was extracted, combined, and clipped to the AOI using the pyrosm Python library.
+
+Structure: The processed data was filtered to retain only features relevant to the resistance model (e.g., features tagged with highway, landuse, natural, barrier, etc.). This resulted in a single GeoPackage file containing a unified set of polygon and line string geometries for the entire study area, reprojected to the project's master CRS (e.g., EPSG:32632).
+
+#### Base Land Cover Data: CORINE Land Cover (CLC)
+The secondary dataset, CORINE Land Cover (CLC) 2018, was used to provide a comprehensive, "wall-to-wall" base layer.
+
+Description: CLC is a standardized European land cover dataset with a 100-meter resolution and a 25-hectare minimum mapping unit.
+
+Acquisition and Processing: The raster dataset (U2018_CLC2018_V2020_20u1.tif) was acquired from the Copernicus Land Monitoring Service. It was clipped to the study area's buffered bounds.
+
+Role in Model: Due to its coarse resolution, CLC is not as accurate as OSM for defining specific features. Therefore, its primary role in this model is to act as a fallback layer, providing a generalized resistance value in any pixel where finer-scale OSM data is absent. This method ensures the final cost surface has no "NoData" gaps.
+
+### Resistance Cost Datasets
+A hybrid approach was used to create the final cost surface. Resistance values were defined in two external configuration files, osm_resistance_costs.csv and clc_resistance_costs.csv, to ensure transparency and reproducibility.
+
+The core principle of the model is that OSM features (the primary, high-resolution data) are given precedence, while the reclassified CLC raster serves as a base map to fill any gaps.
+
+All resistance values were assigned on a relative scale, where 1 represents optimal, cost-free movement (preferred habitat) and 5000 represents an absolute or impassable barrier. The derivation of these values is detailed in two separate configuration files, described below.
+
+#### clc_resistance_costs.csv (The Base Layer)
+This file maps all 44 CLC Level 3 classes to an ecological resistance value.
+
+- Structure: The CSV contains three columns: clc_code (e.g., 311), LABEL3 (e.g., 'Broad-leaved forest'), and resistance.
+
+- Class Selection: All 44 classes were included to ensure the reclassification of the CLC raster would be complete.
+
+- Cost Assignment: Values were assigned based on roe deer habitat preferences from scientific literature.
+
+  - Optimal habitats, such as 311: Broad-leaved forest and 313: Mixed forest, were assigned the lowest cost (1).
+
+  - Permeable foraging areas, like 231: Pastures (8) and 211: Non-irrigated arable land (20), received slightly higher costs.
+
+  - Major barriers, such as 111: Continuous urban fabric (5000) and 512: Water bodies (800), received high to impassable values.
+
+#### osm_resistance_costs.csv (The Primary Feature Layer)
+This file defines the resistance values for the high-resolution OSM features and controls the order in which they are rasterized.
+
+- Structure: This CSV contains four critical columns: osm_key, osm_value, resistance, and priority.
+
+- Tag Selection: Tags were systematically selected based on the official OSM "Map features" wiki and their known ecological relevance. This focused the model on consistent, well-documented tags (landuse, natural, highway, waterway, barrier, railway, building) rather than ambiguous, community-added tags.
+
+- resistance (The Ecological Cost): Values were assigned using a scientifically-defensible hierarchy:
+
+  - Transportation Infrastructure: Costs are directly related to traffic volume and fencing, following the COST 341 framework. This creates a steep gradient from highway=track (20) to highway=tertiary (500) up to the impassable, fenced highway=motorway (5000).
+
+  - Habitats & Land Use: Values were chosen to be consistent with the CLC layer. landuse=forest (1) is optimal habitat, while landuse=industrial (4500) is a major barrier.
+
+  - Barriers: Specific barrier features were included, such as barrier=fence (800) and barrier=wall (1500), which represent significant (but not always absolute) obstacles.
+
+  - priority (The Technical Parameter): This column is crucial for the model's construction. It dictates the "burn-in" order for rasterization, ensuring that features are layered correctly. For example, a low-priority polygon like landuse=forest (priority 1) is processed first. A high-priority linear feature like highway=motorway (priority 10) is processed last, allowing it to correctly "burn" its high resistance value (5000) on top of the forest pixel's value (1).
+
+PA2
+Benutzerdefiniertes Gem
+Hello, this is PA2.
+
+This is the core of your methodology. A precise, well-justified description of your data and your cost-assignment logic is essential for the academic validity of your project.
+
+Here is a detailed description, formatted for direct insertion into your Quarto report, covering the datasets (Part 1) and the resistance cost logic (Part 2) as you requested.
+
+3. Materials and Methods
+(This is the introductory paragraph you requested previously, provided again for context)
+
+This study employed a GIS-based connectivity model to identify potential movement corridors and barriers for roe deer (Capreolus capreolus) within the Canton of Schaffhausen and surrounding transboundary areas. The core methodology involved developing a scientifically-backed landscape resistance surface, which served as the input for a Least Cost Path (LCP) analysis. All geospatial processing and modeling were conducted in a reproducible Python environment utilizing the rasterio, geopandas, scikit-image, and pyrosm libraries, with results visualized in QGIS. The final outputs aim to identify primary habitat patches, critical bottlenecks, and key corridors essential for maintaining landscape connectivity.
+
+3.1. Data Acquisition and Preparation
+This analysis is founded on a combination of high-resolution, community-sourced vector data and standardized, wall-to-wall satellite-derived land cover data.
+
+3.1.1. Primary Feature Data: OpenStreetMap (OSM)
+The primary dataset for landscape features was derived from OpenStreetMap (OSM), a global, high-resolution, volunteered geographic information (VGI) project.
+
+Description: OSM data provides detailed, up-to-date geospatial information on fine-scale features critical to wildlife movement, such as roads, railways, fences, buildings, land use polygons, and minor waterways.
+
+Acquisition & Processing: Raw data was downloaded in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH, using separate files for Baden-Württemberg (Germany) and Switzerland to cover the transboundary study area. The data was extracted, combined, and clipped to the AOI using the pyrosm Python library.
+
+Structure: The processed data was filtered to retain only features relevant to the resistance model (e.g., features tagged with highway, landuse, natural, barrier, etc.). This resulted in a single GeoPackage file containing a unified set of polygon and line string geometries for the entire study area, reprojected to the project's master CRS (e.g., EPSG:32632).
+
+3.1.2. Base Land Cover Data: CORINE Land Cover (CLC)
+The secondary dataset, CORINE Land Cover (CLC) 2018, was used to provide a comprehensive, "wall-to-wall" base layer.
+
+Description: CLC is a standardized European land cover dataset with a 100-meter resolution and a 25-hectare minimum mapping unit.
+
+Acquisition & Processing: The raster dataset (U2018_CLC2018_V2020_20u1.tif) was acquired from the Copernicus Land Monitoring Service. It was clipped to the study area's buffered bounds to create the master analysis grid.
+
+Role in Model: Due to its coarse resolution, CLC is not as accurate as OSM for defining specific features. Therefore, its primary role in this model is to act as a fallback layer, providing a generalized resistance value in any pixel where finer-scale OSM data is absent. This method ensures the final cost surface has no "NoData" gaps.
+
+3.2. Landscape Resistance Modeling
+A hybrid approach was used to create the final cost surface. Resistance values were defined in two external configuration files, osm_resistance_costs_v2.csv and clc_resistance_costs_v2.csv, to ensure transparency and reproducibility.
+
+The core principle of the model is that OSM features (the primary, high-resolution data) are given precedence, while the reclassified CLC raster serves as a base map to fill any gaps.
+
+3.2.1. clc_resistance_costs_v2.csv (The Base Layer)
+This file maps all 44 CLC Level 3 classes to an ecological resistance value.
+
+Structure: The CSV contains three columns: clc_code (e.g., 311), LABEL3 (e.g., 'Broad-leaved forest'), and resistance.
+
+Class Selection: All 44 classes were included to ensure the reclassification of the CLC raster would be complete.
+
+Cost Assignment: Values were assigned based on roe deer habitat preferences from scientific literature.
+
+Optimal habitats, such as 311: Broad-leaved forest and 313: Mixed forest, were assigned the lowest cost (1).
+
+Permeable foraging areas, like 231: Pastures (8) and 211: Non-irrigated arable land (20), received slightly higher costs.
+
+Major barriers, such as 111: Continuous urban fabric (5000) and 512: Water bodies (800), received high to impassable values.
+
+3.2.2. osm_resistance_costs_v2.csv (The Primary Feature Layer)
+This file defines the resistance values for the high-resolution OSM features and controls the order in which they are rasterized.
+
+Structure: This CSV contains four critical columns: osm_key, osm_value, resistance, and priority.
+
+Tag Selection: Tags were systematically selected based on the official OSM "Map features" wiki and their known ecological relevance. This focused the model on consistent, well-documented tags (landuse, natural, highway, waterway, barrier, railway, building) rather than ambiguous, community-added tags.
+
+resistance (The Ecological Cost): Values were assigned using a scientifically-defensible hierarchy:
+
+Transportation Infrastructure: Costs are directly related to traffic volume and fencing, following the COST 341 framework. This creates a steep gradient from highway=track (20) to highway=tertiary (500) up to the impassable, fenced highway=motorway (5000).
+
+Habitats & Land Use: Values were chosen to be consistent with the CLC layer. landuse=forest (1) is optimal habitat, while landuse=industrial (4500) is a major barrier.
+
+Barriers: Specific barrier features were included, such as barrier=fence (800) and barrier=wall (1500), which represent significant (but not always absolute) obstacles.
+
+priority (The Technical Parameter): This column is crucial for the model's construction. It dictates the "burn-in" order for rasterization, ensuring that features are layered correctly. For example, a low-priority polygon like landuse=forest (priority 1) is processed first. A high-priority linear feature like highway=motorway (priority 10) is processed last, allowing it to correctly "burn" its high resistance value (5000) on top of the forest pixel's value (1).
+
+This hierarchical combination, finalized using a numpy.maximum() function, ensures that the high-resolution barrier data from OSM always supersedes the general landscape values from CLC, while the CLC data provides a continuous, gap-free cost surface.
+
+
+## Data Pre-processing
+
+<!-- ## Data
 
 Different layers from different data sets were used to create the resistance surface. This section describes and explains all of the data sets used in detail.
 
 ### swissTLM3D
 
-The most important data for creating the resistance surface is the high-resolution, vector-based dataset, [swissTLM3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) from the Swiss Federal Office of Topography (Swisstopo). It provides a detailed, three-dimensional representation of Switzerland's landscape features. For this project, it serves as the primary data source for critical inputs, including detailed landcover polygons (tlm_bb_bodenbedeckung), the road network (tlm_strassen_strasse), and the complete hydrographic network, distinguishing between flowing water (tlm_gewaesser_fliessgewaesser) and standing water (tlm_gewaesser_stehendes_gewaesser). 
+The most important data for creating the resistance surface is the high-resolution, vector-based dataset, [swissTLM3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) from the Swiss Federal Office of Topography (Swisstopo). It provides a detailed, three-dimensional representation of Switzerland's landscape features. For this project, it serves as the primary data source for critical inputs, including detailed landcover polygons (tlm_bb_bodenbedeckung), the road network (tlm_strassen_strasse), and the complete hydrographic network, distinguishing between flowing water (tlm_gewaesser_fliessgewaesser) and standing water (tlm_gewaesser_stehendes_gewaesser).  -->
 
 ### Datenquelle und Charakteristika
 
