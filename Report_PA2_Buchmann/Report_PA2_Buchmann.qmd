@@ -5,7 +5,7 @@ subtitle: "Project Work 2"
 institut: "INSTITUT FÜR COMPUTATIONAL LIFE SCIENCES "
 keywords: "Wildlife Corridors, Connectivity Modeling, Ecological Connectivity, Least-Cost Path (LCP) Analysis, Spatial Analysis"
 lang: en
-confidential: no
+confidential: false
 cover-image:
   src: cover.png
   max-width: 100%
@@ -25,6 +25,8 @@ author:
 format: 
   zhaw-lsfm-typst: default
   html: default
+engine: jupyter
+jupyter: python3
 ---
 
 # Zusammenfassung {.unnumbered .unlisted}
@@ -79,7 +81,7 @@ The primary objective of this project is to develop, improve, and evaluate a GIS
 
 The specific aims are to:
 
-- Create a detailed resistance surface from the OpenStreetMap dataset.
+- Create a detailed resistance surface using OpenStreetMap and Corine Land Cover data.
 
 - Perform a Least-Cost Path (LCP) analysis to compute cumulative movement costs and identify potential wildlife corridors connecting suitable habitat patches.
 
@@ -87,207 +89,299 @@ The specific aims are to:
 
 The final output will be a reproducible connectivity model and a set of cartographic products. This work is intended to serve as a practical, data-driven decision-making aid for regional conservation and spatial planning.
 
-<!-- # Literaturübersicht oder Theorie
+# Theoretical Framework
 
-Die theoretische Grundlage für Gehirn-Körper-Allometrie basiert auf dem Konzept, dass biologische Strukturen häufig Potenzgesetzen folgen. Die erwartete Beziehung wird typischerweise als:
+## Ecological Connectivity and Wildlife Corridors
+### Functional vs. Structural Connectivity
+There are two distinct forms of Landscape connectivity: structural and functional. Structural connectivity refers only to the physical arrangement and contiguity of landscape elements, such as the spatial proximity of habitat patches, without regard for the specific mobility of an organism. In contrast, functional connectivity explicitly includes the behavioral response of a species to these landscape features and describes the degree to which the landscape actually facilitates or impedes movement (Taylor et al., 1993; Tischendorf & Fahrig, 2000).
 
-$$\text{Gehirngewicht} = a \times \text{Körpergewicht}^b$$
+Although structural connectivity can be measured using landscape metrics alone, this often fails to predict the actual movement of organisms when the matrix between habitats is hostile. For example, two forest patches might be structurally close, but functionally isolated by a highway. That is why this project focuses on a functional approach. By integrating the roe deer's specific movement behavior and habitat preferences into the model, the resulting connectivity map reflects the organism's ability to traverse the landscape, rather than merely the geometric arrangement of features (Haddad et al., 2015).
 
-beschrieben, wobei der Exponent b in der Regel zwischen 0.6 und 0.8 liegt. @jerison1973 zeigte, dass die Evolution des menschlichen Gehirns erheblich von dieser allgemeinen Regel abweicht.
+### Types of Corridors
+In the context of connectivity conservation, corridors are generally classified into two functional categories: continuous linear corridors and stepping stones.
 
-Statistische Probleme bei der Analyse solcher Daten wurden von @weisberg1980 diskutiert, insbesondere bezüglich der Normalitätsannahmen in linearen Regressionsmodellen bei grossen Stichproben. -->
+Linear corridors are unbroken strips of suitable habitat that physically connect two larger core areas. Typical examples include hedgerows, riparian strips along rivers, or wooded belts. For ungulates like the roe deer, such continuous features are vital as they offer uninterrupted cover and forage during movement, significantly reducing predation risk and stress.
+
+Stepping stones, in contrast, are a series of small, discontinuous habitat patches located within a hostile matrix. While they do not provide a physical connection, they facilitate movement by offering temporary refuge for resting and feeding during Movement (Saura et al., 2014). In fragmented cultural landscapes like the Swiss Plateau, where continuous forest belts are often interrupted by agriculture and infrastructure, these stepping stones are essential for maintaining functional connectivity(Jaeger et al., 2008; Saura et al., 2014).
+
+For this GIS analysis, the distinction is crucial: while the Least-Cost Path (LCP) algorithm seeks a continuous route of minimized resistance, the biological reality of the roe deer allows it to traverse short distances of higher-resistance "matrix" (e.g., open fields) to reach the next stepping stone. Consequently, the resistance surface must be weighted to penalize open areas and barriers without rendering them completely impassable, thereby modeling the landscape's overall permeability rather than just identifying structural links.
+
+## Roe Deer (Capreolus capreolus) Ecology
+### Habitat Preferences
+Ecologically, the roe deer (Capreolus capreolus) is classified as a "concentrate selector" (Hofmann, 1989). Unlike grazers that can digest high-fiber grass, roe deer require high-energy, easily digestible plant parts such as buds, shoots, and herbs. This physiological constraint dictates a close association with habitats offering high plant diversity (Holand et al., 1998).
+
+Roe deer are characterized as "edge species," exhibiting a strong preference for the transition zones (ecotones) between closed forest cover and open agricultural land. These zones allow them to optimize the trade-off between accessing high-quality forage in open fields and maintaining immediate access to cover for predator avoidance (Tufto et al., 1996; Mysterud & Østbye, 1999). Consequently, forest environments (landuse=forest, natural=wood) represent the primary diurnal resting habitat and are essential for concealment. Open habitats such as meadows, orchards, and farmlands are utilized primarily during nocturnal or crepuscular periods for foraging, but lack the necessary cover for permanent habitation.
+
+### Movement capabilities and Physical Constraints
+While roe deer are physically capable of swimming, they generally avoid crossing large water bodies **because these areas offer no cover, leaving the animal exposed**. Consequently, large rivers and lakes act as significant barriers, whereas smaller streams are passable but associated with higher movement costs due to the lack of concealment. Similarly, wetlands (natural=wetland) are physically passable but energetically costly due to unstable ground conditions and lack of dense canopy cover compared to forest environments.
+
+### Barriers and Avoidance
+Anthropogenic features constitute the primary barriers to connectivity. Roe deer are highly sensitive to visual and acoustic disturbances:
+
+- Urbanization: Settlements and industrial areas are generally avoided due to human presence and lack of vegetation.
+
+- Infrastructure: Heavily used roads and railways act as barriers not only due to the physical risk of collision but also due to traffic noise, which deters crossing (Kuehn et al., 2007).
+
+- Linear Obstacles: Fences and dense hedges can physically impede movement, effectively fragmenting habitat patches.
+
+- Recreation: Small paths are structurally passable, but human recreational activity—specifically the presence of walkers and dogs during the day—creates a "landscape of fear," causing deer to avoid these areas despite low physical resistance.
+
+## Least-Cost Path (LCP) Analysis
+### The Resistance Surface
+The resistance surface is the fundamental spatial data layer in connectivity modeling. It is a raster grid where every cell (pixel) is assigned a numerical value representing the "cost" or "energy" an organism needs when traversing that specific location (Zeller et al., 2012). This value integrates the biological factors defined in Section 2.2 and combines land cover suitability, anthropogenic barriers, and topographic constraints into a single indicator.
+
+Mathematically, the resistance surface represents the reciprocal of landscape permeability. High values indicate barriers or hostile matrix (high energy expenditure or mortality risk), while low values indicate preferred habitat (low energy expenditure). The accuracy of the entire LCP analysis is contingent upon the biological validity of these resistance assignments (Beier et al., 2008).
+
+### Cost Distance Calculation
+Unlike Euclidean distance, which measures the "as-the-crow-flies" separation between two points, cost distance measures the cumulative "expense" of movement. The calculation employs graph theory algorithms, most notably a raster-based adaptation of Dijkstra’s algorithm (Dijkstra, 1959; Adriaensen et al., 2003).
+
+The algorithm treats the center of each raster cell as a node and connects it to its neighboring cells (usually the 8 immediate neighbors). The cost to move between two adjacent cells is calculated as the distance multiplied by the average resistance of the two cells.
+
+The algorithm propagates outwards from the source habitat, calculating the "Accumulated Cost" to reach every other pixel in the study area. The result is an Accumulated Cost Surface, where the value of a pixel represents the lowest possible total cost to travel to that location from the source, avoiding high-resistance barriers where possible (Etherington, 2016).
+
+### The Path
+The final Least-Cost Path is derived from the Accumulated Cost Surface. The algorithm identifies the Target node (the destination habitat) and "backtracks" to the Source node by consistently choosing the steepest downhill gradient on the accumulated cost surface.
+
+Ecologically, this single line represents the theoretically optimal route where an animal minimizes energy expenditure and risk (Sawyer et al., 2011). However, it is important to note that LCP models assume the animal possesses "omniscience" (perfect knowledge) of the landscape, which is a theoretical idealization. In reality, animals may deviate from this optimal path. Therefore, the LCP should be interpreted as the center line of the most probable movement corridor rather than a deterministic route (Cushman et al., 2013).
 
 # Material and Methods
 
 ## Study Area
-The study area for this project is the Canton of Schaffhausen, located in Northern Switzerland. This region was selected specifically because it has been identified as one of the eight most fragmented cantons in the nation, primarily due to its dense transportation network and expanding settlements (Jaeger, 2007). The landscape is a heterogeneous mosaic of forests and agricultural lands, intersected by the Rhine river and human infrastructure. This environment represents a typical, pressured landscape for Central European wildlife and serves as a critical case study for connectivity modeling.
+The study focuses on the Canton of Schaffhausen, situated in Northern Switzerland, as defined in the project disposition. Geographically, the region is characterized by a heterogeneous mosaic of scrub and mixed forests alternating with intensively farmed agricultural land and expanding settlements. The area is dissected by the Rhine River to the south and a dense network of transport infrastructure throughout.
 
-## Software and Data Acquisition
+This region was selected specifically because it has been identified as one of the most fragmented cantons in Switzerland (Jaeger, 2007). Consequently, it serves as a critical case study for modeling connectivity in a pressured Central European landscape.
 
-### Software and Reproducibility
-This project was conducted using the Python 3.10 programming language. It was carried out in three different steps. The first step was about, creating the resistance surface. The second step involved calculating the least cost paths between predefined points on this resistance surface. This allowed the habitats and movement corridors of the deer to be modeled and stored as georeferenced GIS data formats. The third step then aimed to analyze these GIS data formats, identify problems, and recommend solutions.
+To ensure geometric consistency across the transboundary study area (Switzerland and Germany), all spatial datasets were reprojected to EPSG:32632 (WGS 84 / UTM zone 32N). The analysis extent covers the political boundaries of the canton, including a buffer zone of 1000m to minimize edge effects during the Least-Cost Path calculation.
 
-The key open-source Python libraries used for geospatial analysis included:
+(See Figure 1: Map of the Study Area Schaffhausen showing major land cover types)
 
-- GeoPandas (v. 1.0+) for vector data manipulation (clipping, buffering).
+## Software and Computational Environment
+The analysis was conducted using Python 3.10 within a reproducible environment. The computational workflow consisted of three distinct phases: (1) the generation of the resistance surface, (2) the calculation of least-cost paths between core habitats, and (3) the statistical analysis and visualization of the resulting corridors.
 
-- Rasterio (v. 1.3+) for all raster operations (re-projection, rasterization, and weighted overlays).
+The key open-source Python libraries employed for geospatial analysis included:
 
-- scikit-image (v. 0.2x) for executing the Least-Cost Path algorithm.
+GeoPandas **(v. 1.0+)**: Used for vector data manipulation, including clipping and buffering of study area boundaries.
+
+Rasterio **(v. 1.3+)**: Employed for all raster operations, specifically reprojection, rasterization, and the weighted overlay of resistance layers.
+
+scikit-image **(v. 0.2x)**: Used to execute the Least-Cost Path (LCP) algorithm via the MCP_Geometric class.
+
+## Data Preprocessing and Preparation
 
 ### Geospatial Datasets
-All geospatial datasets used in this study were open-source data provided by OpenStreetMap and Corine Landcover.
+To ensure reproducibility and accessibility, the model relies exclusively on open-source geospatial data.
 
-#### Primary Feature Data: OpenStreetMap (OSM)
-The primary dataset for landscape features was derived from OpenStreetMap (OSM), a global, high-resolution, volunteered geographic information (VGI) project.
+#### Primary Feature Data: OpenStreetMap (OSM) 
+High-resolution landscape features were derived from OpenStreetMap (OSM). This Volunteered Geographic Information (VGI) dataset provides the fine-scale geometric detail required to model barriers such as fences, minor roads, and buildings, which are crucial for wildlife movement analysis.
 
-Description: OSM data provides detailed, up-to-date geospatial information on fine-scale features critical to wildlife movement, such as roads, railways, fences, buildings, land use polygons, and minor waterways.
+Acquisition: Raw data was retrieved in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH (Geofabrik, 2025). To cover the transboundary study area, extracts for Switzerland and the administrative region of Baden-Württemberg are automatically downloaded.
 
-Acquisition and Processing: Raw data was downloaded in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH, using separate files for Baden-Württemberg (Germany) and Switzerland to cover the transboundary study area. The data was extracted, combined, and clipped to the AOI using the pyrosm Python library.
+Processing: The data was extracted and clipped to the Area of Interest (AOI) using the pyrosm library. The dataset was filtered to retain only the ecologically relevant features in osm_resistance_costs.csv.
 
-Structure: The processed data was filtered to retain only features relevant to the resistance model (e.g., features tagged with highway, landuse, natural, barrier, etc.). This resulted in a single GeoPackage file containing a unified set of polygon and line string geometries for the entire study area, reprojected to the project's master CRS (e.g., EPSG:32632).
+Projection: All vectors were reprojected to the project’s master CRS, EPSG:32632 (UTM 32N), to ensure metric accuracy in distance calculations.
 
-#### Base Land Cover Data: CORINE Land Cover (CLC)
-The secondary dataset, CORINE Land Cover (CLC) 2018, was used to provide a comprehensive, "wall-to-wall" base layer.
+#### Base Land Cover Data: CORINE Land Cover (CLC) 
+The CORINE Land Cover (CLC) 2018 dataset served as the continuous background layer.
 
-Description: CLC is a standardized European land cover dataset with a 100-meter resolution and a 25-hectare minimum mapping unit.
+Description: CLC provides standardized European land cover classes at a 100-meter resolution with a 25-hectare minimum mapping unit.
 
-Acquisition and Processing: The raster dataset (U2018_CLC2018_V2020_20u1.tif) was acquired from the Copernicus Land Monitoring Service. It was clipped to the study area's buffered bounds.
+Acquisition: The raster dataset (U2018_CLC2018_V2020_20u1.tif) was acquired from the Copernicus Land Monitoring Service (Copernicus, 2020).
 
-Role in Model: Due to its coarse resolution, CLC is not as accurate as OSM for defining specific features. Therefore, its primary role in this model is to act as a fallback layer, providing a generalized resistance value in any pixel where finer-scale OSM data is absent. This method ensures the final cost surface has no "NoData" gaps.
+Role in Model: Due to its coarser resolution, CLC acts as a "fallback layer." It assigns a generalized resistance value to any pixel where fine-scale OSM data is absent, ensuring the final cost surface is continuous and free of "NoData" gaps.
 
-### Resistance Cost Datasets
-A hybrid approach was used to create the final cost surface. Resistance values were defined in two external configuration files, osm_resistance_costs.csv and clc_resistance_costs.csv, to ensure transparency and reproducibility.
+### Derivation of the Resistance Surface
+A hybrid rasterization approach was developed to create the final cost surface. To ensure transparency and reproducibility, all resistance values were defined in two external configuration files (osm_resistance_costs.csv and clc_resistance_costs.csv).
 
-The core principle of the model is that OSM features (the primary, high-resolution data) are given precedence, while the reclassified CLC raster serves as a base map to fill any gaps.
+The model operates on a "Burn-In" principle: High-resolution OSM features are rasterized on top of the CLC base map. Resistance values range from 1 (optimal habitat) to 5000 (absolute barrier).
 
-All resistance values were assigned on a relative scale, where 1 represents optimal, cost-free movement (preferred habitat) and 5000 represents an absolute or impassable barrier. The derivation of these values is detailed in two separate configuration files, described below.
+#### The Base Layer (clc_resistance_costs.csv) 
+This configuration file maps all 44 CLC Level-3 classes to ecological resistance values based on Roe Deer habitat preferences:
 
-#### clc_resistance_costs.csv (The Base Layer)
-This file maps all 44 CLC Level 3 classes to an ecological resistance value.
+- Optimal Habitat (Cost 1): Broad-leaved forest (311) and Mixed forest (313).
 
-- Structure: The CSV contains three columns: clc_code (e.g., 311), LABEL3 (e.g., 'Broad-leaved forest'), and resistance.
+- Permeable Matrix (Cost 8–20): Pastures (231) and Non-irrigated arable land (211).
 
-- Class Selection: All 44 classes were included to ensure the reclassification of the CLC raster would be complete.
+- Barriers (Cost 800–5000): Water bodies (512) and Continuous urban fabric (111).
 
-- Cost Assignment: Values were assigned based on roe deer habitat preferences from scientific literature.
+#### The Feature Layer (osm_resistance_costs.csv) 
+This file controls the rasterization of OSM features. It contains four columns: osm_key, osm_value, resistance, and priority.
 
-  - Optimal habitats, such as 311: Broad-leaved forest and 313: Mixed forest, were assigned the lowest cost (1).
+Ecological Cost (resistance):
 
-  - Permeable foraging areas, like 231: Pastures (8) and 211: Non-irrigated arable land (20), received slightly higher costs.
+- Transportation: **Costs follow the COST 341 framework guidelines**, creating a gradient from highway=track (Cost 20) to fenced highway=motorway (Cost 5000).
 
-  - Major barriers, such as 111: Continuous urban fabric (5000) and 512: Water bodies (800), received high to impassable values.
+- Barriers: Explicit obstacles such as barrier=fence (Cost 800) and barrier=wall (Cost 1500) are included.
 
-#### osm_resistance_costs.csv (The Primary Feature Layer)
-This file defines the resistance values for the high-resolution OSM features and controls the order in which they are rasterized.
+Technical Implementation (priority): The priority column dictates the rasterization order (burn-in sequence). This ensures correct layering. For example, a highway (Priority 10) is rasterized after a forest polygon (Priority 1), ensuring the road "cuts through" the forest in the final model.
 
-- Structure: This CSV contains four critical columns: osm_key, osm_value, resistance, and priority.
+### Vector to Raster Conversion
+To integrate the vector-based Data into the grid-based resistance model, a rasterization process was executed using the features.rasterize module from the Rasterio library (Gillies, 2013).
 
-- Tag Selection: Tags were systematically selected based on the official OSM "Map features" wiki and their known ecological relevance. This focused the model on consistent, well-documented tags (landuse, natural, highway, waterway, barrier, railway, building) rather than ambiguous, community-added tags.
+A critical technical specification in this workflow was the activation of the all_touched=True parameter. Standard rasterization algorithms typically use a "center-point" rule, where a pixel is only assigned a value if the vector geometry covers its center. This method frequently results in "rasterization artifacts," where thin or diagonal linear features appear as broken, discontinuous chains of pixels.
 
-- resistance (The Ecological Cost): Values were assigned using a scientifically-defensible hierarchy:
+By enforcing the all_touched=True rule, any pixel intersected by a vector geometry was assigned the feature's resistance value. This step was essential to ensure the topological continuity of linear barriers (e.g., fences, walls, and narrow streams). Without this parameter, the rasterization process would create artificial gaps in these barriers, through which the Least-Cost Path algorithm could incorrectly route a wildlife corridor, leading to biologically invalid results.
 
-  - Transportation Infrastructure: Costs are directly related to traffic volume and fencing, following the COST 341 framework. This creates a steep gradient from highway=track (20) to highway=tertiary (500) up to the impassable, fenced highway=motorway (5000).
+### Reclassification and Standardization
 
-  - Habitats & Land Use: Values were chosen to be consistent with the CLC layer. landuse=forest (1) is optimal habitat, while landuse=industrial (4500) is a major barrier.
-
-  - Barriers: Specific barrier features were included, such as barrier=fence (800) and barrier=wall (1500), which represent significant (but not always absolute) obstacles.
-
-  - priority (The Technical Parameter): This column is crucial for the model's construction. It dictates the "burn-in" order for rasterization, ensuring that features are layered correctly. For example, a low-priority polygon like landuse=forest (priority 1) is processed first. A high-priority linear feature like highway=motorway (priority 10) is processed last, allowing it to correctly "burn" its high resistance value (5000) on top of the forest pixel's value (1).
-
-PA2
-Benutzerdefiniertes Gem
-Hello, this is PA2.
-
-This is the core of your methodology. A precise, well-justified description of your data and your cost-assignment logic is essential for the academic validity of your project.
-
-Here is a detailed description, formatted for direct insertion into your Quarto report, covering the datasets (Part 1) and the resistance cost logic (Part 2) as you requested.
-
-3. Materials and Methods
-(This is the introductory paragraph you requested previously, provided again for context)
-
-This study employed a GIS-based connectivity model to identify potential movement corridors and barriers for roe deer (Capreolus capreolus) within the Canton of Schaffhausen and surrounding transboundary areas. The core methodology involved developing a scientifically-backed landscape resistance surface, which served as the input for a Least Cost Path (LCP) analysis. All geospatial processing and modeling were conducted in a reproducible Python environment utilizing the rasterio, geopandas, scikit-image, and pyrosm libraries, with results visualized in QGIS. The final outputs aim to identify primary habitat patches, critical bottlenecks, and key corridors essential for maintaining landscape connectivity.
-
-3.1. Data Acquisition and Preparation
-This analysis is founded on a combination of high-resolution, community-sourced vector data and standardized, wall-to-wall satellite-derived land cover data.
-
-3.1.1. Primary Feature Data: OpenStreetMap (OSM)
-The primary dataset for landscape features was derived from OpenStreetMap (OSM), a global, high-resolution, volunteered geographic information (VGI) project.
-
-Description: OSM data provides detailed, up-to-date geospatial information on fine-scale features critical to wildlife movement, such as roads, railways, fences, buildings, land use polygons, and minor waterways.
-
-Acquisition & Processing: Raw data was downloaded in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH, using separate files for Baden-Württemberg (Germany) and Switzerland to cover the transboundary study area. The data was extracted, combined, and clipped to the AOI using the pyrosm Python library.
-
-Structure: The processed data was filtered to retain only features relevant to the resistance model (e.g., features tagged with highway, landuse, natural, barrier, etc.). This resulted in a single GeoPackage file containing a unified set of polygon and line string geometries for the entire study area, reprojected to the project's master CRS (e.g., EPSG:32632).
-
-3.1.2. Base Land Cover Data: CORINE Land Cover (CLC)
-The secondary dataset, CORINE Land Cover (CLC) 2018, was used to provide a comprehensive, "wall-to-wall" base layer.
-
-Description: CLC is a standardized European land cover dataset with a 100-meter resolution and a 25-hectare minimum mapping unit.
-
-Acquisition & Processing: The raster dataset (U2018_CLC2018_V2020_20u1.tif) was acquired from the Copernicus Land Monitoring Service. It was clipped to the study area's buffered bounds to create the master analysis grid.
-
-Role in Model: Due to its coarse resolution, CLC is not as accurate as OSM for defining specific features. Therefore, its primary role in this model is to act as a fallback layer, providing a generalized resistance value in any pixel where finer-scale OSM data is absent. This method ensures the final cost surface has no "NoData" gaps.
-
-3.2. Landscape Resistance Modeling
-A hybrid approach was used to create the final cost surface. Resistance values were defined in two external configuration files, osm_resistance_costs_v2.csv and clc_resistance_costs_v2.csv, to ensure transparency and reproducibility.
-
-The core principle of the model is that OSM features (the primary, high-resolution data) are given precedence, while the reclassified CLC raster serves as a base map to fill any gaps.
-
-3.2.1. clc_resistance_costs_v2.csv (The Base Layer)
-This file maps all 44 CLC Level 3 classes to an ecological resistance value.
-
-Structure: The CSV contains three columns: clc_code (e.g., 311), LABEL3 (e.g., 'Broad-leaved forest'), and resistance.
-
-Class Selection: All 44 classes were included to ensure the reclassification of the CLC raster would be complete.
-
-Cost Assignment: Values were assigned based on roe deer habitat preferences from scientific literature.
-
-Optimal habitats, such as 311: Broad-leaved forest and 313: Mixed forest, were assigned the lowest cost (1).
-
-Permeable foraging areas, like 231: Pastures (8) and 211: Non-irrigated arable land (20), received slightly higher costs.
-
-Major barriers, such as 111: Continuous urban fabric (5000) and 512: Water bodies (800), received high to impassable values.
-
-3.2.2. osm_resistance_costs_v2.csv (The Primary Feature Layer)
-This file defines the resistance values for the high-resolution OSM features and controls the order in which they are rasterized.
-
-Structure: This CSV contains four critical columns: osm_key, osm_value, resistance, and priority.
-
-Tag Selection: Tags were systematically selected based on the official OSM "Map features" wiki and their known ecological relevance. This focused the model on consistent, well-documented tags (landuse, natural, highway, waterway, barrier, railway, building) rather than ambiguous, community-added tags.
-
-resistance (The Ecological Cost): Values were assigned using a scientifically-defensible hierarchy:
-
-Transportation Infrastructure: Costs are directly related to traffic volume and fencing, following the COST 341 framework. This creates a steep gradient from highway=track (20) to highway=tertiary (500) up to the impassable, fenced highway=motorway (5000).
-
-Habitats & Land Use: Values were chosen to be consistent with the CLC layer. landuse=forest (1) is optimal habitat, while landuse=industrial (4500) is a major barrier.
-
-Barriers: Specific barrier features were included, such as barrier=fence (800) and barrier=wall (1500), which represent significant (but not always absolute) obstacles.
-
-priority (The Technical Parameter): This column is crucial for the model's construction. It dictates the "burn-in" order for rasterization, ensuring that features are layered correctly. For example, a low-priority polygon like landuse=forest (priority 1) is processed first. A high-priority linear feature like highway=motorway (priority 10) is processed last, allowing it to correctly "burn" its high resistance value (5000) on top of the forest pixel's value (1).
-
-This hierarchical combination, finalized using a numpy.maximum() function, ensures that the high-resolution barrier data from OSM always supersedes the general landscape values from CLC, while the CLC data provides a continuous, gap-free cost surface.
-
-
-## Data Pre-processing
-
-<!-- ## Data
-
-Different layers from different data sets were used to create the resistance surface. This section describes and explains all of the data sets used in detail.
-
-### swissTLM3D
-
-The most important data for creating the resistance surface is the high-resolution, vector-based dataset, [swissTLM3D](https://www.swisstopo.admin.ch/de/landschaftsmodell-swisstlm3d) from the Swiss Federal Office of Topography (Swisstopo). It provides a detailed, three-dimensional representation of Switzerland's landscape features. For this project, it serves as the primary data source for critical inputs, including detailed landcover polygons (tlm_bb_bodenbedeckung), the road network (tlm_strassen_strasse), and the complete hydrographic network, distinguishing between flowing water (tlm_gewaesser_fliessgewaesser) and standing water (tlm_gewaesser_stehendes_gewaesser).  -->
-
-### Datenquelle und Charakteristika
-
-Der Datensatz wurde ursprünglich von @weisberg1980 zusammengestellt und enthält Messungen von verschiedenen Wirbeltierarten. Die Daten umfassen sowohl terrestrische als auch aquatische Säugetiere mit einem breiten Spektrum von Körpergewichten.
-
-### Datenqualität und Limitationen
-
-Einige Messungen stammen aus älteren Studien und könnten methodische Ungenauigkeiten aufweisen. Besonders bei sehr grossen Tieren wie Elefanten können die Gehirngewichte schwer präzise zu bestimmen sein.
-
-## Resistance Surface
-
-The creation of the resistance surface is the foundational step for this project, and it is built as a modular, reproducible workflow using Python, primarily with the GeoPandas, Rasterio, and NumPy libraries. Three documents are required to execute the workflow. The `resistance_costs.csv` file, which stores the resistance costs for each landcover, water and roads type, the `gis_utils.py` file, which containes all gis, loading and plotting functions for processing the data and the `cost_surface_model.ipynb` file, which executes the workflow step by step.
-
-The process starts with defining the study area. Because the canton of Schaffhausen has two large exclaves, it is geographically fragmented. Therefore it is insufficient to just use its base geometry. To create a contiguous study region that connects the mainland to its exclaves, first the canton's geometry is buffered by 10,000 meters. Since the project focus is exclusively on Swiss territory, this large, buffered area is then clipped to the national boundary of Switzerland, which gave the final, unified Area of Schaffhausen with connections to its exclaves. It should also be noted that the exclaves of Schaffhausen are located in Switzerland and are not completely surrounded by German territory.
-
-In the next step, the data layers are loaded and clipped to the study area. Since the water and roads layer are linestrings, which have no area and cannot be properly represented in a 10-meter raster, they are buffered (by 5 meters) to transform them into 10-meter-wide polygons, giving them a realistic spatial footprint for a better rasterization afterwards. Then the flowing and standing water layer are combined to create a single, comprehensive water barrier layer. Because the Landcover layer from swissTLM3D and Corine Landcover have different type names, the names are harmonized in a new column called `lc_type`. This harmonization is carried out arbitrarily according to the author's understanding.
-
-To ensure that all subsequent raster layers are perfectly aligned for analysis, the study area is used to define a "master grid." This grid serves as a non-negotiable template, establishing the spatial bounds, the 10.0-meter resolution, and the EPSG:2056 (LV95) coordinate system for every raster file which is created.
-
-Once all vector layers are prepared, the resistance costs are assigned. Therefore the CSV file (resistance_costs.csv) is loaded. With the map and get functions these costs are then  mapped to the four main vector layers: swissTLM Landcover, CORINE Landcover, the combined Water layer, and the buffered Roads layer. Then each of these layers is "burned", with their new cost values, onto the master grid, resulting in four separate 10-meter GeoTIFFs.
-
-The final stage is to combine these four intermediate rasters into one. This is a two-step process. First, the two landcover rasters are harmonized. The swissTLM3D raster is more detailed and is therfore used as the high-priority layer, but it has NoData gaps. However,  performing a "priority-fill" using numpy.where to create a new raster (harmonized_landcover_type.tif) fills up these NoData gaps with the data from Corine Landcover. This function iterates pixel by pixel, using the swissTLM3D value if it is valid, but filling the pixel with the CORINE value if the swissTLM3D value is NoData.
-
-Second, this new harmonized landcover raster is combined with the water and road rasters. For this final combination, a "maximum-value" logic is used. First, all three rasters are  stacked and then, using numpy.maximum.reduce, select the highest cost value at each pixel location. This is crucial as it ensures that a high-cost feature, like a highway (cost 500), correctly overwrites the low-cost forest (cost 50) it passes through. The result of this entire workflow is the final_resistance_surface.tif: a single, comprehensive 10-meter raster where each pixel's value represents the ecological cost for roe deer movement, now ready for the least-cost path analysis.
-
-
-
-```{.r}
-log(Gehirngewicht) = log(a) + b * log(Körpergewicht)
+## Development of the Resistance Surface
+### Weighting Scheme
+To translate the ecological behaviors into the resistance model, the specific OpenStreetMap (OSM) tags were assigned resistance values ranging from 1 (optimal habitat) to 5000 (severe barrier).
+
+Methodological Note on Absolute Barriers: In this model, no landscape feature (including buildings or highways) was assigned a value of "NoData" or "Infinity." Instead, they were assigned very high, but finite, resistance values (e.g., 5000). This assumption is necessary to identify bottlenecks. If the Least-Cost Path (LCP) is forced to traverse a building, it indicates that the surrounding landscape is so impermeable that no better alternative exists. This highlights areas where connectivity is critically compromised and restoration (e.g., removing a barrier) is required.
+
+Table 3.1: Justification of Resistance Values
+OSM Key,OSM Value,Resistance,Justification for Roe Deer Suitability,Source
+Optimal Habitat (Cover),,,,
+landuse / natural,"forest, wood",1,Primary habitat. Provides optimal cover and protection; essential for resting during the day.,[Hab-Ziolkowska]
+natural,scrub,3,"Good cover, but slightly less navigable or protective than mature forest.",[Hab-Ziolkowska]
+natural,heath,8,"Provides some low cover and forage, but less protection than forest/scrub.",[Hab-Ziolkowska]
+Foraging Habitat (Open),,,,
+landuse / natural,"meadow, grassland, grass",5,"Important foraging resources. Low resistance for movement at night, but lacks cover (higher predation risk than forest).",[Hab-Ziolkowska]
+landuse,orchard,10,"Good food source (fruit/buds) with moderate cover from trees, but often fenced or managed.",[Hab-Ziolkowska]
+landuse,vineyard,15,"Provides food, but typically terraced or fenced, making movement physically more demanding.",[Hab-Ziolkowska]
+landuse,farmland,20,High food availability but very high exposure risk; often lacks cover for long distances.,[Hab-Ziolkowska]
+barrier,hedge,30,"Can serve as a linear corridor (cover), but dense hedging can also act as a physical barrier to cross.",[Hab-Ziolkowska]
+Disturbed / Recreational,,,,
+highway,"path, footway, cycleway, bridleway, track",10 - 20,"Physically easy to walk on, but avoided during the day due to human and dog presence (disturbance).",[PA2-Logic]
+landuse,allotments,100,Mix of food and fences; high human presence and physical obstacles.,[Hab-Ziolkowska]
+landuse / leisure,"recreation_ground, park, cemetery",150 - 250,Open areas within settlements; high human disturbance makes them poor corridors despite vegetation.,[Hab-Ziolkowska]
+leisure,golf_course,300,"Highly managed, open, often fenced; high human activity.",[Hab-Ziolkowska]
+Natural Barriers,,,,
+waterway,ditch,50,Minor physical obstacle; requires jumping.,[PA2-Logic]
+natural,wetland,75,Passable but physically exhausting ground conditions; lack of canopy cover.,[Expert-Comp]
+waterway,stream,150,Physical barrier; lack of cover while crossing increases stress.,[Expert-Comp]
+natural,"scree, bare_rock",250 - 300,Difficult terrain; lack of food and cover; risk of injury.,[Expert-Comp]
+natural,cliff,4000,Severe physical barrier; nearly impossible to traverse.,[PA2-Logic]
+waterway,river,4000,Major barrier. Requires swimming (high exposure/risk); only crossed in emergencies.,[Expert-Comp]
+Anthropogenic Barriers (Infrastructure),,,,
+highway,"residential, service, unclassified",200 - 250,"Low traffic speed, but constant presence of cars and people.",[Infra-COST341]
+highway,"tertiary, tertiary_link",500,Moderate traffic noise and volume; acts as a behavioral deterrent.,[Infra-COST341]
+barrier,fence,800,"Physical obstacle; permeability depends on height, but modeled as high resistance.",[PA2-Logic]
+highway,secondary,1000,High traffic volume and noise; significant mortality risk and behavioral avoidance.,[Infra-COST341]
+landuse,quarry,1500,Hazardous terrain with industrial disturbance.,[Expert-Comp]
+barrier,wall,1500,Solid physical barrier; impassable unless breached.,[PA2-Logic]
+highway,primary,2000,Very high traffic/noise. Crossing is rare and highly dangerous.,[Infra-COST341]
+railway,"rail, landuse=railway",3000,Noise from trains is a major deterrent; tracks and embankments are physical hurdles.,[Infra-COST341]
+highway,"motorway, trunk",5000,Maximum Infrastructure Barrier. Fencing and high-speed traffic make crossing nearly impossible.,[Infra-COST341]
+Anthropogenic Barriers (Settlement),,,,
+landuse,residential,3500,"High density of buildings, fences, and people. Only traversed at edges.",[Expert-Comp]
+landuse,"commercial, industrial, retail",4500,"Large sealed surfaces, high noise, fences, and truck traffic. Very hostile.",[Expert-Comp]
+building,yes,5000,Theoretical Maximum Cost. Physically impassable. Included as valid data to identify critical conflicts if the LCP is forced through a structure.,[Expert-Comp]
+
+### Integration of Topographic Variables
+The creation of the resistance surface was the foundational step for this project, and it was built as a modular, reproducible workflow using Python, primarily with the GeoPandas, Rasterio, and NumPy libraries. Three documents are required to execute the workflow. The `resistance_costs.csv` file, which stores the resistance costs for each landcover, water and roads type, the `gis_utils.py` file, which containes all gis, loading and plotting functions for processing the data and the `cost_surface_model.ipynb` file, which executes the workflow step by step.
+
+## Connectivity Modelling
+The connectivity analysis was performed using a node-based approach, where "nodes" represent core habitat patches capable of supporting a roe deer population. The modeling process involved two distinct stages: (1) the identification of suitable source and target patches, and (2) the calculation of the least-cost paths connecting them.
+
+
+
+
+::: {.content-visible when-format="html"}
+
+::: {.content-visible when-format="html"}
+
+```{python}
+#| label: fig-map-interactive
+#| fig-cap: "Interaktive Analyse der Widerstandsflächen"
+#| echo: false
+#| warning: false
+#| output: true
+#| cache: true
+
+import glob
+import os
+import xarray as xr
+import rioxarray
+import hvplot.xarray
+import holoviews as hv
+
+hv.extension('bokeh')
+
+input_dir = r"C:\ZHAW\5.Semester\PA2\PA2-Modelling_Wildlife_Corridors\Results\temp_files"
+tif_files = sorted(glob.glob(os.path.join(input_dir, "*.tif")))
+
+if tif_files:
+    # 1. Globale Min/Max Berechnung (auf stark verkleinerten Daten)
+    global_min = float('inf')
+    global_max = float('-inf')
+    
+    # Wir lesen nur eine sehr grobe Übersicht für die Statistik
+    for f in tif_files:
+        # overview_level=3 bedeutet ca. 1/8 der Auflösung -> Extrem schnell
+        with rioxarray.open_rasterio(f, overview_level=3, masked=True) as da_stat:
+             mn = da_stat.min().item()
+             mx = da_stat.max().item()
+             if mn < global_min: global_min = mn
+             if mx > global_max: global_max = mx
+
+    map_overlay = None
+    
+    # 2. Karten-Erstellung
+    for f in tif_files:
+        # Laden mit overview_level=1 (halbe/viertel Auflösung) ist oft genug für Web
+        # Das spart das teure .coarsen() und das Laden der vollen 45MB!
+        da = rioxarray.open_rasterio(f, overview_level=1, masked=True)
+        
+        # Reprojezieren (immer noch nötig, aber jetzt viel schneller)
+        if da.rio.crs != "EPSG:3857":
+             da = da.rio.reproject("EPSG:3857")
+        
+        layer_name = os.path.basename(f)
+        
+        p = da.hvplot.image(
+            x='x', y='y', 
+            rasterize=True, 
+            cmap='RdYlGn_r', 
+            clim=(global_min, global_max),
+            alpha=0.7, 
+            tiles='OSM', 
+            name=layer_name,
+            frame_width=700, frame_height=500,
+            colorbar=True
+        )
+        
+        if map_overlay is None:
+            map_overlay = p
+        else:
+            map_overlay = map_overlay * p
+
+    map_overlay
 ```
+:::
+
+::: {.content-visible when-format="typst"}
+
+```{python}
+#| label: fig-map-static
+#| fig-cap: "Final Resistance Surface (Statische Ansicht)"
+#| echo: false
+#| warning: false
+
+import matplotlib.pyplot as plt
+import rioxarray
+import os
+
+# Hier nehmen wir nur das eine finale File für das PDF
+static_file = r"C:\ZHAW\5.Semester\PA2\PA2-Modelling_Wildlife_Corridors\Results\final_resistance_surface.tif"
+
+if os.path.exists(static_file):
+    # Datei laden
+    da = rioxarray.open_rasterio(static_file, masked=True).squeeze()
+    
+    # Plotten mit Matplotlib
+    fig, ax = plt.subplots(figsize=(10, 8))
+    da.plot(ax=ax, cmap='RdYlGn_r', add_colorbar=True, cbar_kwargs={'label': 'Resistance Value'})
+    
+    ax.set_title("Final Resistance Surface")
+    ax.set_axis_off() # Koordinatenachsen ausblenden für saubereren Look
+    
+    plt.tight_layout()
+    plt.show()
+else:
+    print(f"Datei nicht gefunden: {static_file}")
+```
+:::
 
 ### Transformationsverfahren
 
