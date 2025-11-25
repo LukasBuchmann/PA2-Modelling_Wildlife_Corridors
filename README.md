@@ -89,7 +89,7 @@ cd Code/Files
 ```
 3. Run the HPC batch submission script
 ```bash
-sbatch submit_workflow.sh
+bash submit_workflow.sh
 ```
 
 ### Workflow Description
