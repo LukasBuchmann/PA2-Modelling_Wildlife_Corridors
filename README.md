@@ -50,11 +50,15 @@ This project adheres to the **Statement of Reproducibility, Reusability, and Col
 └── README.md                      # Project overview
 ```
 
+---
+
 ## 🛠️ Data Sources
 This project utilizes the following open-source geospatial datasets:
 
 * **[OpenStreetMap (OSM)](https://www.openstreetmap.org/#map=11/47.7100/8.5165&layers=Y):** (Primary Source) Used for detailed infrastructure extraction (roads, railways, fences, waterways) and precise land use features.
 * **[Corine Land Cover (CLC)](https://land.copernicus.eu/en/products/corine-land-cover):** (Secondary Source) Used for broad-scale habitat classification and filling gaps where OSM land use data may be sparse.
+
+---
 
 ## ⚙️ Environment & HPC Setup
 This workflow is designed to run on the **ZHAW HPC** using **Miniconda**.
@@ -66,6 +70,8 @@ The `environment.yml` defines the necessary Python geospatial stack. Key librari
 * [`geopandas`](https://geopandas.org/en/stable/) (vector operations)
 * [`rasterio`](https://rasterio.readthedocs.io/en/stable/) (raster operations)
 * [`scikit-image`](https://scikit-image.org/docs/stable/) (Least Cost Path Analysis)
+
+---
 
 ## 🚀 Usage
 The entire analysis pipeline is automated via a single batch script to ensure reproducibility.
@@ -101,6 +107,8 @@ The `submit_workflow.sh` script performs the following steps automatically:
     * Combines individual paths into a connectivity density map.
     * Generates final statistics and plots.
 5.  **Cleanup:** Removes intermediate files to save resources.
+
+---
 
 ## 📜 Reproducibility Statement
 This project strictly follows the "Guide to Reproducibility, Reusability, and Collaboration". The code is structured to ensure that identical results can be recreated from the raw data using the provided batch script.
