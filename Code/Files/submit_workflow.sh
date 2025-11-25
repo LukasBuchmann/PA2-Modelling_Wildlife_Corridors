@@ -1,120 +1,183 @@
 #!/bin/bash
 
-# ==========================================
-# Master Submission Script (Absolute Path Fix + Cleanup)
-# ==========================================
+# ==============================================================================
+# ZHAW Project Work 2: Master Submission Pipeline (HPC)
+#
+# Description:
+#   Orchestrates the complete wildlife corridor analysis workflow on Slurm.
+#   1. Environment Check (Runs locally on login node)
+#   2. Preparation (Surface Generation)
+#   3. Parallel Worker Array (Least-Cost Path Analysis)
+#   4. Aggregation (Result Compilation)
+#   5. Cleanup (Intermediate file removal)
+#
+# Usage:
+#   bash submit_workflow.sh
+#
+# Author: Lukas Buchmann
+# Date:   November 2025
+# ==============================================================================
 
-# Define paths
-BASE_DIR=$(dirname $(realpath $0))
-LOG_DIR="${BASE_DIR}/logs"
-mkdir -p $LOG_DIR
+# --- 1. CONFIGURATION & PATHS ---
 
-# --- CONFIGURATION ---
-# PASTE YOUR PATH HERE from Step 1
-# Example: PY_EXEC="/cfs/earth/scratch/buchmluk/.conda/envs/pa2_clean/bin/python"
-PY_EXEC="/cfs/earth/scratch/buchmluk/.conda/envs/pa2_clean/bin/python"
+# Determine absolute paths
+SCRIPT_DIR=$(dirname "$(realpath "$0")")
+PROJECT_ROOT=$(dirname "$SCRIPT_DIR")
+LOG_DIR="${SCRIPT_DIR}/logs"
+TEMP_TRAFFIC_DIR="${PROJECT_ROOT}/results/temp_traffic"
 
-# Check if path is set
-if [[ "$PY_EXEC" == *INSERT_PATH* ]]; then
-    echo "Error: You forgot to paste the python path in the script!"
+# Create logs directory if it doesn't exist
+mkdir -p "$LOG_DIR"
+
+# Environment Settings
+ENV_NAME="pa2_clean"
+ENV_YML="${SCRIPT_DIR}/environment.yml"
+
+# Portable Environment Path (Created locally in your Code/Files folder)
+ENV_PATH="${SCRIPT_DIR}/${ENV_NAME}"
+PY_EXEC="${ENV_PATH}/bin/python"
+
+# Slurm Job Parameters
+PARTITION="earth-3"
+ARRAY_SIZE="0-200%50"  # Process 201 chunks, max 50 concurrent
+MODULES="USS/2022 gcc/9.4.0-pe5.34 lsfm-init-miniconda/1.0.0"
+
+# --- 2. ENVIRONMENT SETUP (LOCAL) ---
+# We do this directly on the login node to avoid OOM errors in jobs.
+
+# Load Conda Module
+module load lsfm-init-miniconda/1.0.0
+
+echo "=========================================="
+echo "   Starting Wildlife Corridor Pipeline    "
+echo "=========================================="
+echo "Project Root:  $PROJECT_ROOT"
+echo "Environment:   $ENV_PATH"
+echo "------------------------------------------"
+
+if [ ! -f "$ENV_YML" ]; then
+    echo "CRITICAL ERROR: environment.yml not found at $ENV_YML"
     exit 1
 fi
 
-echo "--- Step 1: Data Preparation (High Memory) ---"
+echo "[Local] Checking Conda Environment..."
+
+if [ -d "${ENV_PATH}" ]; then
+    echo "   Environment exists. Updating..."
+    # Update locally (uses login node RAM)
+    conda env update -p "${ENV_PATH}" -f "${ENV_YML}" --prune
+else
+    echo "   Environment not found. Creating..."
+    # Create locally (uses login node RAM)
+    conda env create -p "${ENV_PATH}" -f "${ENV_YML}"
+fi
+
+echo "   Environment ready."
+echo "------------------------------------------"
+
+
+# --- 3. STEP 1: DATA PREPARATION ---
+# Generates the resistance surface.
+
+echo "[1/4] Submitting Preparation Job..."
 PREP_JOB_ID=$(sbatch --parsable <<EOF
 #!/bin/bash
-#SBATCH --job-name=Prep_Surface
-#SBATCH --output=${LOG_DIR}/prep_%j.out
-#SBATCH --error=${LOG_DIR}/prep_%j.err
+#SBATCH --job-name=PA2_01_Prep
+#SBATCH --output=${LOG_DIR}/01_prep_%j.out
+#SBATCH --error=${LOG_DIR}/01_prep_%j.err
 #SBATCH --time=01:00:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=64G
-#SBATCH --partition=earth-3
+#SBATCH --partition=${PARTITION}
 
-module load USS/2022
-module load gcc/9.4.0-pe5.34
-module load lsfm-init-miniconda/1.0.0
+module load ${MODULES}
 
+echo "Starting Surface Preparation..."
 echo "Using Python: $PY_EXEC"
 $PY_EXEC 01_prepare_surface.py
 EOF
 )
+echo "   -> Job ID: $PREP_JOB_ID"
 
-echo "Preparation Job ID: $PREP_JOB_ID"
 
-echo "--- Step 2: LCP Array (Dependent on Prep) ---"
+# --- 4. STEP 2: WORKER ARRAY ---
+# Calculates LCPs in parallel. Depends on Step 1.
+
+echo "[2/4] Submitting Worker Array..."
 ARRAY_JOB_ID=$(sbatch --parsable --dependency=afterok:$PREP_JOB_ID <<EOF
 #!/bin/bash
-#SBATCH --job-name=LCP_Array
-#SBATCH --output=${LOG_DIR}/lcp_%A_%a.out
-#SBATCH --error=${LOG_DIR}/lcp_%A_%a.err
+#SBATCH --job-name=PA2_02_Worker
+#SBATCH --output=${LOG_DIR}/02_worker_%A_%a.out
+#SBATCH --error=${LOG_DIR}/02_worker_%A_%a.err
 #SBATCH --time=02:00:00
-#SBATCH --array=0-200%50
+#SBATCH --array=${ARRAY_SIZE}
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=8G
-#SBATCH --partition=earth-3
+#SBATCH --partition=${PARTITION}
 
-module load USS/2022
-module load gcc/9.4.0-pe5.34
-module load lsfm-init-miniconda/1.0.0
+module load ${MODULES}
 
-echo "Running LCP Worker..."
+echo "Starting LCP Analysis (Task ID: \$SLURM_ARRAY_TASK_ID)..."
 $PY_EXEC 02_worker.py
 EOF
 )
+echo "   -> Job ID: $ARRAY_JOB_ID"
 
-echo "Array Job ID: $ARRAY_JOB_ID"
 
-echo "--- Step 3: Aggregation (Dependent on Array) ---"
+# --- 5. STEP 3: AGGREGATION ---
+# Combines partial results. Depends on Step 2.
+
+echo "[3/4] Submitting Aggregation Job..."
 AGG_JOB_ID=$(sbatch --parsable --dependency=afterok:$ARRAY_JOB_ID <<EOF
 #!/bin/bash
-#SBATCH --job-name=Agg_Results
-#SBATCH --output=${LOG_DIR}/agg_%j.out
-#SBATCH --error=${LOG_DIR}/agg_%j.err
+#SBATCH --job-name=PA2_03_Agg
+#SBATCH --output=${LOG_DIR}/03_agg_%j.out
+#SBATCH --error=${LOG_DIR}/03_agg_%j.err
 #SBATCH --time=00:30:00
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=32G
-#SBATCH --partition=earth-3
+#SBATCH --partition=${PARTITION}
 
-module load USS/2022
-module load gcc/9.4.0-pe5.34
-module load lsfm-init-miniconda/1.0.0
+module load ${MODULES}
 
-echo "Running Aggregation..."
+echo "Starting Aggregation..."
 $PY_EXEC 03_aggregate.py
 EOF
 )
+echo "   -> Job ID: $AGG_JOB_ID"
 
-echo "Aggregation Job ID: $AGG_JOB_ID"
 
-echo "--- Step 4: Cleanup (Dependent on Aggregation) ---"
+# --- 6. STEP 4: CLEANUP ---
+# Removes temporary files. Depends on Step 3.
+
+echo "[4/4] Submitting Cleanup Job..."
 CLEAN_JOB_ID=$(sbatch --parsable --dependency=afterok:$AGG_JOB_ID <<EOF
 #!/bin/bash
-#SBATCH --job-name=Cleanup
-#SBATCH --output=${LOG_DIR}/cleanup_%j.out
-#SBATCH --error=${LOG_DIR}/cleanup_%j.err
+#SBATCH --job-name=PA2_04_Cleanup
+#SBATCH --output=${LOG_DIR}/04_cleanup_%j.out
+#SBATCH --error=${LOG_DIR}/04_cleanup_%j.err
 #SBATCH --time=00:05:00
 #SBATCH --ntasks=1
 #SBATCH --mem=1G
-#SBATCH --partition=earth-3
+#SBATCH --partition=${PARTITION}
 
-# Calculate path to temp_traffic relative to this script location (Code/Files)
-# We go up two levels (Code -> Root) then into results
-TEMP_DIR="../../results/temp_traffic"
+# Use the absolute path calculated in the main script for safety
+TARGET_DIR="${TEMP_TRAFFIC_DIR}"
 
-echo "Starting cleanup..."
-if [ -d "\$TEMP_DIR" ]; then
-    echo "Removing temporary files in: \$TEMP_DIR"
-    rm -rf "\$TEMP_DIR"
+echo "Starting Cleanup..."
+if [ -d "\$TARGET_DIR" ]; then
+    echo "Removing temporary files in: \$TARGET_DIR"
+    rm -rf "\$TARGET_DIR"
     echo "Cleanup successful."
 else
-    echo "Warning: Temporary directory not found at \$TEMP_DIR"
+    echo "Warning: Temporary directory not found at \$TARGET_DIR"
 fi
 EOF
 )
+echo "   -> Job ID: $CLEAN_JOB_ID"
 
-echo "Cleanup Job ID: $CLEAN_JOB_ID"
-echo "Workflow submitted successfully."
+echo "------------------------------------------"
+echo "All jobs submitted. Monitor with 'squeue -u \$USER'"
