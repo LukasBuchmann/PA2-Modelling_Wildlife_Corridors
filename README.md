@@ -81,7 +81,7 @@ To reproduce the results on the HPC:
 
 1. Clone this Github on the ZHAW HPC
 ```bash
-git clone https://github.zhaw.ch/buchmluk/PA2-Modelling_Wildlife_Corridors
+git clone https://github.zhaw.ch/buchmluk/PA2-Modelling_Wildlife_Corridors.git
 ```
 2. Navigate to the HPC batch submission script
 ```bash
