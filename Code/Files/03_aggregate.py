@@ -138,13 +138,32 @@ def plot_network_overview(resistance_plot, traffic_data, transform, out_path):
     # Base: Grey Resistance
     cmap_base = copy.copy(plt.cm.Greys)
     cmap_base.set_bad(alpha=0)
-    ax.imshow(resistance_plot, cmap=cmap_base, norm=colors.LogNorm(vmin=1, vmax=5000), alpha=0.6)
+    ax.imshow(resistance_plot, cmap=cmap_base, norm=colors.LogNorm(vmin=1, vmax=5000), alpha=0.3)
 
     # Overlay: Traffic
     if traffic_data.max() > 0:
-        masked_traffic = np.ma.masked_equal(traffic_data, 0)
-        im_traffic = ax.imshow(masked_traffic, cmap='viridis', alpha=0.8)
+        # Buffer and Smooth Traffic Data for Visualization
+        # Simple smoothing using NumPy (3×3 mean filter)
+        kernel_size = 3
+        pad = kernel_size // 2
+
+        # Pad array to avoid border issues
+        padded = np.pad(traffic_data, pad, mode='edge')
+
+        # Prepare output
+        smoothed = np.zeros_like(traffic_data, dtype=float)
+
+        # Manual 3×3 convolution
+        for i in range(traffic_data.shape[0]):
+            for j in range(traffic_data.shape[1]):
+                window = padded[i:i+kernel_size, j:j+kernel_size]
+                smoothed[i, j] = window.mean()
+ 
+
+        masked_traffic = np.ma.masked_equal(smoothed, 0)
+        im_traffic = ax.imshow(masked_traffic, cmap='viridis', alpha=1.0)
         fig.colorbar(im_traffic, ax=ax, shrink=0.7, label='Path Density')
+    
 
     # Overlay: Nodes (Visual verification)
     h, w = resistance_plot.shape
@@ -206,7 +225,7 @@ def plot_bottlenecks(resistance_plot, traffic_data, out_path):
             idx = np.random.choice(len(x_risk), 1000, replace=False)
             x_risk, y_risk = x_risk[idx], y_risk[idx]
         
-        ax.scatter(x_risk, y_risk, facecolors='none', edgecolors='blue', s=50, alpha=0.6, label='High Risk')
+        ax.scatter(x_risk, y_risk, facecolors='none', edgecolors='red', s=50, alpha=0.6, label='High Risk')
         ax.legend(loc='upper right')
 
     plt.savefig(out_path, dpi=300, bbox_inches='tight')
