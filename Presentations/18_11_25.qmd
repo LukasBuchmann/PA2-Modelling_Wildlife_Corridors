@@ -136,7 +136,7 @@ with rasterio.open(FINAL_RASTER) as src:
 
 ## Result
 
-![](images/paste-2.png){width="40%"}![](images/paste-4.png){width="50%"}
+![](images/paste-2.png){width="40%"}![](18_11_25/passage.png){width="40%"}
 
 # Challenges
 
