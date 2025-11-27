@@ -113,7 +113,7 @@ def fetch_process_osm_vectors(aoi_bounds_wgs, meta):
         print("--- Step 3: Found cached OSM Vectors. Loading... ---")
         return gpd.read_file(vector_cache)
 
-    print("--- Step 3: Processing OSM Vectors ---")
+    print("--- Step 3: Processing OSM Vectors (5-20 min)---")
     urls = {
         PBF_DE: "https://download.geofabrik.de/europe/germany/baden-wuerttemberg-latest.osm.pbf",
         PBF_CH: "https://download.geofabrik.de/europe/switzerland-latest.osm.pbf"

@@ -316,39 +316,32 @@ These coordinates represent the most effective locations for the potential imple
 
 ```{python}
 #| label: tbl-bottlenecks
-#| tbl-cap: "List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 3. Coordinates are in CH1903+/LV95."
+#| tbl-cap: "List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 3. Coordinates are in WGS 84 / UTM zone 32N (EPSG:32632)."
 #| echo: false
+#| output: asis
 
 import pandas as pd
-from IPython.display import Markdown
 
-# CORRECTED PATH: Use '../' to go up from the Report folder to the Project Root
-csv_path = "../results/bottlenecks_table.csv"
-
+# 1. Load data
 try:
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv("../results/bottlenecks_table.csv")
     
-    # 2. Format the table
-    # Combine coordinates if columns exist, otherwise handle gracefully
-    if 'Coords_E' in df.columns and 'Coords_N' in df.columns:
+    # 2. Format
+    if 'Coords_E' in df.columns:
         df['Coordinates'] = df['Coords_E'].astype(str) + " / " + df['Coords_N'].astype(str)
     
-    # Select columns (Adjust 'ID' or 'Path_Intensity' if your CSV headers differ)
-    # We use a safe selection to avoid KeyErrors
-    cols_to_show = ['ID', 'Coordinates', 'Path_Intensity']
-    df_display = df[cols_to_show].copy()
+    df_display = df[['ID', 'Coordinates', 'Path_Intensity']]
+    df_display.columns = ['Map ID', 'Coordinates (EPSG:32632)', 'Path Intensity']
+
+    # 3. Print the raw markdown string directly
+    # Quarto picks this up and converts it to a PDF table
+    print(df_display.to_markdown(index=False, numalign="center", stralign="center"))
     
-    # Rename for the report
-    df_display.columns = ['Map ID', 'Coordinates (LV95)', 'Path Intensity']
+    # Add a newline to ensure separation
+    print("\n")
 
-    # 3. Render
-    # Note: Requires 'tabulate' installed (pip install tabulate)
-    Markdown(df_display.to_markdown(index=False, numalign="center", stralign="center"))
-
-except FileNotFoundError:
-    print(f"Error: Could not find file at {csv_path}. Did you run the analysis script?")
 except Exception as e:
-    print(f"An error occurred: {e}")
+    print(f"**Error rendering table:** {e}")
 ```
 
 
