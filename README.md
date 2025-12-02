@@ -103,6 +103,7 @@ The run_pipeline.py script executes the following modules sequentially:
 
 3. 03_extract_bottlenecks.py: Intersects high-traffic corridors with high-resistance barriers to extract the top critical bottlenecks into a CSV file for the report.
 
-📜 Reproducibility Statement
+---
+
+## 📜 Reproducibility Statement
 This project strictly follows the Statement of Reproducibility, Reusability, and Collaboration. The computational environment is defined as code (environment.yml), and the workflow is fully automated (run_pipeline.py) to ensure that identical results can be recreated from raw data without manual intervention.
-   
