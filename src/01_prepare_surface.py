@@ -10,6 +10,7 @@ Author: Lukas Buchmann
 import sys
 import os
 import gc
+import tqdm
 import requests
 import shutil
 from pathlib import Path
@@ -46,7 +47,7 @@ FINAL_RASTER = RESULTS_DIR / "final_resistance_surface.tif"
 TARGET_CRS = "EPSG:32632"  # UTM 32N
 AOI_NAME = "Kanton Schaffhausen"
 BUFFER_METERS = 1000
-PIXEL_SIZE = 10  # Reduced for local testing, ensure RAM can handle it
+PIXEL_SIZE = 10
 
 # Ensure directories exist
 for d in [DATA_DIR, RESULTS_DIR, TEMP_DIR]:
@@ -107,40 +108,75 @@ def process_clc_layer(aoi_gdf, meta, shape, default_val=np.nan):
         sys.exit(f"Error processing CLC: {e}")
 
 def fetch_process_osm_vectors(aoi_bounds_wgs, meta):
-    """Downloads and processes OSM data."""
+    """Downloads and processes OSM data with progress bars."""
     vector_cache = TEMP_DIR / "intermediate_osm_merged.gpkg"
     if vector_cache.exists():
         print("--- Step 3: Found cached OSM Vectors. Loading... ---")
         return gpd.read_file(vector_cache)
 
-    print("--- Step 3: Processing OSM Vectors (5-20 min)---")
+    print("--- Step 3: Processing OSM Vectors (5-20 min) ---")
     urls = {
         PBF_DE: "https://download.geofabrik.de/europe/germany/baden-wuerttemberg-latest.osm.pbf",
         PBF_CH: "https://download.geofabrik.de/europe/switzerland-latest.osm.pbf"
     }
+
+    # 1. DOWNLOAD WITH PROGRESS BAR
     for path, url in urls.items():
         if not path.exists():
             print(f"Downloading {path.name}...")
-            with requests.get(url, stream=True) as r, open(path, 'wb') as f:
-                shutil.copyfileobj(r.raw, f)
+            try:
+                response = requests.get(url, stream=True)
+                response.raise_for_status()
+                total_size = int(response.headers.get('content-length', 0))
+                
+                with open(path, 'wb') as f, tqdm(
+                    desc=path.name,
+                    total=total_size,
+                    unit='iB',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                ) as bar:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        size = f.write(chunk)
+                        bar.update(size)
+            except Exception as e:
+                # Remove partially downloaded file if error occurs
+                if path.exists():
+                    path.unlink()
+                sys.exit(f"Error downloading {path.name}: {e}")
 
+    # 2. PARSING (Pyrosm)
+    # Note: Pyrosm parsing is monolithic and doesn't support a progress bar easily.
+    # We use print statements to show activity.
     res_df = pd.read_csv(OSM_COST_CSV)
     filter_keys = res_df['osm_key'].unique().tolist()
     custom_filter = {k: True for k in filter_keys}
     bbox = list(aoi_bounds_wgs)
 
     try:
+        print(f"Parsing Germany Data ({PBF_DE.name})...")
         osm_de = pyrosm.OSM(str(PBF_DE), bounding_box=bbox).get_data_by_custom_criteria(custom_filter=custom_filter)
+        
+        print(f"Parsing Switzerland Data ({PBF_CH.name})...")
         osm_ch = pyrosm.OSM(str(PBF_CH), bounding_box=bbox).get_data_by_custom_criteria(custom_filter=custom_filter)
+        
+        print("Merging and cleaning datasets...")
         osm = pd.concat([osm_de, osm_ch]).drop_duplicates(subset=['id'])
+        
+        # Cleanup RAM immediately
         del osm_de, osm_ch
         gc.collect()
 
         cols = ['id', 'geometry'] + [c for c in filter_keys if c in osm.columns]
         osm = osm[cols].to_crs(meta['crs'])
+        
+        # Keep only relevant geometries
         osm = osm[osm.geometry.geom_type.isin(['Polygon', 'LineString', 'MultiPolygon', 'MultiLineString'])]
+        
+        print(f"Saving merged vectors to {vector_cache.name}...")
         osm.to_file(vector_cache, driver="GPKG")
         return osm
+
     except Exception as e:
         sys.exit(f"Error processing OSM vectors: {e}")
 

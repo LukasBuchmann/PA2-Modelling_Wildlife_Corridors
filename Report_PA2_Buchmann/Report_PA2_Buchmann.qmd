@@ -1,7 +1,7 @@
 ---
 title: "Modelling Wildlife Corridors: Spatial Analysis of Topographic and
 Landscape Barriers to determine Ecological Connectivity" 
-subtitle: "Project Work 2"
+subtitle:
 institut: "Institute for Computational Life Sciences"
 keywords: "Wildlife Corridors, Connectivity Modeling, Ecological Connectivity, Least-Cost Path (LCP) Analysis, Spatial Analysis"
 lang: en
