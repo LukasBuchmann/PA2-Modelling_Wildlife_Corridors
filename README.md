@@ -78,11 +78,16 @@ The entire analysis pipeline is orchestrated via a single Python script that han
 * **Mamba** (recommended) or **Anaconda/Miniconda** installed.
 * **Git** installed.
 
+> **⚠️ Important Note for Windows Users:**
+> Please execute these commands inside the **"Anaconda PowerShell Prompt"** (search for it in the Start Menu). Standard PowerShell or Command Prompt terminals may not detect the `conda` command by default.
+>
+> **macOS / Linux Users:** You can use your standard Terminal.
+
 ### Execution Steps
 
 1. **Clone the Repository**
    ```bash
-   git clone [https://github.zhaw.ch/buchmluk/PA2-Modelling_Wildlife_Corridors.git](https://github.zhaw.ch/buchmluk/PA2-Modelling_Wildlife_Corridors.git)
+   git clone https://github.zhaw.ch/buchmluk/PA2-Modelling_Wildlife_Corridors.git
    cd PA2-Modelling_Wildlife_Corridors
    
 2. **Run the Full Pipeline Execute the orchestrator. This script will automatically create/update the pa2_env environment and run all analysis steps in order.**
