@@ -1,0 +1,86 @@
+---
+---
+title: "PA2 Update"
+subtitle: "Modelling Wildlife Corridors"
+author: "Lukas Buchmann"
+date: "October 21, 2025"
+format: 
+  revealjs:
+    theme: simple                 # A clean, high-contrast default theme
+    transition: fade              # Use subtle transitions
+    background-transition: none   # Keep background changes instant
+    slide-number: true            # Good for referencing slides
+    progress: true                # Show a progress bar
+    incremental: false            # Lists appear all at once (unless overridden)
+    center: false                 # Align content to the top
+    footer: "PA2 Update | Lukas Buchmann"
+editor: visual
+---
+
+# Progress
+
+## Overview
+
+-   Disposition revised and submitted
+-   Created Github Repository
+-   Set up Quarto Document for Report
+-   Searched for Literatur
+-   Started with first model
+
+## Landcover Data
+
+![Map of the Landcover in Schaffhausen](landcover.png){fig-align="center" width="50%"}
+
+## Combined Landcover Data
+
+![SwissTLM3D and Corine Landcover Data combined and harmonized](landcover_combined.png){fig-align="center" width="50%"}
+
+## Landcover Cost Surface
+
+![Cost Surface of Landcover in Schaffhausen](cost_landcover.png){fig-align="center" width="50%"}
+
+## Water Data
+
+![Cost Map of Flooting and Standing water in Schaffhausen](water.png){fig-align="center" width="50%"}
+
+## Road Data
+
+![Cost Map of Roads in Schaffhausen](Roads.png){fig-align="center" width="50%"}
+
+## First Final Cost Surface Visualization
+
+![First Cost Surface of Landcover, Water and Roads](First_cost_surface.png){fig-align="center" width="50%"}
+
+# Challenges
+
+## SwissTLM3D
+
+SwissTLM3D only offers data for the whole of Switzerland for download.
+
+-   Therefore, I had to use additional data from swissBOUNDARIES3D to determine the geographical boundaries of the canton of Schaffhausen and then filter the SwissTLM3D data accordingly.
+
+## Corine Landcover
+
+Corine Land Cover has a classification code for land cover types and a separate file with the legend.
+
+-   I also had to import the legend and merge it with the land cover data using the classification code.
+
+## Combining Landcover
+
+Combining the land cover data was not entirely straightforward, as they use different terminology.
+
+-   I have grouped similar landscape descriptions together and created a map of 11 different landscape types.
+
+## Cost definition
+
+It is relatively difficult to determine the costs for the different types of landscape, water, and roads.
+
+-   I will look for some literature to find standardized costs for the areas.
+
+# Next Steps
+
+-   Add the Steepness from the SwissAlti3D Dataset as a next Cost Surface to the model.
+-   Apply Buffer zones around cities or roads.
+-   Create a clean Code and outsource functions to a seperate Python file.
+-   Start writing the Report (Introduction, Methods)
+-   Apply first Least Cost Path Analyses

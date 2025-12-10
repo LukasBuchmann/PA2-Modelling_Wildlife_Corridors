@@ -1,0 +1,702 @@
+---
+title: "Modelling Wildlife Corridors: Spatial Analysis of Topographic and
+Landscape Barriers to determine Ecological Connectivity" 
+subtitle: ""
+institut: "Institute for Computational Life Sciences"
+keywords: "Wildlife Corridors, Connectivity Modeling, Ecological Connectivity, Least-Cost Path (LCP) Analysis, Spatial Analysis"
+lang: en
+confidential: false
+cover-image:
+  src: cover.png
+  max-width: 100%
+  max-height: 8cm
+thesis-type: "Project Work 2"
+degree-type: "Bachelor of Science in Applied Digital Life Sciences"
+study-year: "2025"
+submission-date: "2025-12-11"
+study-direction: "Digital Environment"
+supervisors:
+  - title: ""
+    name: "Ratnaweera Nils"
+    affiliation: "ZHAW Life Sciences und Facility Management, Wädenswil"
+bibliography: references.bib
+author: 
+  - Lukas Buchmann
+format: 
+  zhaw-lsfm-typst: default
+  html:
+    echo: false
+    toc: true
+    number-sections: true
+engine: jupyter
+jupyter: python3
+---
+
+# Abstract {.unnumbered .unlisted}
+Habitat fragmentation poses a critical threat to biodiversity in the Swiss Lowlands. This project investigates ecological connectivity for the Roe Deer (*Capreolus capreolus*) in the Canton of Schaffhausen, a region heavily dissected by transport infrastructure and urban settlements. The primary objective was to develop a reproducible, data-driven connectivity model to identify functional wildlife corridors and critical bottlenecks using open-source data.
+
+A fully automated Python-based geospatial workflow was implemented to generate a high-resolution (10 m) resistance surface by integrating OpenStreetMap (OSM) and Corine Land Cover (CLC) data. Using a Least-Cost Path (LCP) analysis based on a "Barrier Dominance" principle, potential movement routes between core habitat patches were simulated across the transboundary study area.
+
+The results reveal a highly fragmented landscape where wildlife movement is constrained to a specific dendritic topology. A key finding is the identification of a vital North-South corridor to the west of the Schaffhausen urban agglomeration, acting as the primary biological link between German habitats and the Swiss Plateau in this region. The model's plausability was confirmed through a spatial cross-verification with independent traffic accident risk models and the successful independent identification of the existing Schneitenberg wildlife passage. The study concludes that regional connectivity relies on a few fragile bottlenecks. To ensure long-term population viability, spatial planning must prioritize the protection of the western corridor from further urban sprawl and implement targeted mitigation measures at identified conflict zones along the A4 motorway.
+
+# Zusammenfassung {.unnumbered .unlisted}
+Die Lebensraumfragmentierung stellt eine ernsthafte Bedrohung für die Biodiversität im Schweizer Mittelland dar. Diese Arbeit untersucht die ökologische Vernetzung für das Reh (*Capreolus capreolus*) im Kanton Schaffhausen, einer Region, die stark durch Verkehrsinfrastruktur und Siedlungsgebiete zerschnitten ist. Das primäre Ziel war die Entwicklung eines reproduzierbaren, datengestützten Konnektivitätsmodells zur Identifikation funktionaler Wildtierkorridore und kritischer Stellen unter Verwendung von Open-Source-Daten.
+
+Ein vollautomatisierter Python-basierter Workflow wurde implementiert, um durch die Integration von OpenStreetMap (OSM) und Corine Land Cover (CLC) daten eine hochauflösende (10 m) Widerstandskarte zu erstellen. Mittels einer Least-Cost Path (LCP) Analyse, basierend auf dem Prinzip der "Barrieren-Dominanz", wurden potenzielle Wanderbewegungen zwischen Kernhabitaten im grenzüberschreitenden Untersuchungsgebiet simuliert.
+
+Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf eine spezifische netzartige Topologie beschränkt sind. Ein zentrales Ergebnis ist die Identifikation eines vitalen Nord-Süd-Korridors westlich der Agglomeration Schaffhausen, der als primäre biologische Verbindung zwischen den deutschen Habitaten und dem Schweizer Mittelland in dieser region fungiert. Die Validität des Modells wurde durch einen räumlichen Abgleich mit unabhängigen Unfallrisikomodellen sowie durch die erfolgreiche, unabhängige Identifikation der bestehenden Wildtierüberführung Schneitenberg bestätigt. Die Studie schliesst, dass die regionale Vernetzung von wenigen, fragilen Engpässen abhängt. Um die langfristige Lebensfähigkeit der Population zu sichern, muss die Raumplanung den Schutz des westlichen Korridors vor weiterer Zersiedelung priorisieren und gezielte Entschärfungsmassnahmen an den identifizierten Konfliktzonen entlang der A4 umsetzen.
+
+::: {.content-hidden when-format="html"}
+
+# Inhaltsverzeichnis {.unnumbered .unlisted}
+
+{{< table-of-contents >}}
+
+
+# Liste der Abkürzungen {.unnumbered .unlisted}
+
++---------+----------------------------------+
+| OSM     | Open Street Map                  |
++---------+----------------------------------+
+| CLC     | Corine Landcover                 |
++---------+----------------------------------+
+| LCP     | Least Cost Path                  |
++---------+----------------------------------+
+| GIS     | Geographic Information Science   |
++---------+----------------------------------+
+| crs     | Coordinate Reference System      |
++---------+----------------------------------+  
+
+# Introduction {-} 
+
+## The Challenge of Habitat Fragmentation
+Across Europe, landscapes are undergoing rapid transformation driven by the expansion of transportation infrastructure, urban sprawl, and the intensification of agriculture [@europeanenvironmentagencyLandscapeFragmentationEurope2011]. This process leads to habitat fragmentation: the division of large, continuous habitats into smaller, more isolated patches. Fragmentation is recognized as a primary driver of global biodiversity loss [@haddadHabitatFragmentationIts2015]. Its ecological consequences are severe: it limits wildlife mobility, isolates populations, and restricts gene flow [@kuehnGeneticEffectTransportation2007]. This, in turn, can lead to inbreeding, a loss of adaptive genetic diversity, and reduced long-term population resilience, making populations more vulnerable to local extinction [@haddadHabitatFragmentationIts2015]; [@kuehnGeneticEffectTransportation2007].
+
+The situation in Switzerland is particularly acute [@jaeferDegreeLandscapeFragmentation2007]. The Swiss Federal Office for the Environment (FOEN) has identified fragmentation from artificial barriers as a key pressure on biodiversity. This fragmentation is most severe in the Swiss Central Lowlands [@europeanenvironmentagencyLandscapeFragmentationEurope2011]. A comprehensive study by the Swiss Federal Institute for Forest, Snow and Landscape Research (WSL) identified the Canton of Schaffhausen as one of the eight most fragmented cantons in the country, underscoring the urgent need for regional connectivity planning [@jaeferDegreeLandscapeFragmentation2007].
+
+## The Role of Ecological Connectivity
+To counteract these effects, conservation efforts increasingly focus on maintaining and restoring ecological connectivity, defined as the unimpeded movement of species and the flow of natural processes that sustain life. A primary tool for achieving this is the identification and protection of wildlife corridors. These are linear landscape elements that link otherwise isolated habitat patches. By facilitating animal movement, corridors are essential for enabling dispersal, maintaining genetic diversity, and allowing species to migrate in response to seasonal needs or long-term climate change [@hiltyGuidelinesConservingConnectivity2020].
+
+## Focal Species: The Roe Deer (*Capreolus capreolus*)
+The successful planning of such corridors depends on a species-specific approach [@beierUncertaintyAnalysisLeastcost2009]. This project focuses on the roe deer, an ideal focal species for connectivity modelling in the Swiss landscape. As one of Europe's most common wild ungulates, the roe deer is highly adaptable. It demonstrates significant behavioral flexibility, inhabiting not only its traditional forest-mosaic habitats but also does well in open agricultural plains [@jepsenModellingRoeDeer2004].
+
+Despite this adaptability, roe deer are highly vulnerable to fragmentation. Transportation networks pose a dual threat: direct mortality from wildlife-vehicle collisions and the barrier effect, where high-traffic roads hinder access to critical resources [@martzCrossingsCollisionsExploring2024]. This barrier effect can be as damaging as direct habitat loss, leading to the genetic isolation of populations. A study on roe deer in Central Switzerland, for example, demonstrated significant genetic differentiation between populations separated by a fenced motorway. Because roe deer are widespread, mobile, and frequently interact with infrastructure, they serve as an excellent model for assessing landscape-level connectivity for large mammals [@kuehnGeneticEffectTransportation2007].
+
+## Methodology: Least-Cost Path (LCP) Analysis
+This study employs Least-Cost Path (LCP) analysis, a standard and widely used methodology in GIS-based connectivity modelling [@beierUncertaintyAnalysisLeastcost2009]. The LCP approach is built on the concept of a resistance surface [@cushmanBiologicalCorridorsConnectivity2013]. This is a GIS raster layer where each pixel is assigned a "cost" value representing the difficulty, energy expenditure, or mortality risk a species encounters when moving through that specific landscape type [@zellerEstimatingLandscapeResistance2012]. This "cost" is derived from expert knowledge and ecological literature, assigning low resistance to preferred habitats and high resistance to barriers [@beierUncertaintyAnalysisLeastcost2009]. The LCP algorithm then calculates the most efficient route between defined core habitat patches, the path of least cumulative resistance [@cushmanBiologicalCorridorsConnectivity2013].
+
+## Project Objectives
+The primary objective of this project is to develop, improve, and evaluate a GIS-based connectivity model for roe deer (*Capreolus capreolus*) in the highly fragmented landscape of the Canton of Schaffhausen, implemented using the Python programming language.
+
+The specific aims are to:
+
+- Create a detailed resistance surface using OpenStreetMap and Corine Land Cover data.
+
+- Perform a Least-Cost Path (LCP) analysis to compute cumulative movement costs and identify potential wildlife corridors connecting suitable habitat patches.
+
+- Analyze the resulting model to identify and map key bottlenecks, major obstacles, and other landscape patterns that limit ecological connectivity.
+
+The final output will be a transparent, code-based connectivity model and a set of cartographic products. This work is intended to serve as a practical, data-driven decision-making aid for regional conservation and spatial planning.
+
+# Theoretical Framework
+
+## Ecological Connectivity and Wildlife Corridors
+### Functional vs. Structural Connectivity
+There are two distinct forms of Landscape connectivity: structural and functional. Structural connectivity refers only to the physical arrangement and contiguity of landscape elements, such as the spatial proximity of habitat patches, without regard for the specific mobility of an organism. In contrast, functional connectivity explicitly includes the behavioral response of a species to these landscape features and describes the degree to which the landscape actually facilitates or impedes movement [@tischendorfUsageMeasurementLandscape2000].
+
+Although structural connectivity can be measured using landscape metrics alone, this often fails to predict the actual movement of organisms when the matrix between habitats is hostile. For example, two forest patches might be structurally close, but functionally isolated by a highway. That is why this project focuses on a functional approach. By integrating the roe deer's specific movement behavior and habitat preferences into the model, the resulting connectivity map reflects the organism's ability to traverse the landscape, rather than merely the geometric arrangement of features [@haddadHabitatFragmentationIts2015].
+
+### Types of Corridors
+In the context of connectivity conservation, corridors are generally classified into two functional categories: continuous linear corridors and stepping stones.
+
+Linear corridors are unbroken strips of suitable habitat that physically connect two larger core areas. Typical examples include hedgerows, riparian strips along rivers, or wooded belts. For ungulates like the roe deer, such continuous features are vital as they offer uninterrupted cover and forage during movement, significantly reducing predation risk and stress.
+
+Stepping stones, in contrast, are a series of small, discontinuous habitat patches located within a hostile matrix. While they do not provide a physical connection, they facilitate movement by offering temporary refuge for resting and feeding during Movement [@sauraEDITORSCHOICEStepping2014]. In fragmented cultural landscapes like the Swiss Plateau, where continuous forest belts are often interrupted by agriculture and infrastructure, these stepping stones are essential for maintaining functional connectivity [@jaeferDegreeLandscapeFragmentation2007]; [@sauraEDITORSCHOICEStepping2014].
+
+For this GIS analysis, the distinction is crucial: while the Least-Cost Path (LCP) algorithm seeks a continuous route of minimized resistance, the biological reality of the roe deer allows it to traverse short distances of higher-resistance "matrix" (e.g., open fields) to reach the next stepping stone. Consequently, the resistance surface must be weighted to penalize open areas and barriers without rendering them completely impassable, thereby modeling the landscape's overall permeability rather than just identifying structural links.
+
+## Roe Deer (*Capreolus capreolus*) Ecology
+### Habitat Preferences
+Ecologically, the roe deer is classified as a "concentrate selector". Unlike grazers that can digest high-fiber grass, roe deer require high-energy, easily digestible plant parts such as buds, shoots, and herbs. This physiological constraint dictates a close association with habitats offering high plant diversity.
+
+Roe deer are characterized as "edge species," exhibiting a strong preference for the transition zones (ecotones) between closed forest cover and open agricultural land. These zones allow them to optimize the trade-off between accessing high-quality forage in open fields and maintaining immediate access to cover for predator avoidance [@mysterudHabitatSelectionRoe1999]. Consequently, forest environments (landuse=forest, natural=wood) represent the primary diurnal resting habitat and are essential for concealment. Open habitats such as meadows, orchards, and farmlands are utilized primarily during nocturnal or crepuscular periods for foraging, but lack the necessary cover for permanent habitation.
+
+### Movement capabilities and Physical Constraints
+While roe deer are physically capable of swimming, they generally avoid crossing large water bodies due to the high energy expenditure required and physical risks (e.g., currents), in addition to the lack of cover. Consequently, large rivers and lakes act as significant barriers, whereas smaller streams are passable but associated with higher movement costs due to the lack of concealment. Similarly, wetlands (natural=wetland) are physically passable but energetically costly due to unstable ground conditions and lack of dense canopy cover compared to forest environments.
+
+### Barriers and Avoidance
+Anthropogenic features constitute the primary barriers to connectivity. Roe deer are highly sensitive to visual and acoustic disturbances:
+
+- Urbanization: Settlements and industrial areas are generally avoided due to human presence and lack of vegetation.
+
+- Infrastructure: Heavily used roads and railways act as barriers not only due to the physical risk of collision but also due to traffic noise, which deters crossing [@kuehnGeneticEffectTransportation2007].
+
+- Linear Obstacles: Fences and dense hedges can physically impede movement, effectively fragmenting habitat patches.
+
+- Recreation: Small paths are structurally passable, but human recreational activity, specifically the presence of walkers and dogs during the day, creates a "landscape of fear", causing deer to avoid these areas despite low physical resistance.
+
+
+## Least-Cost Path (LCP) Analysis
+### The Resistance Surface
+The resistance surface is the fundamental spatial data layer in connectivity modeling. It is a raster grid where every cell (pixel) is assigned a numerical value representing the "cost" or "energy" an organism needs when traversing that specific location [@zellerEstimatingLandscapeResistance2012]. This value integrates the biological factors defined in Section 2.2 and combines land cover suitability, anthropogenic barriers, and topographic constraints into a single indicator.
+
+Mathematically, the resistance surface represents the reciprocal of landscape permeability. High values indicate barriers (high energy expenditure), while low values indicate preferred habitat (low energy expenditure). The accuracy of the entire LCP analysis is contingent upon the biological validity of these resistance assignments [@beierUncertaintyAnalysisLeastcost2009].
+
+### Cost Distance Calculation
+Unlike Euclidean distance, which measures the "as-the-crow-flies" separation between two points, cost distance measures the cumulative "expense" of movement. The calculation employs graph theory algorithms, most notably a raster-based adaptation of Dijkstra’s algorithm [@adriaensenApplicationLeastcostModelling2003].
+
+The algorithm treats the center of each raster cell as a node and connects it to its neighboring cells. The cost to move between two adjacent cells is calculated as the distance multiplied by the average resistance of the two cells.
+
+The algorithm propagates outwards from the source habitat, calculating the "Accumulated Cost" to reach every other pixel in the study area. The result is an Accumulated Cost Surface, where the value of a pixel represents the lowest possible total cost to travel to that location from the source, avoiding high-resistance barriers where possible [@etheringtonLeastCostModellingLandscape2016].
+
+### The Path
+The final Least-Cost Path is derived from the Accumulated Cost Surface. The algorithm identifies the Target node (the destination habitat) and "backtracks" to the Source node by consistently choosing the steepest downhill gradient on the accumulated cost surface.
+
+Ecologically, this single line represents the theoretically optimal route where an animal minimizes energy expenditure and risk [@sawyerStopoverEcologyMigratory2011]. However, it is important to note that LCP models assume the animal possesses "omniscience" (perfect knowledge) of the landscape, which is a theoretical idealization. In reality, animals may deviate from this optimal path. Therefore, the LCP should be interpreted as the center line of the most probable movement corridor rather than a deterministic route [@cushmanBiologicalCorridorsConnectivity2013].
+
+# Material and Methods
+
+## Study Area
+The study focuses on the Canton of Schaffhausen, situated in Northern Switzerland and bordering Germany, as defined in the project disposition. Geographically, the region is characterized by a heterogeneous mosaic of scrub and mixed forests alternating with intensively farmed agricultural land and expanding settlements. As shown in @fig-study-area, the area is dissected by the Rhine River to the south and a dense network of transport infrastructure throughout. Another typical feature of the landscape is the A4 highway (black line in @fig-study-area), which runs from north to south and the Rhine river (Blue line in @fig-study-area), which runs from east to west.
+
+This region was selected specifically because it has been identified as one of the most fragmented cantons in Switzerland [@jaeferDegreeLandscapeFragmentation2007]. Consequently, it serves as a critical case study for modeling connectivity in a pressured Central European landscape.
+
+To ensure geometric consistency across the transboundary study area (Switzerland and Germany), all spatial datasets were reprojected to EPSG:32632 (WGS 84 / UTM zone 32N). The analysis extent (indicated by the red frame in @fig-study-area) covers the political boundaries of the canton(indicated by the yellow frame in @fig-study-area), including a buffer zone of 1000m. This specific buffer size was selected to minimize edge effects while constraining the LCP analysis to the regional context, ensuring that the model identifies necessary crossing points across infrastructure barriers rather than routing paths via extensive detours outside the study area.
+
+In the Code, the Study area was calculated by the `geocode_to_gdf` function of the `osmnx` module. This function retrieves OSM elements by place name or OSM ID with the Nominatim API. By using "Kanton Schaffhausen" as Query, the function sucessfully returned a GeoDataFrame with the geometries and positions of the Canton Schaffhausen boundary in WGS84 (EPSG:4326). The area was then converted to the EPSG:32632 (WGS 84 / UTM zone 32N) crs of the project. Then the buffering of the cantonal boundaries was carried out and subsequently a rectangular box was defined around the area, using the function `box` of the `shapely.geometry` module. The final study area geometry was directly used for clipping the manually loaded CLC data, and was backtransformed to the OSM's WGS84 (EPSG:4326) crs to access its data.
+
+![**Overview of the Study Area.** The map displays the political borders of the Canton of Schaffhausen (yellow) and the defined analysis extent (red frame). Major anthropogenic and natural barriers include the A4 motorway and the Rhine River. Visualization based on swissBOUNDARIES3D; analysis extent derived from OpenStreetMap data. Background: Bing Satellite.](images/Study_Area.png){#fig-study-area}
+
+## Software and Computational Environment
+The analysis was implemented in Python 3.10, with the computational environment managed via Mamba (an efficient, C++ based implementation of the Conda package manager) to ensure strict dependency resolution. The workflow relies on a specific stack of open-source geospatial libraries. To guarantee the long-term reproducibility of the results and the stability of the analysis pipeline, strict version pinning was applied to the core dependencies.
+
+### Dependency Management and Stability
+Geospatial software stacks are particularly prone to binary incompatibilities ("dependency hell") due to their reliance on shared C/C++ libraries, most notably GDAL (Geospatial Data Abstraction Library). To mitigate these risks, the following version constraints were enforced in the project's environment.yml configuration:
+
+- GDAL Stack Consistency: The environment aligns `libgdal (v. 3.8)` and the gdal python bindings strictly with `Rasterio (v. 1.3)`. This alignment prevents the dynamic link library (DLL) loading errors and symbol lookup failures that frequently occur when the Python bindings diverge from the underlying C libraries.
+
+- NumPy Compatibility: The fundamental numerical library `NumPy` was pinned to version 1.26. This decision was made to explicitly avoid an upgrade to `NumPy 2.0`, which introduced significant Application Binary Interface (ABI) changes that are currently incompatible with many pre-compiled geospatial binaries (wheels), ensuring the stability of the dependent stack.
+
+- Vector Processing Stability: `GeoPandas` was held at the Long-Term Support (LTS) release 0.14.4 to maintain compatibility with existing `Shapely (v. 2.0)` geometries and to avoid breaking API changes introduced in the v. 1.0 release cycle.
+
+### Automated Workflow Orchestration
+To adhere to the FAIR principles (Findable, Accessible, Interoperable, Reusable) [@wilkinsonFAIRGuidingPrinciples2016], the entire workflow is orchestrated via a custom automation script (`run_pipeline.py`). This script serves as an "Infrastructure-as-Code" wrapper that ensures the execution environment is identical across different operating systems. Upon execution, the pipeline performs the following automated steps:
+
+1. Environment Validation: It verifies the existence and integrity of the Conda environment defined in `environment.yml`. If discrepancies are detected, it triggers Mamba to align the local environment with the specified version pins.
+
+2. Context Enforcement: The script detects the active Python interpreter and, if necessary, automatically re-launches the process inside the dedicated project environment to prevent leakage from the user's base system.
+
+3. Sequential Execution: It orchestrates the processing of the modules: surface preparation, LCP calculation, and bottleneck extraction, ensuring that input dependencies for each stage are met before proceeding.
+
+This approach replaces manual environment configuration with an automated pipeline, ensuring that the complex dependency chain required for the spatial analysis is reproducible with a single command.
+
+
+## Data Preprocessing and Preparation
+### Geospatial Datasets
+To ensure reproducibility and accessibility, the model relies exclusively on open-source geospatial data.
+
+#### Primary Feature Data: OpenStreetMap (OSM)
+High-resolution landscape features were derived from OpenStreetMap (OSM). This dataset is structured as a topological network where features are described using a flexible key-value tagging system (e.g., highway=primary).
+
+Acquisition and Processing Raw data was retrieved in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH using the requests library. This format was selected for its high storage efficiency and parsing speed [@DownloadOpenStreetMapOpenStreetMap]. To efficiently cover the transboundary study area, extracts for Switzerland and the administrative region of Baden-Württemberg were downloaded in chunks and subsequently processed.
+
+A custom filtering strategy was implemented using the `pyrosm` library. The OSM class was initialized for each dataset, and features were extracted using the `get_data_by_custom_criteria` method. This method applied specific key-value filters defined in an external configuration file (`osm_resistance_costs.csv`) to retain only ecologically relevant features, such as structural barriers (tags: barrier, building, waterway) and anthropogenic disturbances (tag: highway). Simultaneously, the data was clipped to the study area bounding box. The resulting datasets were combined into a single consistent GeoDataFrame using `pandas.concat` and cached for reproducibility.
+
+```{python}
+#| echo: true
+#| eval: false
+# Parsing German data
+osm_de = pyrosm.OSM(str(PBF_DE), bounding_box=bbox).get_data_by_custom_criteria(custom_filter=custom_filter)
+# Parsing Swiss data        
+osm_ch = pyrosm.OSM(str(PBF_CH), bounding_box=bbox).get_data_by_custom_criteria(custom_filter=custom_filter)
+# Combine the GeoDataFrames        
+osm = pd.concat([osm_de, osm_ch]).drop_duplicates(subset=['id'])
+```
+
+Feature Selection: Not all OSM features are relevant to wildlife movement. A filtering strategy was applied to retain only features with functional ecological impact. The selection focused on structural barriers (tags: barrier, building, waterway) and anthropogenic disturbances (tag: highway). Specifically, the highway tag was used to distinguish between minor paths (permeable) and major motorways (impermeable), while the landuse tag defined the vegetative cover.
+
+#### Base Land Cover Data: CORINE Land Cover (CLC) 
+The CORINE Land Cover (CLC) 2018 dataset served as the foundational environmental layer. Acquired from the Copernicus Land Monitoring Service, this dataset provides standardized European land cover classification. To ensure alignment with the high-resolution OSM data, the CLC was acquired in vector format and rasterized directly to the project's 10 m target grid, mitigating aliasing artifacts [@CORINELandCover].
+
+Functioning as a "fallback layer," the CLC dataset assigns a generalized resistance value to the landscape matrix. As illustrated in @fig-clc-resistance, this layer ensures that the entire study area is covered by continuous cost values, preventing "NoData" gaps. Green areas represent low-resistance habitats (e.g., forests), while red areas indicate high-resistance zones (e.g., urban centers) that serve as broad-scale barriers before finer infrastructure details are added.
+
+![**Base Resistance Surface derived from CORINE Land Cover (CLC) 2018.** The map visualizes the generalized landscape resistance prior to the integration of high-resolution OSM infrastructure. Resistance values are dimensionless relative costs ranging from 1 (optimal habitat, dark green) to 5,000 (strong barriers, red). The yellow outline indicates the Canton of Schaffhausen. (Data source: Copernicus Land Monitoring Service 2018, swissBOUNDARIES3D).](images/CLC.png){#fig-clc-resistance}
+
+## Development of the Resistance Surface
+A hybrid rasterization approach was developed to create the final cost surface. To ensure transparency and reproducibility, all resistance values were defined in two external configuration files (`osm_resistance_costs.csv` and `clc_resistance_costs.csv`). In a first step, the CLC data was rasterized on a predefined mastergrid and used as the base map, filling up the areas where the more detailed OSM data had no values. 
+
+In a second step each individual OSM Key (e.g. landuse, natural, highway) with its OSM Values (e.g. natural: wood, grassland, cliff) was seperatly rasterized. This Rasterization step of each individual OSM Layer was conducted using the Priority values from the `osm_resistance_costs.csv` file. By activating the `merge_alg=MergeAlg.replace` parameter in the rasterisation function, the OSM values with a low priority (e.g. wood, grassland) were overwritten by the OSM values with a high priority (e.g., cliff, bare_rock), in each individual OSM layer (OSM Key) when they overlapped.
+
+```{python}
+#| echo: true
+#| eval: false
+features.rasterize(shapes=shapes, out=raster, transform=meta['transform'], 
+                   merge_alg=MergeAlg.replace, all_touched=True)
+```
+
+In the final step all distinct OSM Layers (OSM Key) were integrated following a "Barrier Dominance" principle: High-resolution OSM Layers (OSM Key) were combined with the CLC base map using a maximization function. This ensured that if a high-cost barrier (e.g. a motorway in OSM) intersects a lower-cost land cover (e.g. a Mixed forest in CLC), the higher resistance value is retained, ensuring barriers are not underestimated. Resistance values range from 1 (optimal habitat) to 5000 (functional barrier).
+
+```{python}
+#| echo: true
+#| eval: false
+for p in osm_paths:
+    with rasterio.open(p) as src:
+        overlay = src.read(1)
+        overlay = np.nan_to_num(overlay, nan=0.0)
+        final_arr = np.maximum(final_arr, overlay)
+```
+
+### Weighting Scheme
+To translate ecological behaviors into the resistance model, specific resistance values were assigned based on the "COST 341" framework for transport infrastructure and scientific literature regarding Roe Deer habitat preferences [@iuellCOST341Habitat2003]; [@kuehnGeneticEffectTransportation2007].
+
+Optimal Habitat (Cost 1): Dense Forested areas (landuse=forest) were assigned the lowest cost, as they provide primary cover and resting habitat. 
+
+Permeable Matrix (Cost 5–20): Agricultural lands were assigned moderate costs. While permeable, they lack cover and expose the animal to predation risk. 
+
+Infrastructure Gradient: A steep cost gradient was applied to roads based on traffic intensity and fencing probability. Minor tracks received a cost of 20, while primary roads and motorways received costs of 2000 and 5000, respectively, reflecting their status as major behavioral and physical barriers. 
+
+Functional Barriers: A theoretical maximum cost of 5000 was assigned to buildings and motorways. These values are not set to "Infinity" to allow the model to identify critical bottlenecks: if a calculated path is forced through a building, it highlights a severe connectivity deficit rather than failing to find a path entirely.
+
+### Vector to Raster Conversion
+To integrate the vector-based Data into the grid-based resistance model, a rasterization process was executed using the `features.rasterize` module from the `Rasterio` library.
+
+This function serves as the bridge between vector and raster data structures. It accepts a list of geometry-value pairs and "burns" the assigned resistance cost into a target array that matches the spatial properties of the project's 10-meter resolution master grid. The function iterates through the vector geometries and identifies which grid cells are spatially coincident with the polygon or line features.
+
+A critical technical specification in this workflow was the activation of the `all_touched=True` parameter. Standard rasterization algorithms typically use a "center-point" rule, where a pixel is only assigned a value if the vector geometry covers its center. By enforcing the `all_touched=True` rule, any pixel intersected by a vector geometry was assigned the feature's resistance value. This step was essential to ensure the topological continuity of linear barriers (e.g., fences, walls, and narrow streams). Without this parameter, the rasterization process would create artificial gaps in these barriers, through which the Least-Cost Path algorithm could incorrectly route a wildlife corridor, leading to biologically invalid results.
+
+## Connectivity Modeling
+The connectivity analysis was performed using a node-based approach, where "nodes" represent core habitat patches capable of supporting a roe deer population. 
+
+### Node Identification
+To model connectivity systematically across the study area, a regular grid sampling approach was implemented to define potential start and end nodes.
+
+Grid Resolution Optimization: The spacing of the sampling grid was determined through iterative sensitivity testing. Initial trials with a coarse grid (10 km spacing) yielded insufficient node density to capture local corridor dynamics, while a fine grid (1 km spacing) resulted in excessive computational overhead and path redundancies. A 2 km grid spacing was established as the optimal trade-off, balancing spatial coverage with computational efficiency.
+
+Node Validation: To ensure ecological realism, a validation filter was applied to the raw grid (@fig-grid). Connectivity models must simulate movement between viable habitats, not arbitrary points in space. Therefore, grid nodes were strictly filtered to retain only those located in optimal habitat (Resistance Value = 1). As shown in @fig-nodes, points falling on barriers (e.g., settlements, water) or sub-optimal matrix were discarded.
+
+Valid Habitat Classes: The specific land cover classes accepted as valid start/end nodes included:
+
+OSM: landuse=forest, natural=wood
+
+CLC: Broad-leaved forest, Mixed forest
+
+This step ensures that all simulated trajectories (@fig-traj) originate and terminate in core habitat patches, reflecting realistic roe deer behavior.
+
+::: {#fig-methodology layout-ncol=2}
+
+![**Grid Overlay.** Initial 2 km sampling grid superimposed on the resistance surface.](images/method_01_grid.png){#fig-grid}
+
+![**Node Validation.** Grid points are filtered based on underlying resistance values. Red crosses indicate invalid nodes; Green dots indicate valid nodes.](images/method_02_valid_nodes.png){#fig-nodes}
+
+![**Path Simulation.** Exemplar Least-Cost Paths calculated between a subset of valid nodes (n=8).](images/method_03_trajectories.png){#fig-traj}
+
+**Methodological workflow for modeling wildlife connectivity.** The process consists of three stages: **(a)** Systematically sampling the study area with a 2 km grid (@fig-grid); **(b)** Validating nodes to ensure paths originate in suitable habitat (@fig-nodes); and **(c)** Computing pairwise Least-Cost Paths between valid nodes (@fig-traj).
+:::
+
+### Least-Cost Path (LCP) Analysis
+Functional connectivity between the identified habitat nodes was modeled using the `skimage.graph.MCP_Geometric` class. Unlike standard raster pathfinding algorithms that rely on Manhattan distance (4-connectivity), this class implements a cost-distance algorithm that accounts for the Euclidean distance between cell centers. By correctly weighting diagonal movements by a factor of $\sqrt{2}$, it prevents the geometric distortion (the "elongation" effect) common in simple grid-based models.
+
+Algorithm Implementation: The analysis followed a three-step computational workflow:
+1. Graph Initialization: An `MCP_Geometric` object was instantiated using the resistance surface. The parameter `fully_connected=True` was explicitly set to enable 8-neighbor connectivity, ensuring that the algorithm considers both cardinal and diagonal cell transitions during pathfinding.
+2. Cost Surface Computation: The `find_costs` method was executed to calculate the least-cost distance from a source node to all other pixels in the landscape. This step generates the "traceback graph" required for path reconstruction.
+3. Path Reconstruction and Optimization: To optimize computational efficiency, the algorithm iterated through the list of valid nodes using a non-redundant pairwise approach (calculating paths only for node pairs $i, j$ where $j > i$). This effectively halved the required processing time by avoiding duplicate calculations for the reverse directions of the same trajectory. The `traceback` method was then used to retrieve the discrete coordinates of the optimal path for each unique pair.
+
+Corridor Density Map: Finally, to visualize the spatial concentration of movement, a pixel density raster was generated. For every successfully simulated path, the values of the traversed pixels were incremented by 1. The resulting heatmap highlights "pinch points" and high-movement corridors where multiple trajectories converge, identifying key areas for connectivity conservation.
+
+## Bottleneck extraction and Visualisation
+The `03_extract_bottlenecks.py` script was used for generating plots of the Grid definition and an example LCP calculation without interfering the actual calculations in `02_local_lcp_analysis.py`. Furthermore, this script created a useful CSV table (`clustered_bottlenecks.csv`) with all bottlenecks, their exact locations, their intensity, and the number of pixels belonging to each bottleneck. After that, main corridors were defined as the pixels that have been crossed most frequently (5% highest values in the LCP output). These main corridors were then filtered again based on the resistance surface. Values above 3000 correspond to major problem areas that a deer would avoid if possible. The bottleneck pixels were therefore defined as pixels with a high number of crossings (top 5%) and high resistance (3000-5000). Subsequently, these pixels were clustered using `scipy.ndimage` to combine several adjacent problem pixels into one bottleneck. These bottlenecks can be seen in @fig-bottlenecks and @tbl-bottlenecks in the Results section.
+
+All other visualizations were produced in QGIS, as this software offered substantially higher output quality and enabled the creation of maps that closely followed official cartographic standards. This approach also ensured consistent formatting, clearer spatial representation, and a more professional appearance across all map products.
+
+## Declaration of Generative AI Usage
+In accordance with the ZHAW guidelines regarding scientific integrity and the use of digital tools, generative AI systems were utilized to support the technical implementation and linguistic quality of this project. Specifically, Large Language Models (Google Gemini) were employed for the following purposes:
+
+- Code Assistance: The AI served as a technical assistant for debugging Python scripts and optimizing the automation pipeline (e.g., run_pipeline.py). All generated code snippets were critically reviewed, tested, and adapted by the author to ensure functionality and reproducibility.
+
+- Linguistic Refinement: AI tools were used to improve the grammatical accuracy and readability of the English text. The underlying scientific arguments and structure remain the original work of the author.
+
+The verification of the accuracy and relevance of the AI-generated outputs, as well as the responsibility for the final content, lies solely with the author. A detailed list of the specific tools used is provided in the Appendix.
+
+# Results
+
+## Analysis of the Resistance Surface
+As illustrated in @fig-resistance, the generated resistance surface visualizes landscape permeability for Roe Deer across the Canton of Schaffhausen. To highlight landscape heterogeneity, the data is visualized using a categorical color scheme based on land cover types.
+
+### Spatial Patterns and Barriers
+The analysis reveals a highly fragmented landscape. The urban agglomeration of Schaffhausen forms a massive high-resistance block (indicated in red in @fig-resistance) centrally located in the study area. This urban core connects southward to the A4 motorway, creating a continuous east-west barrier that effectively bifurcates the region. Similarly, the urban area of Singen presents a significant obstacle in the northeastern sector. The Rhine River functions as a prominent linear barrier, delineating the southern boundary of the canton with consistently high resistance values.
+
+### Habitat and Matrix
+Conversely, the Randen massif in the northwest and the forested hilltops throughout the canton form large, contiguous patches of low-resistance habitats (Dark Green, corresponding to Dense and Open Forest). These optimal habitats are embedded within an agricultural matrix (light Green/Yellow, corresponding to Agriculture and Grassland). While this matrix allows for movement, @fig-resistance shows that it is heavily dissected by a dense network of secondary roads and railways (Orange lines), effectively isolating the core habitat patches into discrete islands.
+
+![**Integrated Resistance Surface modeling landscape permeability.** The map displays the cost for roe deer movement, categorized by land cover type. **Dark Green areas** represent optimal habitat (Dense Forests, Cost=1); **Green areas** represent very suitable habitat (Open Forests, Cost=2-5); **Light Green areas** represent suitable habitat (Grassland, Cost=5-10); **Yellow areas** represent the permeable agricultural matrix (Cost=10-100); **Light Orange areas** indicate Contact Zones with human (Parks, small roads);**Dark Orange lines** indicate intermediate barriers (Secondary Roads, Railways); and **Red features** denote high-resistance barriers (Motorways, Urban Settlements, Cost=5000). **Inset A** shows the structure of the resistance surface at the pixel level. (Data sources: Copernicus Land Monitoring Service 2018, OpenStreetMap 2025).](images/resistance_surface.png){#fig-resistance}
+
+
+## The Modeled Connectivity Network
+The Least-Cost Path (LCP) analysis successfully identified 53 core habitat nodes suitable for Roe Deer. The resulting connectivity network (@fig-connectivity) visualizes the pixel crossing intensity of all modeled movement trajectories.
+
+### Network Topology and Traffic Density
+The network is anchored by nodes distributed on a 2 km grid. A critical methodological constraint restricted start and end points exclusively to optimal habitat pixels (Cost = 1) to ensure biological realism. The calculated paths are visualized in @fig-connectivity as Resampled Raster Paths and are highlighted using a vectorized version with the enable Symbol layer parameter.
+
+- Dispersed Movement (White / light Red): The brighter lines represent dispersed routes used by only a few trajectories. These indicate permeable landscape sections where movement is not spatially constrained to a single track.
+
+- High-Intensity Corridors (Bright Red): The prominent red segments (up to ~482 overlapping paths) identify functional "hotspots". In these locations, landscape barriers funnel movement from multiple origins into narrow, high-traffic channels.
+
+### Ecological Observations
+The overlay of the network onto the resistance surface highlights two primary ecological dynamics:
+
+- Barrier Avoidance: The modeled paths show clear avoidance behavior, "flowing" around high-resistance urban clusters (shown on the Basemap in @fig-connectivity) and major infrastructure. Notably, there are no direct traversals through the city center of Schaffhausen or across wide sections of the Rhine, validating the model’s penalty sensitivity. 
+
+- The "Western Corridor" (Klettgau): A significant funneling effect is observed to the west of the Schaffhausen urban agglomeration. A high-intensity corridor (Red in @fig-connectivity) runs North-South, connecting the German border region/Randen massif towards the Rhine. This suggests that the urban sprawl of Schaffhausen effectively blocks eastward movement, forcing the regional wildlife flow into this specific bypass route. In addition, this “western corridor” encompasses a lot of agricultural land and therefore consists of several pixels with higher resistance than the optimal forest, which is another reason why it is always completely bypassed. 
+
+![**Modeled Wildlife Corridors (Pixel Intensity/Crossings).** The map visualizes functional connectivity for Roe Deer on a 2 km sampling grid. The background displays satellite imagery from Bing Satellite. **White/light Red** lines indicate dispersed movement, while **Bright Red** zones identify high-Crossing bottlenecks where barriers funnel trajectories into narrow corridors. (Data source: Model simulation, Bing Satellite).](images/Corridors.png){#fig-connectivity}
+
+
+## Identification of Critical Bottlenecks
+### Methodological Definition
+Critical bottlenecks were spatially defined by intersecting high-crossing Pixels with high-resistance landscape features. First, "Main Corridors" were isolated by selecting the top 5% of pixels with the highest intensity/crossing number. These pixels were then overlaid with the resistance surface. If such a main corridor pixel, simultaneously possess a high resistance value (Cost 3000–5000), it was classified as a High-Risk Bottleneck (highlighted by Black Circles in @fig-bottlenecks).
+
+### Ecological Interpretation
+The background of @fig-bottlenecks visualizes the resistance surface, where white/light areas represent high-resistance barriers (urban/infrastructure) and dark grey areas represent permeable land (forests). The identified points (1–6) mark locations where wildlife is forced to cross these high-risk features.
+
+Ecologically, these bottlenecks represent "least-bad" options. The energetic cost of traversing the barrier at these specific points is lower than the cost of a long-distance detour. For instance, a road might run between two adjacent forest patches, even if the road is a barrier, the short gap between the forests represents the most viable crossing point compared to the surrounding open agricultural matrix.
+
+![**Map of Critical Bottlenecks.** The analysis identifies 6 high-priority conflict points (Black Circles 1–6) where major wildlife corridors intersect with high-resistance barriers. The background displays the resistance surface (White = High Resistance/Urban; Dark = Low Resistance/Habitat). The size of the black circles corresponds to the amount of pixel crossings at the bottleneck, indicating the intensity of use. (Data source: Model simulation).](images/Bottlenecks.png){#fig-bottlenecks}
+
+```{python}
+#| label: tbl-bottlenecks
+#| tbl-cap: "List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 3. Coordinates are in CH1903+ / LV95 (EPSG:2056)."
+#| echo: false
+#| output: asis
+
+import pandas as pd
+from pyproj import Transformer
+
+csv_path = "images/clustered_bottlenecks.csv"
+
+try:
+    # 1. Load data
+    df = pd.read_csv(csv_path)
+
+    # 2. Coordinate Conversion (EPSG:32632 -> EPSG:2056)
+    # We assume input Easting/Northing are in UTM 32N based on your previous caption.
+    transformer = Transformer.from_crs("EPSG:32632", "EPSG:2056", always_xy=True)
+    
+    # Transform coordinates
+    # always_xy=True ensures (Easting, Northing) order
+    e_lv95, n_lv95 = transformer.transform(df['Easting'].values, df['Northing'].values)
+    
+    # Format as standard Swiss coordinates (integer precision)
+    df['Coordinates'] = [f"{int(e)} / {int(n)}" for e, n in zip(e_lv95, n_lv95)]
+
+    # 3. ID and Location Handling
+    # Map Cluster_ID to the Map ID 
+    if 'Cluster_ID' in df.columns:
+        df['ID'] = df['Cluster_ID']
+    else:
+        # Fallback if Cluster_ID is missing
+        df['ID'] = range(1, len(df) + 1)
+
+    # 4. Select and Rename Columns
+    # We use 'Total_Intensity' as the measure for Path Intensity
+    df_display = df[['ID', 'Coordinates', 'Pixel_Count', 'Average_Intensity', 'Total_Intensity']]
+    df_display.columns = ['Map ID', 'Coordinates (EPSG:2056)', 'Pixel Count', 'Average_Intensity', 'Path Intensity']
+
+    # 5. Render
+    print(df_display.to_markdown(index=False, numalign="center", stralign="left"))
+    print("\n")
+
+except Exception as e:
+    print(f"**Error processing table:** {e}")
+    if 'df' in locals():
+        print(f"\nAvailable columns were: {list(df.columns)}")
+```
+
+# Discussion
+
+## Interpretation of Connectivity Patterns
+The results of this study confirm the hypothesis that the Canton of Schaffhausen functions as a highly fragmented landscape for large mammals. The resistance surface and subsequent LCP analysis highlight that ecological connectivity for Roe Deer is not limited by physical distance, but by the permeability of the anthropogenic matrix.
+
+### Network Topology and Funneling Effects
+The modeled connectivity network (@fig-connectivity) reveals that the landscape does not support diffuse, free-flowing movement. Instead, the path geometry exhibits a distinct "dendritic" or spider-web topology. This pattern indicates that movement is severely constrained by the high-resistance zones identified in the resistance surface (@fig-resistance).
+
+A primary finding is the identification of a significant North-South funnel located to the west of the Schaffhausen urban agglomeration. This "western corridor" appears to be the only functional biological link connecting the German habitats in the north (Baden-Württemberg) with the Swiss plateau in the south for this region. This distinct channeling effect is driven by two landscape factors:
+
+- Landscape Composition: The intense agricultural activity in the Klettgau region and the abundance of specific coniferous forest structures, which offer less optimal cover than dense mixed forests, constrain wildlife into specific routes.
+
+- Impermeable Blockades: The City of Schaffhausen combined with the adjacent A4 motorway acts as a massive barrier, effectively severing eastward movement.
+
+Consequently, the high path density observed in these corridors (red lines in @fig-connectivity) does not represent "preferred" habitat, but rather obligatory passage. As noted by @haddadHabitatFragmentationIts2015, such reliance on singular, high-intensity connections reduces the resilience of the metapopulation, the blockage of a single bottleneck (e.g., by new construction) could disproportionately isolate large habitat areas.
+
+### The Role of Infrastructure and Settlements
+The spatial distribution of critical bottlenecks (@fig-bottlenecks) confirms that linear barriers, specifically the A4 highway and the Rhine river, constitutes a primary limitation to connectivity. The model successfully captures the "Barrier Effect", where calculated paths run parallel to highways or the Rhine river for long distances, searching for a gap with lower resistance. The clustering of bottlenecks where high movement intersects with high resistance values ($\ge 3000$) confirms these as conflict zones where biological needs collide with anthropogenic land use.
+
+However, while linear barriers create specific conflict points, the model suggests that settlement boundaries are the dominant force shaping the overall network topology. The high cost weights assigned to urban areas force the Least-Cost Paths to circumnavigate towns and cities entirely. Thus, while roads act as filters that are occasionally crossed, settlements act as obstacles that dictate the macro-structure of the wildlife corridors.
+
+## Spatial Analysis of Conflict Zones
+A quantitative summary of the most critical pinch points is presented in Table @tbl-bottlenecks. The spatial distribution highlights specific conflict zones:
+
+**Bottleneck 1 (Thayngen)** 
+Located along the A4 motorway between Schaffhausen and Thayngen, this point represents a critical constriction where the transport infrastructure creates a continuous, high-resistance barrier. The barrier effect is compounded by the railway line running parallel to the motorway.
+
+Despite the high anthropogenic resistance, the model identifies this location as the optimal local crossing point. This is due to the presence of two opposing forest patches that approach the infrastructure closely on both sides (see @fig-bottleneck1). Ecologically, this minimizes the distance Roe Deer must travel through open, unprotected terrain. While the crossing entails significant mortality risk and energetic cost, the immediate availability of protective cover makes it the "least-cost" option compared to the surrounding open grass landscape.
+
+At the moment, there are only deer warning signs for drivers, which suggests that collisions between cars and deer do indeed occur frequently at this location. Therefore, a wildlife underpass at this location would be highly recommended, as it would significantly improve the north-south connections of the wildlife corridors.
+
+![**Detail Analysis of Bottleneck 1 (Thayngen).** A comparison between high-resolution aerial imagery (Left) and the modeled resistance surface (Right). The model successfully identifies the narrow vegetated strip between the railway line and the A4 motorway as a viable, albeit high-risk, migration corridor (Red pixels). (Aerial Image: Google Maps).](images/Bottleneck1.png){#fig-bottleneck1}
+
+**Bottleneck 2 (Western Corridor)**
+The Beringen Constriction Bottleneck 2 recorded the highest crossing intensity of the entire network. The model identified this location as the sole functional link connecting the northern and southern populations within the western sector (Klettgau). Spatially, the corridor aligns with a narrow strip of forest sandwiched between a primary road, a railway line, and the Beringen settlement edge.
+
+While the LCP algorithm identified this as an optimal path based on land cover (forest), a closer inspection of the topography reveals a critical potential barrier. As shown in @fig-bottleneck2 (Right), the OpenStreetMap data indicates cliffs (toothed lines) running parallel to the infrastructure. The discontinuity of the cliff features in the vector data allowed the algorithm to find a "gap" beside the cliff. However, this is not very realistic, as there is usually still very steep terrain next to a cliff, which is also very difficult for Roe deer to overcome. Because the resistance surface was derived primarily from land cover (2D), the steep vertical gradients of these regions were likely underestimated. In reality, the topographic slope may render this corridor impassable for Roe Deer.
+
+If this corridor is indeed impassable due to topography, the western sector suffers from complete functional isolation. The only alternative for wildlife would be to traverse the open, higher-resistance agricultural plains of the Klettgau, which entails significantly higher mortality risks. This highlights the importance of integrating a Digital Elevation Model (DEM) in future iterations to account for slope-based resistance.
+
+![**Topographic Analysis of Bottleneck 2 (Beringen).** **Left:** Aerial imagery shows the narrow forest strip along the transport infrastructure. **Right:** The model trajectory (Red pixels) follows the forest cover. However, the topographic map background reveals **cliff features** (indicated by toothed lines) parallel to the road. This suggests the modeled path may be physically impassable due to steep slopes, highlighting a limitation of the 2D resistance surface. (Map Data: OpenStreetMap; Aerial: Google Maps).](images/Bottleneck2.png){#fig-bottleneck2}
+
+**Bottleneck 3 (Jestetten-Lotstetten)**
+This location highlights a limitation regarding the weighting of resistance parameters. The model identifies the railway line as a critical bottleneck due to the high resistance value assigned to rail infrastructure (3000). However, this likely represents an overestimation of the barrier effect. Unlike motorways, where traffic noise and collision risk are continuous, regional railway traffic is intermittent. Physically, standard tracks (absent of noise protection walls) present negligible obstruction to Roe Deer. Consequently, the model treats this railway as a "hard barrier" similar to a highway, whereas in reality, it likely possesses a much higher permeability. This finding suggests that future model iterations should refine the input sensitivity (in `osm_resistance_costs.csv`) to distinguish between high-speed fenced rail lines and permeable regional tracks, potentially lowering the cost for the latter to shift focus toward high-risk roadways.
+
+![**Parameter Sensitivity Analysis at Bottleneck 3.** **Left:** Aerial view of the regional railway line near Jestetten, showing a permeable structure without fences. **Right:** The model identifies a bottleneck (Red pixels) crossing the high-resistance railway pixels (Grey). This highlights the model's sensitivity to the assigned cost values ($R=3000$), which likely overestimates the fragmentation effect of regional rail compared to roads. (Aerial: Google Maps).](images/Bottleneck3.png){#fig-bottleneck3}
+
+**Bottleneck 4 (Rhine)**
+The Rhine River functions as the primary linear barrier separating the northern and southern sub-populations of the canton. While Roe Deer are capable of swimming, the high flow velocity and steep, anthropogenically modified banks create high resistance values throughout the river course.
+
+The model identifies the location in the south of Rheinau (@fig-bottleneck4) as the primary connectivity link across this barrier. This selection is driven by two landscape metrics:
+
+- River Morphology: It represents one of the narrowest sections of the Rhine in the study area.
+
+- Land Cover Continuity: As seen in the aerial comparison, dense riparian forest extends to the riverbank on both sides.
+
+This creates a "stepping stone" effect where the exposure to open terrain is minimized. From a conservation planning perspective, this location represents the most effective site for restoring functional connectivity, whether through bank renaturation to facilitate swimming or the construction of a dedicated wildlife crossing structure.
+
+![**Connectivity Analysis at Bottleneck 4 (Rhine River).** **Left:** Aerial imagery reveals dense riparian forest bordering the riverbanks. **Right:** The model identifies this specific reach as the optimal crossing point (Red pixels). The selection minimizes the crossing distance over the high-resistance water body (Grey) while maximizing travel through low-resistance forest cover. (Aerial: Google Maps.](images/Bottleneck4.png){#fig-bottleneck4}
+
+**Bottleneck 5 (Schneitenberg / Andelfingen)**
+This location serves as a critical "Ground Truth" validation for the entire connectivity model. Located along the A4 motorway near Andelfingen, the model identified a high-priority crossing point where the motorway bisects two expansive forest blocks.
+
+The LCP algorithm selected this specific coordinate because it minimizes the crossing distance over the high-resistance road surface while maximizing the proximity to protective cover on both sides. As illustrated in the split-view comparison (@fig-bottleneck5), this modeled trajectory aligns precisely with the existing Schneitenberg Wildlife Overpass.
+
+Because the specific low resistance of the bridge was not explicitly hard-coded into the resistance surface (i.e., the model viewed it as a standard road segment), this result confirms the model's high predictive power. It demonstrates that the geometric approach successfully identifies the same optimal ecological links that have been prioritized by real-world landscape planning. The model correctly "predicted" the location of a conservation structure based solely on landscape connectivity principles.
+
+![**Model Validation at Bottleneck 5 (Schneitenberg).** **Left:** Aerial imagery confirms the existence of a dedicated wildlife overpass (Green Bridge) connecting the forest patches across the A4 motorway. **Right:** The model, driven solely by landscape resistance and habitat geometry, independently places the optimal crossing trajectory (Red pixels) at the exact location of the existing structure. This serves as a robust validation of the LCP algorithm's accuracy. (Aerial: Google Maps).](images/Bottleneck5.png){#fig-bottleneck5}
+
+**Bottleneck 6 (Marthalen / Andelfingen)**
+Similar to Bottleneck 3, the identification of this crossing is partially driven by the high resistance value assigned to railway infrastructure ($R=3000$). However, unlike the isolated rural track at Jestetten, this location represents a larger barrier system. As visible in the aerial imagery (@fig-bottleneck6), the railway runs in immediate proximity to a secondary cantonal road. While the railway itself may be permeable, the combined width of the multi-modal transport corridor significantly increases the "exposure time" for crossing wildlife, validating its classification as a risk zone. 
+
+Despite the confirmed risk, this location represents a lower priority for structural intervention compared to the massif barriers at the A4, Rhine river or "western Corridor" (Klettgau). In those locations, functional connectivity is completely severed. At Bottleneck 6, permeability likely still exists during periods of low traffic. Therefore, mitigation resources should be allocated to the A4, Rhine and western Corridor crossings first.
+
+![**Multiple Barrier Analysis at Bottleneck 6.** **Left:** Aerial imagery showing the parallel alignment of the railway line and the road network. **Right:** The model identifies a crossing point (Red pixels) where the gap in the forest cover is narrowest. While identified as a bottleneck, this location is considered a secondary priority compared to the impermeable barriers of the A4 motorway. (Aerial: Google Maps).](images/Bottleneck6.png){#fig-bottleneck6}
+
+## Model Plausibility and Real-World Relevance
+### Cross-Verification
+The plausability of the modell is supported by a spatial cross-verification with an independent traffic accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen (IUNR) @PraeventionWildtierunfaellenAuf.
+
+@fig-accidents visualizes the spatial distribution of the modeled high-risk bottlenecks (Red Dots) against the regional infrastructure network. A visual inspection reveals a nuanced relationship between the connectivity model (LCP) and the accident risk model (RML).
+
+High-Risk Alignment: A strong correlation is observed at Bottleneck 2 and Bottleneck 6. Bottleneck 2 coincides with a "very high" risk segment (red line), confirming the model's prediction of high animal movement pressure, although local topological constraints may severely limit the feasibility of a wildlife overpass at this specific location. Similarly, while Bottleneck 6 is centered on a railway line, the immediately adjacent road segment is classified as "very high" risk, suggesting a corridor that spans both infrastructure types.
+
+Mitigated or Latent Risk: In some instances, the connectivity model identifies bottlenecks where the recorded accident risk is "very low" (light green lines). Bottleneck 5, located on the A4 motorway, is classified as low risk, this is likely attributable to an existing wildlife overpass at this location which successfully mitigates collisions while confirming the high connectivity value of the segment. Bottleneck 1 is also situated on a low-risk road segment, though the presence of roe deer warning signs suggests a known hazard potential that may not be fully reflected in the accident statistics.
+
+Non-Road Barriers: Finally, the model identifies barriers outside the road network. Bottleneck 3 is located on a railway line, and Bottleneck 4 is situated on the Rhine river. As the RML dataset is specific to road traffic accidents, these significant landscape barriers do not possess a corresponding risk classification in the reference model.
+
+![**Spatial cross-verification of modeled ecological connectivity against independent accident risk data.** The map displays the locations of identified high-density bottlenecks (red markers, numbered 1–6), derived from the Least-Cost Path (LCP) analysis, superimposed on the infrastructure network classified by the Risk of Wildlife Accidents model. Road segments are color-coded by collision risk ranging from very low (light green) to very high (red). The numbered bottlenecks illustrate specific interaction types discussed in the text: alignment with high-risk roads (2, 6), mitigation by existing structures (5), and non-road barriers such as railways (3, 6) and the Rhine river (4). Base map: Bing Satellite.](images/traffic_accidents.png){#fig-accidents}
+
+### Ground Truthing
+A critical "ground truth" validation is provided by the specific analysis of Bottleneck 5 (identified in @tbl-bottlenecks). The Least-Cost Path (LCP) model pinpointed this location as a high-priority crossing point based on the underlying resistance surface without explicit prior programming of the specific infrastructure.
+
+@fig-overpass presents a direct comparison between the physical reality and the simulation output. The left panel displays satellite imagery of the Schneitenberg wildlife overpass spanning the A4 motorway. The right panel illustrates the corresponding LCP analysis. As highlighted by the red circle, the modeled path does not traverse the highway barrier arbitrarily. Instead, the pathfinding algorithm funnels the route effectively to the precise coordinates of the existing bridge.
+
+The fact that the algorithm independently navigated the path to the location where civil engineers previously sited a green bridge serves as a strong indicator of model robustness. It suggests that the resistance surface correctly captures the landscape features that naturally guide Roe Deer to the most energetically efficient crossing points.
+
+![**Ground-truthing of the connectivity model at the A4 motorway (Bottleneck 5).** **Left:** Satellite imagery showing the existing Schneitenberg wildlife overpass. **Right:** Result of the Least-Cost Path analysis for the same spatial extent. The modeled corridor (teal line) traverses the high-resistance motorway barrier (black) exactly at the location of the existing structure (red circle), validating the resistance surface's ability to identify optimal crossing points based on surrounding landscape morphology.](images/Wildlife_Passage.png){#fig-overpass}
+
+## Implications for Spatial Planning and Nature Conservation
+The results of this study underscore that ecological connectivity in the Canton of Schaffhausen relies on a fragile network of specific corridors. The identification of these functional pathways provides a data-driven basis for prioritizing conservation efforts.
+
+### 1. Restoration of the "Western Corridor"
+The analysis reveals a critical disconnect in the North-South connectivity to the west of the Schaffhausen urban agglomeration (see @fig-connectivity). Unlike the eastern sectors, the model identifies no continuous functional corridor here. Instead, the potential route is severed by an extensive, contiguous zone of intensive agriculture in the Klettgau valley. This "agricultural desert" currently acts as a high-resistance barrier, forcing roe deer into energetically costly detours or completely blocking dispersal between the German Randen habitats and the Swiss Plateau.
+
+- Planning Implication: Simply preserving the status quo is insufficient, as the current landscape structure does not support migration. Spatial planning policies must shift from preservation to active habitat restoration. Without intervention, the eastern roe deer populations remain at risk of genetic isolation due to the lack of a viable western alternative.
+
+- Recommendation: To re-establish this biological lifeline, a system of "stepping stones" must be integrated into the agricultural matrix. This includes planting hedgerows, creating wildflower strips, and re-naturalizing stream banks to provide necessary cover and reduce the effective distance between forest patches. This area should be prioritized for ecological compensation measures to lower the resistance of the landscape and eventually facilitate a functional "Wildlife Corridor of National Importance".
+
+### 2. Mitigation Measures at Critical Bottlenecks
+The bottlenecks identified in Table @tbl-bottlenecks represent acute conflict zones. The validation of Bottleneck 5 (Schneitenberg) confirms that the model correctly identifies locations requiring engineering solutions.
+
+- Targeted Retrofitting: The remaining unmitigated bottlenecks should be assessed for retrofitting. Where wildlife overpasses (Green Bridges) are not establishing feasible, cost-effective alternatives such as underpasses combined with guiding fences is recommended to channel animals away from road surfaces.
+
+- Traffic Management: For bottlenecks on secondary roads where structural mitigation is too costly, dynamic traffic signaling (e.g., speed reduction warnings during crepuscular hours) could reduce collision risk.
+
+### 3. Enhancing Matrix Permeability
+The LCP analysis shows that roe deer are forced to cross vast stretches of agricultural land ("stepping stones") to reach cover.
+
+Ecological Infrastructure: To support the function of these corridors, the agricultural matrix must be structurally enriched. The promotion of hedgerows, field margins, and riparian strips (Buntbrachen) within the identified high-traffic corridors would lower the resistance cost, providing visual cover and reducing stress for migrating animals.
+
+## Methodological Reflection and Limitations
+### Computational Artifacts: Path Dispersion
+A technical challenge encountered during the LCP analysis was the "path smearing" effect. Because the algorithm calculates optimal routes on a pixel-by-pixel basis, distinct paths often crossed linear barriers in close proximity but on different pixels. This resulted in a spatial dispersion of the crossed pixels, leading to an initial underestimation of traffic intensity at specific bottlenecks. Future iterations of the model could mitigate this by applying a focal statistics filter (e.g., a Kernel Density Estimator) to the traffic raster. This would aggregate adjacent pixel values into a coherent "corridor width", better representing the biological reality of animal movement zones rather than exact linear trajectories.
+
+### Temporal Stationarity
+A fundamental limitation of the model is its static nature. The landscape is represented as a fixed snapshot based on the CLC 2018 and current OSM datasets. Consequently, the model does not account for temporal dynamics, such as:
+
+- Seasonal Variations: The permeability of agricultural land changes drastically between harvest (high visibility/risk) and peak growth (high cover).
+
+- Diurnal Traffic Patterns: The resistance of roads is treated as constant, whereas in reality, traffic volume fluctuates significantly between day and night, influencing crossing success probabilities.
+
+In addition, future improvements could better adapt the preferred areas of deer. Since deer tend to stay at the edge of the forest, the model could be made even more accurate by explicitly selecting these forest edges as starting points for the LCP calculation.
+
+### Data Granularity and Topography
+The model's precision is intrinsically linked to the resolution of the input data.
+
+- Topographic Simplification: The exclusion of slope data represents a geometric simplification. While this approach is valid for the relatively flat agricultural plateau of the Klettgau, it likely overestimates connectivity in the rugged Randen massif, where steep gradients impose significant energetic costs on roe deer. As described in the report, the lack of Slope data has created a bottleneck that appears impossible for deer to cross due to the cliffs.
+
+- Data Heterogeneity: While OpenStreetMap provides high-resolution data for infrastructure, the attribute completeness (e.g., fence heights or exact forest types) varies. Proprietary data (e.g., LiDAR-derived vegetation height models) would be required to model micro-habitat features, such as understory density, which significantly influences shelter availability.
+
+### Protocolbuffer Binary Format
+Another notable limitation of the model arises from the way OpenStreetMap (OSM) data are loaded and processed from .pbf files. OSM stores geographic information as raw primitives (nodes, ways, and relations), which must be reconstructed into complete geometries. When this reconstruction is performed in Python, certain features appeared distorted and incorrectly assembled. These inconsistencies resulted from missing relation components, clipped or filtered PBF extracts, or differences in how Python libraries interpret coordinate encodings and topology. As a consequence, some OSM-derived inputs contain irregular geometries or attribute inconsistencies, which introduce some uncertainty into the model and limit the reliability of analyses based on these features. A future improvement to the model could be made by downloading these OSM features correctly in Python. It would also be possible to download the data in QGIS and import it into Python, but this would lead to a loss of reproducibility and was therefore avoided.
+
+### Scalability, Reproducibility and High-Performance Computing
+The developed workflow demonstrates high transferability. Since the resistance surface generation relies on the standardized osmnx geocoding system, the model can theoretically be applied to any region covered by OSM. A current constraint to full automation is the manual acquisition and preprocessing of the Corine Land Cover (CLC) data. Integrating an API-based download and automatic clipping of the CLC layer (or switching to the global ESA WorldCover dataset) would render the pipeline 100% reproducible and scalable to a European context without manual intervention.
+
+To manage the computational demands of the Least-Cost Path (LCP) analysis, the calculation was first executed on the ZHAW High-Performance Computing (HPC) cluster using a job array architecture. By parallelizing the workload, distributing the origin-destination pairs across multiple computing nodes, the processing time was significantly reduced compared to a sequential execution on a local machine.
+
+- Implementation Efficiency: The use of Python's multiprocessing capabilities within the HPC environment allowed for the efficient handling of the large resistance surface matrix, ensuring that memory constraints were not exceeded during the pathfinding operations.
+
+- Scalability for Larger Areas: While the current study focused on the Canton of Schaffhausen, the successful implementation of this parallelized workflow demonstrates its scalability. For future research expanding to the entire Swiss Plateau or analyzing multiple species simultaneously, the use of HPC resources will be indispensable. The ability to distribute computations across multiple nodes ensures that exponentially growing processing times, inherent to LCP algorithms on larger raster datasets, remain feasible.
+
+The implementation of a 2 km grid with specific node validation, significantly optimized the computational load, allowing the final model to be executed successfully on standard local hardware. This decision enhances the general applicability of the workflow, demonstrating that robust connectivity models can be reproduced by researchers without access to specialized supercomputing infrastructure.
+
+### Sensitivity Analysis
+Finally, no systematic sensitivity analysis was conducted. The resistance values were assigned based on expert literature, but it remains unquantified how sensitive the location of the predicted corridors is to minor changes in these weights (e.g., varying road cost between 1000 and 5000). As shown in the project some cost values should be improved and set to a more realistic value.
+
+# Conclusion
+This project successfully implemented a fully reproducible, Python-based workflow to model ecological connectivity for Roe Deer in the Canton of Schaffhausen. By integrating high-resolution OpenStreetMap feature data with Corine Land Cover, the analysis generated a 10-meter resolution resistance surface that effectively identifies critical barriers and functional corridors.
+
+The study concludes that the connectivity of the canton is defined by a distinct "Funnel and Barrier" system. The urban agglomeration of Schaffhausen and the adjacent A4 motorway act as an impermeable blockade, severing eastward movement and forcing regional wildlife flow into a single, critical corridor in the west. However, this “western funnel” was incorrectly identified due to missing slope data, which makes the “western corridor” an even bigger problem.
+
+The plausability of these findings is supported by a robust cross-verification with an independent accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen. Furthermore, the model demonstrated significant predictive power by independently pinpointing the location of the existing Schneitenberg wildlife passage, confirming that the "Barrier Dominance" resistance surface correctly captures the landscape features driving movement behavior.
+
+Despite methodological limitations regarding topographic simplification and temporal stationarity, the identified bottlenecks provide actionable data for spatial planning. To ensure the long-term genetic viability of the regional roe deer population, the identified conflict zones must be prioritized for mitigation, and the remaining functional corridors must be actively protected from further fragmentation. The developed automated pipeline offers a scalable foundation for extending this analysis to other regions, contributing a transparent and data-driven tool to the field of conservation planning.
+
+
+# Statement of Reproducibility, Reusability, and Collaboration {-}
+This project was engineered to strictly adhere to the principles of Reproducibility, Reusability, and Collaboration as defined by the Institute for Computational Life Sciences guidelines.
+
+## Reproducibility
+To guarantee that the analysis can be replicated on any machine with identical results, the computational environment is fully defined as code.
+
+- Environment Locking: The `environment.yml` file serves as the single source of truth for the software stack. It enforces strict version pinning for core dependencies, most notably locking `numpy=1.26` to avoid binary incompatibilities with version 2.0, and aligning `libgdal (v. 3.8)` with `rasterio (v. 1.3)`. This prevents the "dependency hell" often associated with complex geospatial workflows.
+
+- Automated Orchestration: The custom automation script, `run_pipeline.py` was implemented. This script functions as an "Infrastructure-as-Code" wrapper that:
+
+  1. Validates the local Conda environment against the `environment.yml` specification.
+
+  2. Automatically installs missing dependencies via Mamba.
+
+  3. Executes the analysis modules (`01_resistance_surface_generation.py`, `02_local_lcp_analysis.py`, `03_extract_bottlenecks.py`) in the correct sequential order. This "one-click" execution model ensures that the entire workflow, from raw data ingestion to final map generation, is reproducible without manual configuration.
+
+## Reusability
+The project applies the FAIR principles (Findable, Accessible, Interoperable, Reusable) by relying exclusively on open-source data standards.
+
+- Data Interoperability: All OSM input data is retrieved programmatically from Geofabrik. A preclipped CLC file from Copernicus is already downloaded in the data folder. The code is designed to be agnostic to the specific region, by simply changing the geocode for osmnx in the configuration, the entire model can be reused to analyze connectivity in other European regions covered by OpenStreetMap and Corine Land Cover. The preclipped CLC data has to be manually downloaded for this new area.
+
+Modular Code: The codebase is structured into distinct, modular Python scripts (Data Preparation vs. Analysis vs. Visualization), allowing individual components (e.g., the resistance surface generator) to be reused in other projects without the need to run the full pipeline.
+
+## Collaboration
+To facilitate potential collaboration and transparent development:
+
+- Version Control: The project history, including code changes and methodology updates, was tracked using Git.
+
+- Documentation: The code includes comprehensive docstrings and in-line comments explaining the logic behind critical parameters (e.g., the all_touched=True rasterization rule). A README.md file provides clear instructions on how to initialize the environment and execute the pipeline, ensuring that future contributors can onboard quickly.
+
+
+# References {#sec-refs}
+
+{{< references >}}
+
+# List of illustrations {.unnumbered}
+
+{{< list-of-figures >}}
+
+# List of tables {.unnumbered}
+
+{{< list-of-tables >}}
+
+:::
+
+# Appendix {.unnumbered}
+
+## Appendix A: Directory of Generative AI Tools
+- Google. (2025). Gemini (Model Version 1.5 Pro). https://gemini.google.com/
+
+  - Debugging of Python error messages and script logic (specifically `01_resistance_surface_generation.py` and `02_local_lcp_analysis.py`).
+
+  - Optimization of the automated reproducibility pipeline (`run_pipeline.py`).
+
+  - Linguistic refinement and stylistic polishing of the Introduction, Methods, Results and Discussion sections.
+
+## Appendix B: Computational Project Structure
+To ensure reproducibility, the digital submission of this project follows a strict directory structure managed by the `run_pipeline.py` orchestrator. Here you can see a summarized version of the GitHub folder structure:
+
+```text
+PA2_Lukas_Buchmann/
+├── environment.yml                           # Mamba/Conda environment definition (locked versions)
+├── run_pipeline.py                           # Automation script (One-click execution)
+├── README.md                                 # Instructions for execution
+├── data/                                     # Input Data folder
+│   ├── osm_resistance_costs.csv              # Configuration for OSM weights
+│   └── clc_resistance_costs.csv              # Configuration for CLC weights
+├── src/                                      # Source Code
+│   ├── 01_resistance_surface_generation.py   # Rasterization module
+│   ├── 02_local_lcp_analysis.py              # LCP Algorithm module
+│   └── 03_extract_bottlenecks.py             # Visualization module
+└── results/                                  # Output folder (Generated by script)
+    ├── clustered_bottlenecks.csv             # Bottleneck csv data
+    └── method_01_grid.png                    # Methods image
+```
+
+## Appendix C: Resistance Parameter Table
+```{python}
+#| label: cost-tables
+#| tbl-cap: "These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value."
+#| echo: false
+#| results: asis
+
+import pandas as pd
+import numpy as np
+from IPython.display import Markdown, display
+
+def display_long_table(csv_path, title, rows_per_page=80):
+    """
+    Reads a CSV, splits it into chunks, and displays them as Markdown tables.
+    """
+
+    # Load the data
+    df = pd.read_csv(csv_path)
+
+    # Calculate number of chunks needed
+    num_chunks = int(np.ceil(len(df) / rows_per_page))
+    # Loop through chunks
+    for i in range(num_chunks):
+        start_row = i * rows_per_page
+        end_row = (i + 1) * rows_per_page
+
+        # Slice the dataframe
+        chunk = df.iloc[start_row:end_row]
+        # Create a dynamic caption (e.g., "Table Name (Part 1/2)")
+        suffix = f" (Part {i+1}/{num_chunks})" if num_chunks > 1 else ""
+        caption = f"### {title}{suffix}"
+        # Display the caption and the table
+        display(Markdown(caption))
+        display(Markdown(chunk.to_markdown(index=False)))
+        # Add a vertical spacer (newline) between tables
+        display(Markdown("\n\n"))
+
+# Display the CLC Resistance Costs
+display_long_table('../data/clc_resistance_costs.csv', 'CLC Resistance Costs')
+
+# Display the OSM Resistance Costs
+display_long_table('../data/osm_resistance_costs.csv', 'OSM Resistance Costs')
+```
+
+Sources: [@kuehnGeneticEffectTransportation2007]; [@wadeResistancesurfacebasedWildlifeConservation2015]; [@iuellCOST341Habitat2003]; [@jepsenModellingRoeDeer2004]; [@mysterudHabitatSelectionRoe1999]; Values derived logically for the specific context of Project Work 2 (e.g., assigning high resistance to glaciers or barriers like walls). 
