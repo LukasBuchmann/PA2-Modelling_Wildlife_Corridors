@@ -45,10 +45,12 @@ from rasterio.enums import MergeAlg
 from rasterio.transform import Affine
 from shapely.geometry import box
 
+ox.settings.use_cache = False
+
 # --- CONFIGURATION & PATHS ---------------------------------------------------
 # Using pathlib for OS-agnostic path handling
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve()
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_DIR = PROJECT_ROOT / "results"
 TEMP_DIR = RESULTS_DIR / "temp_files"

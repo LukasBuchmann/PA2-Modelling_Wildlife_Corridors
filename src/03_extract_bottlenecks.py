@@ -42,8 +42,8 @@ import matplotlib.colors as colors
 from skimage.graph import MCP_Geometric  # Required for calculating example paths
 
 # --- CONFIGURATION & PATHS ---------------------------------------------------
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve()
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
 
 # Input Files

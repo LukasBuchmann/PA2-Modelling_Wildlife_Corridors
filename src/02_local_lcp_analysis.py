@@ -36,8 +36,8 @@ from pathlib import Path
 from tqdm import tqdm  # Recommended for local progress tracking
 
 # --- CONFIGURATION & PATHS ---------------------------------------------------
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parent
+SCRIPT_DIR = Path(__file__).resolve()
+PROJECT_ROOT = SCRIPT_DIR.parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
 
 # Input / Output

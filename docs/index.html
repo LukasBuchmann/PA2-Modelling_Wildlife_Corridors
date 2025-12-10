@@ -22,7 +22,27 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="index_files/libs/clipboard/clipboard.min.js"></script>
@@ -56,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#appendix-c-resistance-parameter-table" id="toc-appendix-c-resistance-parameter-table" class="nav-link" data-scroll-target="#appendix-c-resistance-parameter-table"><span class="header-section-number">0.3</span> Appendix C: Resistance Parameter Table</a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>Typst (zhaw-lsfm)</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="..\index.pdf"><i class="bi bi-file-pdf"></i>Typst (zhaw-lsfm)</a></li></ul></div></nav>
 </div>
 <main class="content" id="quarto-document-content">
 
@@ -136,126 +156,623 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="appendix-c-resistance-parameter-table" class="level2" data-number="0.3">
 <h2 data-number="0.3" class="anchored" data-anchor-id="appendix-c-resistance-parameter-table"><span class="header-section-number">0.3</span> Appendix C: Resistance Parameter Table</h2>
-<div id="load-resistance-tables" class="cell" data-results="asis" data-execution_count="5">
-<div class="cell-output cell-output-stdout">
-<pre><code>### CLC Resistance Costs
-
-|   clc_code | LABEL3                                                                                 |   resistance | citation_key     |
-|-----------:|:---------------------------------------------------------------------------------------|-------------:|:-----------------|
-|        111 | Continuous urban fabric                                                                |         5000 | [Expert-Comp]    |
-|        112 | Discontinuous urban fabric                                                             |         3500 | [Expert-Comp]    |
-|        121 | Industrial or commercial units                                                         |         4500 | [Expert-Comp]    |
-|        122 | Road and rail networks and associated land                                             |         3000 | [Infra-COST341]  |
-|        123 | Port areas                                                                             |         4000 | [Expert-Comp]    |
-|        124 | Airports                                                                               |         4500 | [Infra-COST341]  |
-|        131 | Mineral extraction sites                                                               |         1500 | [Expert-Comp]    |
-|        132 | Dump sites                                                                             |         2000 | [Expert-Comp]    |
-|        133 | Construction sites                                                                     |         2500 | [Expert-Comp]    |
-|        141 | Green urban areas                                                                      |          200 | [Hab-Ziolkowska] |
-|        142 | Sport and leisure facilities                                                           |          300 | [Hab-Ziolkowska] |
-|        211 | Non-irrigated arable land                                                              |           20 | [Hab-Ziolkowska] |
-|        212 | Permanently irrigated land                                                             |           25 | [Hab-Ziolkowska] |
-|        213 | Rice fields                                                                            |          100 | [PA2-Logic]      |
-|        221 | Vineyards                                                                              |           15 | [Hab-Ziolkowska] |
-|        222 | Fruit trees and berry plantations                                                      |           10 | [Hab-Ziolkowska] |
-|        223 | Olive groves                                                                           |           15 | [Hab-Ziolkowska] |
-|        231 | Pastures                                                                               |            8 | [Hab-Ziolkowska] |
-|        241 | Annual crops associated with permanent crops                                           |           12 | [Hab-Ziolkowska] |
-|        242 | Complex cultivation patterns                                                           |           10 | [Hab-Ziolkowska] |
-|        243 | Land principally occupied by agriculture, with significant areas of natural vegetation |            5 | [Hab-Ziolkowska] |
-|        244 | Agro-forestry areas                                                                    |            3 | [Hab-Ziolkowska] |
-|        311 | Broad-leaved forest                                                                    |            1 | [Hab-Ziolkowska] |
-|        312 | Coniferous forest                                                                      |            3 | [Hab-Ziolkowska] |
-|        313 | Mixed forest                                                                           |            1 | [Hab-Ziolkowska] |
-|        321 | Natural grasslands                                                                     |            5 | [Hab-Ziolkowska] |
-|        322 | Moors and heathland                                                                    |            8 | [Hab-Ziolkowska] |
-|        323 | Sclerophyllous vegetation                                                              |           10 | [Hab-Ziolkowska] |
-|        324 | Transitional woodland-shrub                                                            |            2 | [Hab-Ziolkowska] |
-|        331 | Beaches, dunes, sands                                                                  |          100 | [Expert-Comp]    |
-|        332 | Bare rocks                                                                             |          300 | [Expert-Comp]    |
-|        333 | Sparsely vegetated areas                                                               |           50 | [Expert-Comp]    |
-|        334 | Burnt areas                                                                            |           25 | [PA2-Logic]      |
-|        335 | Glaciers and perpetual snow                                                            |         1000 | [PA2-Logic]      |
-|        411 | Inland marshes                                                                         |           75 | [Expert-Comp]    |
-|        412 | Peat bogs                                                                              |          100 | [Expert-Comp]    |
-|        421 | Salt marshes                                                                           |          150 | [Expert-Comp]    |
-|        422 | Salines                                                                                |         1000 | [Expert-Comp]    |
-|        423 | Intertidal flats                                                                       |          200 | [Expert-Comp]    |
-|        511 | Water courses                                                                          |         5000 | [Expert-Comp]    |
-|        512 | Water bodies                                                                           |         5000 | [Expert-Comp]    |
-|        521 | Coastal lagoons                                                                        |          800 | [Expert-Comp]    |
-|        522 | Estuaries                                                                              |          800 | [Expert-Comp]    |
-|        523 | Sea and ocean                                                                          |         5000 | [Expert-Comp]    |
-
-
-
-### OSM Resistance Costs
-
-| osm_key   | osm_value         |   resistance |   priority | citation_key     |
-|:----------|:------------------|-------------:|-----------:|:-----------------|
-| landuse   | forest            |            1 |          1 | [Hab-Ziolkowska] |
-| natural   | wood              |            1 |          1 | [Hab-Ziolkowska] |
-| natural   | scrub             |            3 |          1 | [Hab-Ziolkowska] |
-| natural   | heath             |            8 |          1 | [Hab-Ziolkowska] |
-| landuse   | meadow            |            5 |          1 | [Hab-Ziolkowska] |
-| natural   | grassland         |            5 |          1 | [Hab-Ziolkowska] |
-| landuse   | farmland          |           20 |          1 | [Hab-Ziolkowska] |
-| landuse   | orchard           |           10 |          1 | [Hab-Ziolkowska] |
-| landuse   | vineyard          |           15 |          1 | [Hab-Ziolkowska] |
-| landuse   | allotments        |          100 |          1 | [Hab-Ziolkowska] |
-| landuse   | grass             |            5 |          1 | [Hab-Ziolkowska] |
-| landuse   | recreation_ground |          250 |          2 | [Hab-Ziolkowska] |
-| leisure   | park              |          200 |          2 | [Hab-Ziolkowska] |
-| leisure   | golf_course       |          300 |          2 | [Hab-Ziolkowska] |
-| leisure   | nature_reserve    |            2 |          2 | [Hab-Ziolkowska] |
-| highway   | path              |           10 |          3 | [PA2-Logic]      |
-| highway   | footway           |           15 |          3 | [PA2-Logic]      |
-| highway   | bridleway         |           10 |          3 | [PA2-Logic]      |
-| highway   | cycleway          |           15 |          3 | [PA2-Logic]      |
-| highway   | track             |           20 |          3 | [PA2-Logic]      |
-| waterway  | ditch             |           50 |          4 | [PA2-Logic]      |
-| waterway  | stream            |          150 |          4 | [Expert-Comp]    |
-| barrier   | hedge             |           30 |          4 | [Hab-Ziolkowska] |
-| highway   | residential       |          200 |          5 | [Infra-COST341]  |
-| highway   | service           |          250 |          5 | [Infra-COST341]  |
-| highway   | unclassified      |          200 |          5 | [Infra-COST341]  |
-| landuse   | residential       |         3500 |          5 | [Expert-Comp]    |
-| highway   | tertiary          |          500 |          6 | [Infra-COST341]  |
-| highway   | tertiary_link     |          500 |          6 | [Infra-COST341]  |
-| landuse   | cemetery          |          150 |          6 | [PA2-Logic]      |
-| landuse   | quarry            |         1500 |          6 | [Expert-Comp]    |
-| natural   | scree             |          250 |          6 | [Expert-Comp]    |
-| natural   | shingle           |          150 |          6 | [Expert-Comp]    |
-| highway   | secondary         |         1000 |          7 | [Infra-COST341]  |
-| highway   | secondary_link    |         1000 |          7 | [Infra-COST341]  |
-| barrier   | fence             |          800 |          7 | [PA2-Logic]      |
-| barrier   | wall              |         1500 |          7 | [PA2-Logic]      |
-| barrier   | cattle_grid       |           50 |          7 | [PA2-Logic]      |
-| highway   | primary           |         2000 |          8 | [Infra-COST341]  |
-| highway   | primary_link      |         2000 |          8 | [Infra-COST341]  |
-| waterway  | river             |         4000 |          8 | [Expert-Comp]    |
-| natural   | wetland           |           75 |          8 | [Expert-Comp]    |
-| natural   | bare_rock         |          300 |          8 | [Expert-Comp]    |
-| landuse   | commercial        |         4500 |          9 | [Expert-Comp]    |
-| landuse   | industrial        |         4500 |          9 | [Expert-Comp]    |
-| landuse   | retail            |         4500 |          9 | [Expert-Comp]    |
-| railway   | rail              |         3000 |          9 | [Infra-COST341]  |
-| landuse   | railway           |         3000 |          9 | [Infra-COST341]  |
-| highway   | trunk             |         5000 |         10 | [Infra-COST341]  |
-| highway   | trunk_link        |         5000 |         10 | [Infra-COST341]  |
-| highway   | motorway          |         5000 |         10 | [Infra-COST341]  |
-| highway   | motorway_link     |         5000 |         10 | [Infra-COST341]  |
-| building  | yes               |         5000 |         10 | [Expert-Comp]    |
-| natural   | cliff             |         4000 |         10 | [PA2-Logic]      |
-
-
-</code></pre>
+<div id="cost-tables" class="cell" data-results="asis" data-tbl-cap="These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value." data-execution_count="5">
+<div id="cost-tables-1" class="cell-output cell-output-display cell-output-markdown">
+<section id="clc-resistance-costs" class="level3" data-number="0.3.1">
+<h3 data-number="0.3.1" class="anchored" data-anchor-id="clc-resistance-costs"><span class="header-section-number">0.3.1</span> CLC Resistance Costs</h3>
+</section>
 </div>
+<div id="cost-tables-2" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 77%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">clc_code</th>
+<th style="text-align: left;">LABEL3</th>
+<th style="text-align: right;">resistance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">111</td>
+<td style="text-align: left;">Continuous urban fabric</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">112</td>
+<td style="text-align: left;">Discontinuous urban fabric</td>
+<td style="text-align: right;">3500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">121</td>
+<td style="text-align: left;">Industrial or commercial units</td>
+<td style="text-align: right;">4500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">122</td>
+<td style="text-align: left;">Road and rail networks and associated land</td>
+<td style="text-align: right;">3000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">123</td>
+<td style="text-align: left;">Port areas</td>
+<td style="text-align: right;">4000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">124</td>
+<td style="text-align: left;">Airports</td>
+<td style="text-align: right;">4500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">131</td>
+<td style="text-align: left;">Mineral extraction sites</td>
+<td style="text-align: right;">1500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">132</td>
+<td style="text-align: left;">Dump sites</td>
+<td style="text-align: right;">2000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">133</td>
+<td style="text-align: left;">Construction sites</td>
+<td style="text-align: right;">2500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">141</td>
+<td style="text-align: left;">Green urban areas</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">142</td>
+<td style="text-align: left;">Sport and leisure facilities</td>
+<td style="text-align: right;">300</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">211</td>
+<td style="text-align: left;">Non-irrigated arable land</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">212</td>
+<td style="text-align: left;">Permanently irrigated land</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">213</td>
+<td style="text-align: left;">Rice fields</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">221</td>
+<td style="text-align: left;">Vineyards</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">222</td>
+<td style="text-align: left;">Fruit trees and berry plantations</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">223</td>
+<td style="text-align: left;">Olive groves</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">231</td>
+<td style="text-align: left;">Pastures</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">241</td>
+<td style="text-align: left;">Annual crops associated with permanent crops</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">242</td>
+<td style="text-align: left;">Complex cultivation patterns</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">243</td>
+<td style="text-align: left;">Land principally occupied by agriculture, with significant areas of natural vegetation</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">244</td>
+<td style="text-align: left;">Agro-forestry areas</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">311</td>
+<td style="text-align: left;">Broad-leaved forest</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">312</td>
+<td style="text-align: left;">Coniferous forest</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">313</td>
+<td style="text-align: left;">Mixed forest</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">321</td>
+<td style="text-align: left;">Natural grasslands</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">322</td>
+<td style="text-align: left;">Moors and heathland</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">323</td>
+<td style="text-align: left;">Sclerophyllous vegetation</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">324</td>
+<td style="text-align: left;">Transitional woodland-shrub</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">331</td>
+<td style="text-align: left;">Beaches, dunes, sands</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">332</td>
+<td style="text-align: left;">Bare rocks</td>
+<td style="text-align: right;">300</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">333</td>
+<td style="text-align: left;">Sparsely vegetated areas</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">334</td>
+<td style="text-align: left;">Burnt areas</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">335</td>
+<td style="text-align: left;">Glaciers and perpetual snow</td>
+<td style="text-align: right;">1000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">411</td>
+<td style="text-align: left;">Inland marshes</td>
+<td style="text-align: right;">75</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">412</td>
+<td style="text-align: left;">Peat bogs</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">421</td>
+<td style="text-align: left;">Salt marshes</td>
+<td style="text-align: right;">150</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">422</td>
+<td style="text-align: left;">Salines</td>
+<td style="text-align: right;">1000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">423</td>
+<td style="text-align: left;">Intertidal flats</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">511</td>
+<td style="text-align: left;">Water courses</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">512</td>
+<td style="text-align: left;">Water bodies</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">521</td>
+<td style="text-align: left;">Coastal lagoons</td>
+<td style="text-align: right;">800</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">522</td>
+<td style="text-align: left;">Estuaries</td>
+<td style="text-align: right;">800</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">523</td>
+<td style="text-align: left;">Sea and ocean</td>
+<td style="text-align: right;">5000</td>
+</tr>
+</tbody>
+</table>
 </div>
+<div id="cost-tables-3" class="cell-output cell-output-display cell-output-markdown">
+
+</div>
+<div id="cost-tables-4" class="cell-output cell-output-display cell-output-markdown">
+<section id="osm-resistance-costs" class="level3" data-number="0.3.2">
+<h3 data-number="0.3.2" class="anchored" data-anchor-id="osm-resistance-costs"><span class="header-section-number">0.3.2</span> OSM Resistance Costs</h3>
+</section>
+</div>
+<div id="cost-tables-5" class="cell-output cell-output-display cell-output-markdown">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">osm_key</th>
+<th style="text-align: left;">osm_value</th>
+<th style="text-align: right;">resistance</th>
+<th style="text-align: right;">priority</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">forest</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">wood</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">scrub</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">heath</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">meadow</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">grassland</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">farmland</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">orchard</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">vineyard</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">allotments</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">grass</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">recreation_ground</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">park</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">golf_course</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">nature_reserve</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">path</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">footway</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">bridleway</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">cycleway</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">track</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">ditch</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">stream</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">hedge</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">residential</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">service</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">unclassified</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">residential</td>
+<td style="text-align: right;">3500</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">tertiary</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">tertiary_link</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">cemetery</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">quarry</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">scree</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">shingle</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">secondary</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">secondary_link</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">fence</td>
+<td style="text-align: right;">800</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">wall</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">cattle_grid</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">primary</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">primary_link</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">river</td>
+<td style="text-align: right;">4000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">wetland</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">bare_rock</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">commercial</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">industrial</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">retail</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">railway</td>
+<td style="text-align: left;">rail</td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">railway</td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">trunk</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">trunk_link</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">motorway</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">motorway_link</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">building</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">cliff</td>
+<td style="text-align: right;">4000</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="cost-tables-6" class="cell-output cell-output-display cell-output-markdown">
+
+</div>
+<p>These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value.</p>
+</div>
+<p>Sources: <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>; <span class="citation" data-cites="wadeResistancesurfacebasedWildlifeConservation2015">(<a href="#ref-wadeResistancesurfacebasedWildlifeConservation2015" role="doc-biblioref">Wade, McKelvey, and Schwartz 2015</a>)</span>; <span class="citation" data-cites="iuellCOST341Habitat2003">(<a href="#ref-iuellCOST341Habitat2003" role="doc-biblioref">Iuell et al. 2003</a>)</span>; <span class="citation" data-cites="jepsenModellingRoeDeer2004">(<a href="#ref-jepsenModellingRoeDeer2004" role="doc-biblioref">Jepsen and Topping 2004</a>)</span>; <span class="citation" data-cites="mysterudHabitatSelectionRoe1999">(<a href="#ref-mysterudHabitatSelectionRoe1999" role="doc-biblioref">Mysterud et al. 1999</a>)</span>; Values derived logically for the specific context of Project Work 2 (e.g., assigning high resistance to glaciers or barriers like walls).</p>
+
 </section>
 </section>
 
-</main>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-iuellCOST341Habitat2003" class="csl-entry" role="listitem">
+Iuell, Bjørn, Hans Bekker, Ruud Cuperus, Jiri Dufek, Gary Fry, Carsten Hicks, Vaclav Hlavac, et al., eds. 2003. <em>Wildlife and Traffic: A European Handbook for Identifying Conflicts and Designing Solutions</em>. COST 341. Brussels: KNNV Publishers.
+</div>
+<div id="ref-jepsenModellingRoeDeer2004" class="csl-entry" role="listitem">
+Jepsen, J U, and C J Topping. 2004. <span>“Modelling Roe Deer ( <span><em>Capreolus</em></span><span> <em>Capreolus</em></span> ) in a Gradient of Forest Fragmentation: Behavioural Plasticity and Choice of Cover.”</span> <em>Canadian Journal of Zoology</em> 82 (9): 1528–41. <a href="https://doi.org/10.1139/z04-131">https://doi.org/10.1139/z04-131</a>.
+</div>
+<div id="ref-kuehnGeneticEffectTransportation2007" class="csl-entry" role="listitem">
+Kuehn, Ralph, Karin E. Hindenlang, Otto Holzgang, Josef Senn, Bernhard Stoeckle, and Christoph Sperisen. 2007. <span>“Genetic <span>Effect</span> of <span>Transportation Infrastructure</span> on <span>Roe Deer Populations</span> (<span>Capreolus</span> Capreolus).”</span> <em>Journal of Heredity</em> 98 (1): 13–22. <a href="https://doi.org/10.1093/jhered/esl056">https://doi.org/10.1093/jhered/esl056</a>.
+</div>
+<div id="ref-mysterudHabitatSelectionRoe1999" class="csl-entry" role="listitem">
+Mysterud, Atle, Per Kristian Larsen, Rolf Anker Ims, and Eivind Østbye. 1999. <span>“Habitat Selection by Roe Deer and Sheep: Does Habitat Ranking Reflect Resource Availability?”</span>
+</div>
+<div id="ref-wadeResistancesurfacebasedWildlifeConservation2015" class="csl-entry" role="listitem">
+Wade, Alisa A., Kevin S. McKelvey, and Michael K. Schwartz. 2015. <span>“Resistance-Surface-Based Wildlife Conservation Connectivity Modeling: <span>Summary</span> of Efforts in the <span>United States</span> and Guide for Practitioners.”</span> RMRS-GTR-333. Ft. Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky Mountain Research Station. <a href="https://doi.org/10.2737/RMRS-GTR-333">https://doi.org/10.2737/RMRS-GTR-333</a>.
+</div>
+</div></section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {

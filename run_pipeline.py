@@ -34,12 +34,11 @@ from pathlib import Path
 
 # --- CONFIGURATION -----------------------------------------------------------
 SCRIPT_DIR = Path(__file__).resolve()
-PROJECT_ROOT = SCRIPT_DIR.parent.parent # Assuming script is in /src/
+PROJECT_ROOT = SCRIPT_DIR.parent
 ENV_FILE = PROJECT_ROOT / "environment.yml"
 ENV_NAME = "pa2_env"
 
 # Define the pipeline steps: (Filename, Description)
-# NOTE: Filenames match the updated scripts provided in this session.
 STEPS = [
     ("01_resistance_surface_generation.py", "Step 1: Resistance Surface Generation"),
     ("02_local_lcp_analysis.py",            "Step 2: Local LCP Analysis & Aggregation"),
@@ -115,7 +114,7 @@ def run_step(script_name, description):
         script_name (str): Filename of the script in the 'src' directory.
         description (str): Log message describing the step.
     """
-    script_path = SCRIPT_DIR.parent / script_name
+    script_path = SCRIPT_DIR.parent / "src" / script_name
     
     if not script_path.exists():
         print(f"CRITICAL ERROR: Script {script_name} missing at {script_path}")
