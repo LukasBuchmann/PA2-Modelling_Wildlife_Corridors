@@ -48,12 +48,12 @@ Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf
 
 ::: {.content-hidden when-format="html"}
 
-# Inhaltsverzeichnis {.unnumbered .unlisted}
+# Table of Contents {.unnumbered .unlisted}
 
 {{< table-of-contents >}}
 
 
-# Liste der Abkürzungen {.unnumbered .unlisted}
+# List of abbreviations {.unnumbered .unlisted}
 
 +---------+----------------------------------+
 | OSM     | Open Street Map                  |
@@ -67,7 +67,7 @@ Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf
 | crs     | Coordinate Reference System      |
 +---------+----------------------------------+  
 
-# Introduction {-} 
+# Introduction
 
 ## The Challenge of Habitat Fragmentation
 Across Europe, landscapes are undergoing rapid transformation driven by the expansion of transportation infrastructure, urban sprawl, and the intensification of agriculture [@europeanenvironmentagencyLandscapeFragmentationEurope2011]. This process leads to habitat fragmentation: the division of large, continuous habitats into smaller, more isolated patches. Fragmentation is recognized as a primary driver of global biodiversity loss [@haddadHabitatFragmentationIts2015]. Its ecological consequences are severe: it limits wildlife mobility, isolates populations, and restricts gene flow [@kuehnGeneticEffectTransportation2007]. This, in turn, can lead to inbreeding, a loss of adaptive genetic diversity, and reduced long-term population resilience, making populations more vulnerable to local extinction [@haddadHabitatFragmentationIts2015]; [@kuehnGeneticEffectTransportation2007].
@@ -364,7 +364,7 @@ Ecologically, these bottlenecks represent "least-bad" options. The energetic cos
 
 ```{python}
 #| label: tbl-bottlenecks
-#| tbl-cap: "List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 3. Coordinates are in CH1903+ / LV95 (EPSG:2056)."
+#| tbl-cap: "List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 6. Coordinates are in CH1903+ / LV95 (EPSG:2056)."
 #| echo: false
 #| output: asis
 
@@ -425,7 +425,7 @@ A primary finding is the identification of a significant North-South funnel loca
 
 - Impermeable Blockades: The City of Schaffhausen combined with the adjacent A4 motorway acts as a massive barrier, effectively severing eastward movement.
 
-Consequently, the high path density observed in these corridors (red lines in @fig-connectivity) does not represent "preferred" habitat, but rather obligatory passage. As noted by @haddadHabitatFragmentationIts2015, such reliance on singular, high-intensity connections reduces the resilience of the metapopulation, the blockage of a single bottleneck (e.g., by new construction) could disproportionately isolate large habitat areas.
+Consequently, the high path density observed in these corridors (red lines in @fig-connectivity) does not represent "preferred" habitat, but rather obligatory passage. As noted by [@haddadHabitatFragmentationIts2015], such reliance on singular, high-intensity connections reduces the resilience of the metapopulation, the blockage of a single bottleneck (e.g., by new construction) could disproportionately isolate large habitat areas.
 
 ### The Role of Infrastructure and Settlements
 The spatial distribution of critical bottlenecks (@fig-bottlenecks) confirms that linear barriers, specifically the A4 highway and the Rhine river, constitutes a primary limitation to connectivity. The model successfully captures the "Barrier Effect", where calculated paths run parallel to highways or the Rhine river for long distances, searching for a gap with lower resistance. The clustering of bottlenecks where high movement intersects with high resistance values ($\ge 3000$) confirms these as conflict zones where biological needs collide with anthropogenic land use.
@@ -433,7 +433,7 @@ The spatial distribution of critical bottlenecks (@fig-bottlenecks) confirms tha
 However, while linear barriers create specific conflict points, the model suggests that settlement boundaries are the dominant force shaping the overall network topology. The high cost weights assigned to urban areas force the Least-Cost Paths to circumnavigate towns and cities entirely. Thus, while roads act as filters that are occasionally crossed, settlements act as obstacles that dictate the macro-structure of the wildlife corridors.
 
 ## Spatial Analysis of Conflict Zones
-A quantitative summary of the most critical pinch points is presented in Table @tbl-bottlenecks. The spatial distribution highlights specific conflict zones:
+A quantitative summary of the most critical pinch points is presented in @tbl-bottlenecks. The spatial distribution highlights specific conflict zones:
 
 **Bottleneck 1 (Thayngen)** 
 Located along the A4 motorway between Schaffhausen and Thayngen, this point represents a critical constriction where the transport infrastructure creates a continuous, high-resistance barrier. The barrier effect is compounded by the railway line running parallel to the motorway.
@@ -454,7 +454,7 @@ If this corridor is indeed impassable due to topography, the western sector suff
 ![**Topographic Analysis of Bottleneck 2 (Beringen).** **Left:** Aerial imagery shows the narrow forest strip along the transport infrastructure. **Right:** The model trajectory (Red pixels) follows the forest cover. However, the topographic map background reveals **cliff features** (indicated by toothed lines) parallel to the road. This suggests the modeled path may be physically impassable due to steep slopes, highlighting a limitation of the 2D resistance surface. (Map Data: OpenStreetMap; Aerial: Google Maps).](images/Bottleneck2.png){#fig-bottleneck2}
 
 **Bottleneck 3 (Jestetten-Lotstetten)**
-This location highlights a limitation regarding the weighting of resistance parameters. The model identifies the railway line as a critical bottleneck due to the high resistance value assigned to rail infrastructure (3000). However, this likely represents an overestimation of the barrier effect. Unlike motorways, where traffic noise and collision risk are continuous, regional railway traffic is intermittent. Physically, standard tracks (absent of noise protection walls) present negligible obstruction to Roe Deer. Consequently, the model treats this railway as a "hard barrier" similar to a highway, whereas in reality, it likely possesses a much higher permeability. This finding suggests that future model iterations should refine the input sensitivity (in `osm_resistance_costs.csv`) to distinguish between high-speed fenced rail lines and permeable regional tracks, potentially lowering the cost for the latter to shift focus toward high-risk roadways.
+This location highlights a limitation regarding the weighting of resistance parameters. The model identifies the railway line as a critical bottleneck due to the high resistance value assigned to rail infrastructure (3000). However, this likely represents an overestimation of the barrier effect. Unlike motorways, where traffic noise and collision risk are continuous, regional railway traffic is intermittent. Physically, standard tracks (absent of noise protection walls) present negligible obstruction to Roe Deer. Consequently, the model treats this railway as a "hard barrier" similar to a highway, whereas in reality, it likely possesses a much higher permeability. This finding suggests that future model iterations should refine the input sensitivity to distinguish between high-speed fenced rail lines and permeable regional tracks, potentially lowering the cost for the latter to shift focus toward high-risk roadways.
 
 ![**Parameter Sensitivity Analysis at Bottleneck 3.** **Left:** Aerial view of the regional railway line near Jestetten, showing a permeable structure without fences. **Right:** The model identifies a bottleneck (Red pixels) crossing the high-resistance railway pixels (Grey). This highlights the model's sensitivity to the assigned cost values ($R=3000$), which likely overestimates the fragmentation effect of regional rail compared to roads. (Aerial: Google Maps).](images/Bottleneck3.png){#fig-bottleneck3}
 
@@ -469,7 +469,7 @@ The model identifies the location in the south of Rheinau (@fig-bottleneck4) as 
 
 This creates a "stepping stone" effect where the exposure to open terrain is minimized. From a conservation planning perspective, this location represents the most effective site for restoring functional connectivity, whether through bank renaturation to facilitate swimming or the construction of a dedicated wildlife crossing structure.
 
-![**Connectivity Analysis at Bottleneck 4 (Rhine River).** **Left:** Aerial imagery reveals dense riparian forest bordering the riverbanks. **Right:** The model identifies this specific reach as the optimal crossing point (Red pixels). The selection minimizes the crossing distance over the high-resistance water body (Grey) while maximizing travel through low-resistance forest cover. (Aerial: Google Maps.](images/Bottleneck4.png){#fig-bottleneck4}
+![**Connectivity Analysis at Bottleneck 4 (Rhine River).** **Left:** Aerial imagery reveals dense riparian forest bordering the riverbanks. **Right:** The model identifies this specific reach as the optimal crossing point (Red pixels). The selection minimizes the crossing distance over the high-resistance water body (Grey) while maximizing travel through low-resistance forest cover. (Aerial: Google Maps).](images/Bottleneck4.png){#fig-bottleneck4}
 
 **Bottleneck 5 (Schneitenberg / Andelfingen)**
 This location serves as a critical "Ground Truth" validation for the entire connectivity model. Located along the A4 motorway near Andelfingen, the model identified a high-priority crossing point where the motorway bisects two expansive forest blocks.
@@ -489,7 +489,7 @@ Despite the confirmed risk, this location represents a lower priority for struct
 
 ## Model Plausibility and Real-World Relevance
 ### Cross-Verification
-The plausability of the modell is supported by a spatial cross-verification with an independent traffic accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen (IUNR) @PraeventionWildtierunfaellenAuf.
+The plausability of the modell is supported by a spatial cross-verification with an independent traffic accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen (IUNR) [@PraeventionWildtierunfaellenAuf].
 
 @fig-accidents visualizes the spatial distribution of the modeled high-risk bottlenecks (Red Dots) against the regional infrastructure network. A visual inspection reveals a nuanced relationship between the connectivity model (LCP) and the accident risk model (RML).
 
@@ -499,7 +499,7 @@ Mitigated or Latent Risk: In some instances, the connectivity model identifies b
 
 Non-Road Barriers: Finally, the model identifies barriers outside the road network. Bottleneck 3 is located on a railway line, and Bottleneck 4 is situated on the Rhine river. As the RML dataset is specific to road traffic accidents, these significant landscape barriers do not possess a corresponding risk classification in the reference model.
 
-![**Spatial cross-verification of modeled ecological connectivity against independent accident risk data.** The map displays the locations of identified high-density bottlenecks (red markers, numbered 1–6), derived from the Least-Cost Path (LCP) analysis, superimposed on the infrastructure network classified by the Risk of Wildlife Accidents model. Road segments are color-coded by collision risk ranging from very low (light green) to very high (red). The numbered bottlenecks illustrate specific interaction types discussed in the text: alignment with high-risk roads (2, 6), mitigation by existing structures (5), and non-road barriers such as railways (3, 6) and the Rhine river (4). Base map: Bing Satellite.](images/traffic_accidents.png){#fig-accidents}
+![**Spatial cross-verification of modeled ecological connectivity against independent accident risk data.** The map displays the locations of identified high-density bottlenecks (red markers, numbered 1–6), derived from the Least-Cost Path (LCP) analysis, superimposed on the infrastructure network classified by the Risk of Wildlife Accidents model. Road segments are color-coded by collision risk ranging from very low (light green) to very high (red). The numbered bottlenecks illustrate specific interaction types discussed in the text: alignment with high-risk roads (2, 6), mitigation by existing structures (5), and non-road barriers such as railways (3, 6) and the Rhine river (4). @PraeventionWildtierunfaellenAuf; Base map: Bing Satellite.](images/traffic_accidents.png){#fig-accidents}
 
 ### Ground Truthing
 A critical "ground truth" validation is provided by the specific analysis of Bottleneck 5 (identified in @tbl-bottlenecks). The Least-Cost Path (LCP) model pinpointed this location as a high-priority crossing point based on the underlying resistance surface without explicit prior programming of the specific infrastructure.
@@ -521,7 +521,7 @@ The analysis reveals a critical disconnect in the North-South connectivity to th
 - Recommendation: To re-establish this biological lifeline, a system of "stepping stones" must be integrated into the agricultural matrix. This includes planting hedgerows, creating wildflower strips, and re-naturalizing stream banks to provide necessary cover and reduce the effective distance between forest patches. This area should be prioritized for ecological compensation measures to lower the resistance of the landscape and eventually facilitate a functional "Wildlife Corridor of National Importance".
 
 ### 2. Mitigation Measures at Critical Bottlenecks
-The bottlenecks identified in Table @tbl-bottlenecks represent acute conflict zones. The validation of Bottleneck 5 (Schneitenberg) confirms that the model correctly identifies locations requiring engineering solutions.
+The bottlenecks identified in @tbl-bottlenecks represent acute conflict zones. The validation of Bottleneck 5 (Schneitenberg) confirms that the model correctly identifies locations requiring engineering solutions.
 
 - Targeted Retrofitting: The remaining unmitigated bottlenecks should be assessed for retrofitting. Where wildlife overpasses (Green Bridges) are not establishing feasible, cost-effective alternatives such as underpasses combined with guiding fences is recommended to channel animals away from road surfaces.
 
@@ -570,63 +570,31 @@ The implementation of a 2 km grid with specific node validation, significantly o
 Finally, no systematic sensitivity analysis was conducted. The resistance values were assigned based on expert literature, but it remains unquantified how sensitive the location of the predicted corridors is to minor changes in these weights (e.g., varying road cost between 1000 and 5000). As shown in the project some cost values should be improved and set to a more realistic value.
 
 # Conclusion
-This project successfully implemented a fully reproducible, Python-based workflow to model ecological connectivity for Roe Deer in the Canton of Schaffhausen. By integrating high-resolution OpenStreetMap feature data with Corine Land Cover, the analysis generated a 10-meter resolution resistance surface that effectively identifies critical barriers and functional corridors.
+This project successfully implemented a fully reproducible, Python-based workflow to model ecological connectivity for Roe Deer in the Canton of Schaffhausen. By integrating high-resolution OpenStreetMap feature data with Corine Land Cover data, the analysis generated a 10-meter resolution resistance surface that effectively identifies critical barriers and functional corridors.
 
-The study concludes that the connectivity of the canton is defined by a distinct "Funnel and Barrier" system. The urban agglomeration of Schaffhausen and the adjacent A4 motorway act as an impermeable blockade, severing eastward movement and forcing regional wildlife flow into a single, critical corridor in the west. However, this “western funnel” was incorrectly identified due to missing slope data, which makes the “western corridor” an even bigger problem.
+The study concludes that the connectivity of the canton is defined by a distinct "Funnel and Barrier" system. The urban agglomeration of Schaffhausen, the rhine river and the A4 motorway act as major obstacles, severing eastward movement and forcing regional wildlife flow into a single, critical corridor in the west. However, this “western funnel” was incorrectly identified due to missing slope data, which makes the “western corridor” an even bigger problem.
 
 The plausability of these findings is supported by a robust cross-verification with an independent accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen. Furthermore, the model demonstrated significant predictive power by independently pinpointing the location of the existing Schneitenberg wildlife passage, confirming that the "Barrier Dominance" resistance surface correctly captures the landscape features driving movement behavior.
 
 Despite methodological limitations regarding topographic simplification and temporal stationarity, the identified bottlenecks provide actionable data for spatial planning. To ensure the long-term genetic viability of the regional roe deer population, the identified conflict zones must be prioritized for mitigation, and the remaining functional corridors must be actively protected from further fragmentation. The developed automated pipeline offers a scalable foundation for extending this analysis to other regions, contributing a transparent and data-driven tool to the field of conservation planning.
 
-
-# Statement of Reproducibility, Reusability, and Collaboration {-}
-This project was engineered to strictly adhere to the principles of Reproducibility, Reusability, and Collaboration as defined by the Institute for Computational Life Sciences guidelines.
-
-## Reproducibility
-To guarantee that the analysis can be replicated on any machine with identical results, the computational environment is fully defined as code.
-
-- Environment Locking: The `environment.yml` file serves as the single source of truth for the software stack. It enforces strict version pinning for core dependencies, most notably locking `numpy=1.26` to avoid binary incompatibilities with version 2.0, and aligning `libgdal (v. 3.8)` with `rasterio (v. 1.3)`. This prevents the "dependency hell" often associated with complex geospatial workflows.
-
-- Automated Orchestration: The custom automation script, `run_pipeline.py` was implemented. This script functions as an "Infrastructure-as-Code" wrapper that:
-
-  1. Validates the local Conda environment against the `environment.yml` specification.
-
-  2. Automatically installs missing dependencies via Mamba.
-
-  3. Executes the analysis modules (`01_resistance_surface_generation.py`, `02_local_lcp_analysis.py`, `03_extract_bottlenecks.py`) in the correct sequential order. This "one-click" execution model ensures that the entire workflow, from raw data ingestion to final map generation, is reproducible without manual configuration.
-
-## Reusability
-The project applies the FAIR principles (Findable, Accessible, Interoperable, Reusable) by relying exclusively on open-source data standards.
-
-- Data Interoperability: All OSM input data is retrieved programmatically from Geofabrik. A preclipped CLC file from Copernicus is already downloaded in the data folder. The code is designed to be agnostic to the specific region, by simply changing the geocode for osmnx in the configuration, the entire model can be reused to analyze connectivity in other European regions covered by OpenStreetMap and Corine Land Cover. The preclipped CLC data has to be manually downloaded for this new area.
-
-Modular Code: The codebase is structured into distinct, modular Python scripts (Data Preparation vs. Analysis vs. Visualization), allowing individual components (e.g., the resistance surface generator) to be reused in other projects without the need to run the full pipeline.
-
-## Collaboration
-To facilitate potential collaboration and transparent development:
-
-- Version Control: The project history, including code changes and methodology updates, was tracked using Git.
-
-- Documentation: The code includes comprehensive docstrings and in-line comments explaining the logic behind critical parameters (e.g., the all_touched=True rasterization rule). A README.md file provides clear instructions on how to initialize the environment and execute the pipeline, ensuring that future contributors can onboard quickly.
-
-
 # References {#sec-refs}
 
 {{< references >}}
 
-# List of illustrations {.unnumbered}
+# List of illustrations {.unnumbered .unlisted}
 
 {{< list-of-figures >}}
 
-# List of tables {.unnumbered}
+# List of tables {.unnumbered .unlisted}
 
 {{< list-of-tables >}}
 
 :::
 
-# Appendix {.unnumbered}
+# Appendix {.unnumbered .unlisted}
 
-## Appendix A: Directory of Generative AI Tools
+## Appendix A: Directory of Generative AI Tools {.unnumbered .unlisted}
 - Google. (2025). Gemini (Model Version 1.5 Pro). https://gemini.google.com/
 
   - Debugging of Python error messages and script logic (specifically `01_resistance_surface_generation.py` and `02_local_lcp_analysis.py`).
@@ -635,32 +603,50 @@ To facilitate potential collaboration and transparent development:
 
   - Linguistic refinement and stylistic polishing of the Introduction, Methods, Results and Discussion sections.
 
-## Appendix B: Computational Project Structure
+## Appendix B: Computational Project Structure {.unnumbered .unlisted}
 To ensure reproducibility, the digital submission of this project follows a strict directory structure managed by the `run_pipeline.py` orchestrator. Here you can see a summarized version of the GitHub folder structure:
 
 ```text
-PA2_Lukas_Buchmann/
-├── environment.yml                           # Mamba/Conda environment definition (locked versions)
-├── run_pipeline.py                           # Automation script (One-click execution)
-├── README.md                                 # Instructions for execution
-├── data/                                     # Input Data folder
-│   ├── osm_resistance_costs.csv              # Configuration for OSM weights
-│   └── clc_resistance_costs.csv              # Configuration for CLC weights
-├── src/                                      # Source Code
-│   ├── 01_resistance_surface_generation.py   # Rasterization module
-│   ├── 02_local_lcp_analysis.py              # LCP Algorithm module
-│   └── 03_extract_bottlenecks.py             # Visualization module
-└── results/                                  # Output folder (Generated by script)
-    ├── clustered_bottlenecks.csv             # Bottleneck csv data
-    └── method_01_grid.png                    # Methods image
+PA2-Modelling_Wildlife_Corridors/
+│
+├── data/                        # ALL data lives here
+│   ├── U2018_CLC2018_V2020_20u1.gpkg
+│   ├── Wildtierunfaelle_auf_Verkehrsinfrastruktur_SH.gpkg
+│   ├── baden-wuerttemberg-latest.osm.pbf
+│   |── switzerland-latest.osm.pbf
+│   ├── clc_resistance_costs.csv
+│   └── osm_resistance_costs.csv
+│
+├── docs/                        # Quarto report
+│   ├── images/                  # Static images for the report
+│   ├── references.bib           # Bibliography file
+│   ├── index.qmd                # Main Quarto document
+│   └── index.pdf                # Rendered report
+│
+├── results/                     # Final outputs generated by the pipeline
+│   ├── temp_files/              # Intermediate files
+|   ├── clustered_bottlenecks.csv
+│   ├── final_corridor_traffic.tif
+│   └── final_resistance_surface.tif
+│
+├── src/                         # Source code (Analysis scripts)
+│   ├── depriciated_code/        # Depriciated HPC Code
+│   ├── 01_resistance_surface_generation.py
+│   ├── 02_local_lcp_analysis.py
+│   └── 03_extract_bottlenecks.py
+│
+├── .gitignore                   # Files to ignore in Git
+├── environment.yml              # Conda environment definition
+├── README.md                    # Project documentation/overview
+└── run_pipeline.py              # Orchestrator script (Entry Point)
 ```
 
-## Appendix C: Resistance Parameter Table
+## Appendix C: Resistance Parameter Table {.unnumbered .unlisted}
 ```{python}
-#| label: cost-tables
+#| label: resistance
 #| tbl-cap: "These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value."
 #| echo: false
-#| results: asis
+#| output: asis
 
 import pandas as pd
 import numpy as np
@@ -700,3 +686,34 @@ display_long_table('../data/osm_resistance_costs.csv', 'OSM Resistance Costs')
 ```
 
 Sources: [@kuehnGeneticEffectTransportation2007]; [@wadeResistancesurfacebasedWildlifeConservation2015]; [@iuellCOST341Habitat2003]; [@jepsenModellingRoeDeer2004]; [@mysterudHabitatSelectionRoe1999]; Values derived logically for the specific context of Project Work 2 (e.g., assigning high resistance to glaciers or barriers like walls). 
+
+
+## Appendix D: Statement of Reproducibility, Reusability, and Collaboration {.unnumbered .unlisted}
+This project was engineered to strictly adhere to the principles of Reproducibility, Reusability, and Collaboration as defined by the Institute for Computational Life Sciences guidelines.
+
+### Reproducibility {.unnumbered .unlisted}
+To guarantee that the analysis can be replicated on any machine with identical results, the computational environment is fully defined as code.
+
+- Environment Locking: The `environment.yml` file serves as the single source of truth for the software stack. It enforces strict version pinning for core dependencies, most notably locking `numpy=1.26` to avoid binary incompatibilities with version 2.0, and aligning `libgdal (v. 3.8)` with `rasterio (v. 1.3)`. This prevents the "dependency hell" often associated with complex geospatial workflows.
+
+- Automated Orchestration: The custom automation script, `run_pipeline.py` was implemented. This script functions as an "Infrastructure-as-Code" wrapper that:
+
+  1. Validates the local Conda environment against the `environment.yml` specification.
+
+  2. Automatically installs missing dependencies via Mamba.
+
+  3. Executes the analysis modules (`01_resistance_surface_generation.py`, `02_local_lcp_analysis.py`, `03_extract_bottlenecks.py`) in the correct sequential order. This "one-click" execution model ensures that the entire workflow, from raw data ingestion to final map generation, is reproducible without manual configuration.
+
+### Reusability {.unnumbered .unlisted}
+The project applies the FAIR principles (Findable, Accessible, Interoperable, Reusable) by relying exclusively on open-source data standards.
+
+- Data Interoperability: All OSM input data is retrieved programmatically from Geofabrik. A preclipped CLC file from Copernicus is already downloaded in the data folder. The code is designed to be agnostic to the specific region, by simply changing the geocode for osmnx in the configuration, the entire model can be reused to analyze connectivity in other European regions covered by OpenStreetMap and Corine Land Cover. The preclipped CLC data has to be manually downloaded for this new area.
+
+Modular Code: The codebase is structured into distinct, modular Python scripts (Data Preparation vs. Analysis vs. Visualization), allowing individual components (e.g., the resistance surface generator) to be reused in other projects without the need to run the full pipeline.
+
+### Collaboration {.unnumbered .unlisted}
+To facilitate potential collaboration and transparent development:
+
+- Version Control: The project history, including code changes and methodology updates, was tracked using Git.
+
+- Documentation: The code includes comprehensive docstrings and in-line comments explaining the logic behind critical parameters (e.g., the all_touched=True rasterization rule). A README.md file provides clear instructions on how to initialize the environment and execute the pipeline, ensuring that future contributors can onboard quickly.

@@ -65,19 +65,8 @@ div.csl-indent {
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-  <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents</h2>
-   
-  <ul>
-  <li><a href="#appendix" id="toc-appendix" class="nav-link active" data-scroll-target="#appendix">Appendix</a>
-  <ul class="collapse">
-  <li><a href="#appendix-a-directory-of-generative-ai-tools" id="toc-appendix-a-directory-of-generative-ai-tools" class="nav-link" data-scroll-target="#appendix-a-directory-of-generative-ai-tools"><span class="header-section-number">0.1</span> Appendix A: Directory of Generative AI Tools</a></li>
-  <li><a href="#appendix-b-computational-project-structure" id="toc-appendix-b-computational-project-structure" class="nav-link" data-scroll-target="#appendix-b-computational-project-structure"><span class="header-section-number">0.2</span> Appendix B: Computational Project Structure</a></li>
-  <li><a href="#appendix-c-resistance-parameter-table" id="toc-appendix-c-resistance-parameter-table" class="nav-link" data-scroll-target="#appendix-c-resistance-parameter-table"><span class="header-section-number">0.3</span> Appendix C: Resistance Parameter Table</a></li>
-  </ul></li>
-  </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="..\index.pdf"><i class="bi bi-file-pdf"></i>Typst (zhaw-lsfm)</a></li></ul></div></nav>
-</div>
+  
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>Typst (zhaw-lsfm)</a></li></ul></div></div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -123,10 +112,10 @@ div.csl-indent {
 <p>Ein vollautomatisierter Python-basierter Workflow wurde implementiert, um durch die Integration von OpenStreetMap (OSM) und Corine Land Cover (CLC) daten eine hochauflösende (10 m) Widerstandskarte zu erstellen. Mittels einer Least-Cost Path (LCP) Analyse, basierend auf dem Prinzip der “Barrieren-Dominanz”, wurden potenzielle Wanderbewegungen zwischen Kernhabitaten im grenzüberschreitenden Untersuchungsgebiet simuliert.</p>
 <p>Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf eine spezifische netzartige Topologie beschränkt sind. Ein zentrales Ergebnis ist die Identifikation eines vitalen Nord-Süd-Korridors westlich der Agglomeration Schaffhausen, der als primäre biologische Verbindung zwischen den deutschen Habitaten und dem Schweizer Mittelland in dieser region fungiert. Die Validität des Modells wurde durch einen räumlichen Abgleich mit unabhängigen Unfallrisikomodellen sowie durch die erfolgreiche, unabhängige Identifikation der bestehenden Wildtierüberführung Schneitenberg bestätigt. Die Studie schliesst, dass die regionale Vernetzung von wenigen, fragilen Engpässen abhängt. Um die langfristige Lebensfähigkeit der Population zu sichern, muss die Raumplanung den Schutz des westlichen Korridors vor weiterer Zersiedelung priorisieren und gezielte Entschärfungsmassnahmen an den identifizierten Konfliktzonen entlang der A4 umsetzen.</p>
 </section>
-<section id="appendix" class="level1 unnumbered">
-<h1 class="unnumbered">Appendix</h1>
-<section id="appendix-a-directory-of-generative-ai-tools" class="level2" data-number="0.1">
-<h2 data-number="0.1" class="anchored" data-anchor-id="appendix-a-directory-of-generative-ai-tools"><span class="header-section-number">0.1</span> Appendix A: Directory of Generative AI Tools</h2>
+<section id="appendix" class="level1 unnumbered unlisted">
+<h1 class="unnumbered unlisted">Appendix</h1>
+<section id="appendix-a-directory-of-generative-ai-tools" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-a-directory-of-generative-ai-tools">Appendix A: Directory of Generative AI Tools</h2>
 <ul>
 <li><p>Google. (2025). Gemini (Model Version 1.5 Pro). https://gemini.google.com/</p>
 <ul>
@@ -136,33 +125,47 @@ div.csl-indent {
 </ul></li>
 </ul>
 </section>
-<section id="appendix-b-computational-project-structure" class="level2" data-number="0.2">
-<h2 data-number="0.2" class="anchored" data-anchor-id="appendix-b-computational-project-structure"><span class="header-section-number">0.2</span> Appendix B: Computational Project Structure</h2>
+<section id="appendix-b-computational-project-structure" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-b-computational-project-structure">Appendix B: Computational Project Structure</h2>
 <p>To ensure reproducibility, the digital submission of this project follows a strict directory structure managed by the <code>run_pipeline.py</code> orchestrator. Here you can see a summarized version of the GitHub folder structure:</p>
-<pre class="text"><code>PA2_Lukas_Buchmann/
-├── environment.yml                           # Mamba/Conda environment definition (locked versions)
-├── run_pipeline.py                           # Automation script (One-click execution)
-├── README.md                                 # Instructions for execution
-├── data/                                     # Input Data folder
-│   ├── osm_resistance_costs.csv              # Configuration for OSM weights
-│   └── clc_resistance_costs.csv              # Configuration for CLC weights
-├── src/                                      # Source Code
-│   ├── 01_resistance_surface_generation.py   # Rasterization module
-│   ├── 02_local_lcp_analysis.py              # LCP Algorithm module
-│   └── 03_extract_bottlenecks.py             # Visualization module
-└── results/                                  # Output folder (Generated by script)
-    ├── clustered_bottlenecks.csv             # Bottleneck csv data
-    └── method_01_grid.png                    # Methods image</code></pre>
+<pre class="text"><code>PA2-Modelling_Wildlife_Corridors/
+│
+├── data/                        # ALL data lives here
+│   ├── U2018_CLC2018_V2020_20u1.gpkg
+│   ├── Wildtierunfaelle_auf_Verkehrsinfrastruktur_SH.gpkg
+│   ├── baden-wuerttemberg-latest.osm.pbf
+│   |── switzerland-latest.osm.pbf
+│   ├── clc_resistance_costs.csv
+│   └── osm_resistance_costs.csv
+│
+├── docs/                        # Quarto report
+│   ├── images/                  # Static images for the report
+│   ├── references.bib           # Bibliography file
+│   ├── index.qmd                # Main Quarto document
+│   └── index.pdf                # Rendered report
+│
+├── results/                     # Final outputs generated by the pipeline
+│   ├── temp_files/              # Intermediate files
+|   ├── clustered_bottlenecks.csv
+│   ├── final_corridor_traffic.tif
+│   └── final_resistance_surface.tif
+│
+├── src/                         # Source code (Analysis scripts)
+│   ├── depriciated_code/        # Depriciated HPC Code
+│   ├── 01_resistance_surface_generation.py
+│   ├── 02_local_lcp_analysis.py
+│   └── 03_extract_bottlenecks.py
+│
+├── .gitignore                   # Files to ignore in Git
+├── environment.yml              # Conda environment definition
+├── README.md                    # Project documentation/overview
+└── run_pipeline.py              # Orchestrator script (Entry Point)</code></pre>
 </section>
-<section id="appendix-c-resistance-parameter-table" class="level2" data-number="0.3">
-<h2 data-number="0.3" class="anchored" data-anchor-id="appendix-c-resistance-parameter-table"><span class="header-section-number">0.3</span> Appendix C: Resistance Parameter Table</h2>
-<div id="cost-tables" class="cell" data-results="asis" data-tbl-cap="These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value." data-execution_count="5">
-<div id="cost-tables-1" class="cell-output cell-output-display cell-output-markdown">
-<section id="clc-resistance-costs" class="level3" data-number="0.3.1">
-<h3 data-number="0.3.1" class="anchored" data-anchor-id="clc-resistance-costs"><span class="header-section-number">0.3.1</span> CLC Resistance Costs</h3>
-</section>
-</div>
-<div id="cost-tables-2" class="cell-output cell-output-display cell-output-markdown">
+<section id="appendix-c-resistance-parameter-table" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-c-resistance-parameter-table">Appendix C: Resistance Parameter Table</h2>
+<div id="resistance" class="cell" data-tbl-cap="These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value." data-execution_count="5">
+<section id="clc-resistance-costs" class="level3" data-number="0.0.1">
+<h3 data-number="0.0.1" class="anchored" data-anchor-id="clc-resistance-costs"><span class="header-section-number">0.0.1</span> CLC Resistance Costs</h3>
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 10%">
@@ -399,16 +402,9 @@ div.csl-indent {
 </tr>
 </tbody>
 </table>
-</div>
-<div id="cost-tables-3" class="cell-output cell-output-display cell-output-markdown">
-
-</div>
-<div id="cost-tables-4" class="cell-output cell-output-display cell-output-markdown">
-<section id="osm-resistance-costs" class="level3" data-number="0.3.2">
-<h3 data-number="0.3.2" class="anchored" data-anchor-id="osm-resistance-costs"><span class="header-section-number">0.3.2</span> OSM Resistance Costs</h3>
 </section>
-</div>
-<div id="cost-tables-5" class="cell-output cell-output-display cell-output-markdown">
+<section id="osm-resistance-costs" class="level3" data-number="0.0.2">
+<h3 data-number="0.0.2" class="anchored" data-anchor-id="osm-resistance-costs"><span class="header-section-number">0.0.2</span> OSM Resistance Costs</h3>
 <table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
@@ -745,14 +741,44 @@ div.csl-indent {
 </tr>
 </tbody>
 </table>
-</div>
-<div id="cost-tables-6" class="cell-output cell-output-display cell-output-markdown">
-
-</div>
 <p>These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value.</p>
+</section>
 </div>
 <p>Sources: <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>; <span class="citation" data-cites="wadeResistancesurfacebasedWildlifeConservation2015">(<a href="#ref-wadeResistancesurfacebasedWildlifeConservation2015" role="doc-biblioref">Wade, McKelvey, and Schwartz 2015</a>)</span>; <span class="citation" data-cites="iuellCOST341Habitat2003">(<a href="#ref-iuellCOST341Habitat2003" role="doc-biblioref">Iuell et al. 2003</a>)</span>; <span class="citation" data-cites="jepsenModellingRoeDeer2004">(<a href="#ref-jepsenModellingRoeDeer2004" role="doc-biblioref">Jepsen and Topping 2004</a>)</span>; <span class="citation" data-cites="mysterudHabitatSelectionRoe1999">(<a href="#ref-mysterudHabitatSelectionRoe1999" role="doc-biblioref">Mysterud et al. 1999</a>)</span>; Values derived logically for the specific context of Project Work 2 (e.g., assigning high resistance to glaciers or barriers like walls).</p>
+</section>
+<section id="appendix-d-statement-of-reproducibility-reusability-and-collaboration" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-d-statement-of-reproducibility-reusability-and-collaboration">Appendix D: Statement of Reproducibility, Reusability, and Collaboration</h2>
+<p>This project was engineered to strictly adhere to the principles of Reproducibility, Reusability, and Collaboration as defined by the Institute for Computational Life Sciences guidelines.</p>
+<section id="reproducibility" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="reproducibility">Reproducibility</h3>
+<p>To guarantee that the analysis can be replicated on any machine with identical results, the computational environment is fully defined as code.</p>
+<ul>
+<li><p>Environment Locking: The <code>environment.yml</code> file serves as the single source of truth for the software stack. It enforces strict version pinning for core dependencies, most notably locking <code>numpy=1.26</code> to avoid binary incompatibilities with version 2.0, and aligning <code>libgdal (v. 3.8)</code> with <code>rasterio (v. 1.3)</code>. This prevents the “dependency hell” often associated with complex geospatial workflows.</p></li>
+<li><p>Automated Orchestration: The custom automation script, <code>run_pipeline.py</code> was implemented. This script functions as an “Infrastructure-as-Code” wrapper that:</p>
+<ol type="1">
+<li><p>Validates the local Conda environment against the <code>environment.yml</code> specification.</p></li>
+<li><p>Automatically installs missing dependencies via Mamba.</p></li>
+<li><p>Executes the analysis modules (<code>01_resistance_surface_generation.py</code>, <code>02_local_lcp_analysis.py</code>, <code>03_extract_bottlenecks.py</code>) in the correct sequential order. This “one-click” execution model ensures that the entire workflow, from raw data ingestion to final map generation, is reproducible without manual configuration.</p></li>
+</ol></li>
+</ul>
+</section>
+<section id="reusability" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="reusability">Reusability</h3>
+<p>The project applies the FAIR principles (Findable, Accessible, Interoperable, Reusable) by relying exclusively on open-source data standards.</p>
+<ul>
+<li>Data Interoperability: All OSM input data is retrieved programmatically from Geofabrik. A preclipped CLC file from Copernicus is already downloaded in the data folder. The code is designed to be agnostic to the specific region, by simply changing the geocode for osmnx in the configuration, the entire model can be reused to analyze connectivity in other European regions covered by OpenStreetMap and Corine Land Cover. The preclipped CLC data has to be manually downloaded for this new area.</li>
+</ul>
+<p>Modular Code: The codebase is structured into distinct, modular Python scripts (Data Preparation vs.&nbsp;Analysis vs.&nbsp;Visualization), allowing individual components (e.g., the resistance surface generator) to be reused in other projects without the need to run the full pipeline.</p>
+</section>
+<section id="collaboration" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="collaboration">Collaboration</h3>
+<p>To facilitate potential collaboration and transparent development:</p>
+<ul>
+<li><p>Version Control: The project history, including code changes and methodology updates, was tracked using Git.</p></li>
+<li><p>Documentation: The code includes comprehensive docstrings and in-line comments explaining the logic behind critical parameters (e.g., the all_touched=True rasterization rule). A README.md file provides clear instructions on how to initialize the environment and execute the pipeline, ensuring that future contributors can onboard quickly.</p></li>
+</ul>
 
+</section>
 </section>
 </section>
 
