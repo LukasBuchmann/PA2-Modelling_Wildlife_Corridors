@@ -52,6 +52,7 @@ Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf
 
 {{< table-of-contents >}}
 
+:::
 
 # List of abbreviations {.unnumbered .unlisted}
 
@@ -581,6 +582,8 @@ Despite methodological limitations regarding topographic simplification and temp
 # References {#sec-refs}
 
 {{< references >}}
+
+::: {.content-hidden when-format="html"}
 
 # List of illustrations {.unnumbered .unlisted}
 
