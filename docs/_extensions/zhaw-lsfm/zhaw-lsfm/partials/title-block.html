@@ -1,0 +1,68 @@
+<header id="title-block-header">
+$if(institut)$
+<div class="zhaw-header">
+$zhaw-university$<br>
+$zhaw-department$<br>
+$institut$
+</div>
+$endif$
+
+$if(title)$<h1 class="title">$title$</h1>$endif$
+$if(subtitle)$
+<p class="subtitle">$subtitle$</p>
+$endif$
+
+$if(cover-image)$
+<div class="cover-image">
+<img src="$cover-image.src$" alt="Cover">
+</div>
+$endif$
+
+$if(confidential)$
+<p class="confidential">$confidential-label$</p>
+$endif$
+
+$if(thesis-type)$
+<p class="thesis-type">$thesis-type$</p>
+$endif$
+
+<div class="author-section">
+$if(author)$
+<p class="von">$author-by$</p>
+$for(author)$
+<p class="author">$author$</p>
+$endfor$
+$endif$
+</div>
+
+$if(degree-type)$
+<p class="degree-type">$degree-type$$if(study-year)$ $study-year$$endif$</p>
+$endif$
+
+$if(submission-date)$
+<p class="submission-date">$submission-date-prefix$ $submission-date$</p>
+$endif$
+
+$if(study-direction)$
+<p class="study-direction">$study-direction-prefix$ $study-direction$</p>
+$endif$
+
+$if(supervisors)$
+<div class="supervisors">
+<p>$supervisors-label$</p>
+<ul>
+$for(supervisors)$
+<li>$supervisors.title$ $supervisors.name$<br>
+$supervisors.affiliation$</li>
+$endfor$
+</ul>
+</div>
+$endif$
+
+$if(abstract)$
+<div class="abstract">
+<div class="abstract-title">$abstract-title$</div>
+$abstract$
+</div>
+$endif$
+</header>

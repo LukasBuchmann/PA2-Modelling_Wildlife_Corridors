@@ -1,0 +1,45 @@
+clc_code,LABEL3,resistance
+111,"Continuous urban fabric",5000
+112,"Discontinuous urban fabric",3500
+121,"Industrial or commercial units",4500
+122,"Road and rail networks and associated land",3000
+123,"Port areas",4000
+124,"Airports",4500
+131,"Mineral extraction sites",1500
+132,"Dump sites",2000
+133,"Construction sites",2500
+141,"Green urban areas",200
+142,"Sport and leisure facilities",300
+211,"Non-irrigated arable land",20
+212,"Permanently irrigated land",25
+213,"Rice fields",100
+221,"Vineyards",15
+222,"Fruit trees and berry plantations",10
+223,"Olive groves",15
+231,"Pastures",8
+241,"Annual crops associated with permanent crops",12
+242,"Complex cultivation patterns",10
+243,"Land principally occupied by agriculture, with significant areas of natural vegetation",5
+244,"Agro-forestry areas",3
+311,"Broad-leaved forest",1
+312,"Coniferous forest",3
+313,"Mixed forest",1
+321,"Natural grasslands",5
+322,"Moors and heathland",8
+323,"Sclerophyllous vegetation",10
+324,"Transitional woodland-shrub",2
+331,"Beaches, dunes, sands",100
+332,"Bare rocks",300
+333,"Sparsely vegetated areas",50
+334,"Burnt areas",25
+335,"Glaciers and perpetual snow",1000
+411,"Inland marshes",75
+412,"Peat bogs",100
+421,"Salt marshes",150
+422,"Salines",1000
+423,"Intertidal flats",200
+511,"Water courses",5000
+512,"Water bodies",5000
+521,"Coastal lagoons",800
+522,"Estuaries",800
+523,"Sea and ocean",5000

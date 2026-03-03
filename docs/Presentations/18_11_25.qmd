@@ -1,0 +1,183 @@
+---
+title: "PA2 Update"
+subtitle: "Modelling Wildlife Corridors"
+author: "Lukas Buchmann"
+date: "November 18, 2025"
+format: 
+  revealjs:
+    theme: simple                 # A clean, high-contrast default theme
+    transition: fade              # Use subtle transitions
+    background-transition: none   # Keep background changes instant
+    slide-number: true            # Good for referencing slides
+    progress: true                # Show a progress bar
+    incremental: false            # Lists appear all at once (unless overridden)
+    center: false                 # Align content to the top
+    footer: "PA2 Update | Lukas Buchmann"
+editor: visual
+---
+
+# Progress
+
+## Overview
+
+-   New Cost Surface Model with OSM data
+-   Improve Reproducability
+-   Apply correct Cost Values based on scientific literature
+-   Continue writing Report
+-   Improve Least Cost Path Analysis
+-   Generate deer traffic map and bottleneck map
+
+## Cost Surface Model
+
+::: {style="font-size: 0.8em;"}
+-   Buffer, aoi of rectangle around Canton borders
+-   New CRS for both countries: EPSG:32632
+-   All_touched(True)
+-   Load .pbf files for baden-wuerttemberg and switzerland automatically
+-   Load customized Corine Landcover data to fill the missing values in OSM
+-   Process .pbf files with pyrosm to create one GeoPackage with all OSM data for the aoi and the defined tags
+-   Use CLC as Base layer and do priority fill with the OSM tags
+:::
+
+## Cost Surface Model
+
+```{python}
+# --- Imports ---
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+import rasterio
+import rasterio.plot
+import osmnx as ox
+import geopandas as gpd
+
+# --- Define paths ---
+FINAL_RASTER = r"C:\ZHAW\5.Semester\PA2\PA2-Modelling_Wildlife_Corridors\Results\final_resistance_surface.tif"
+
+# --- Check if raster exists ---
+if not os.path.exists(FINAL_RASTER):
+    raise FileNotFoundError(f"File not found: {FINAL_RASTER}")
+
+# --- Get Schaffhausen boundary and reproject ---
+# This ensures gdf_sh_proj is correctly defined
+gdf_sh_wgs = ox.geocode_to_gdf("Kanton Schaffhausen")
+gdf_sh_proj = gdf_sh_wgs.to_crs("EPSG:32632")
+
+# --- Visualize Final Cost Surface ---
+
+with rasterio.open(FINAL_RASTER) as src:
+    cost_data = src.read(1)
+
+    # Print basic stats
+    # --- Plot ---
+    # Apply log1p (log(1+x)) to handle zeros
+    cost_data_log = np.log1p(cost_data)
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(9, 9))  # smaller figure for presentation
+    
+    im = rasterio.plot.show(
+        cost_data_log,
+        transform=src.transform,
+        ax=ax,
+        cmap='RdYlGn_r'
+    )
+
+    # Colorbar
+    cbar = fig.colorbar(im.images[0], ax=ax, shrink=0.5)
+    cbar.set_label('Log(Resistance Cost)')
+
+    # Plot canton boundary
+    gdf_sh_proj.boundary.plot(ax=ax, color='blue', linestyle='--', linewidth=2, label='Canton Boundary')
+
+    ax.legend()
+    ax.set_title("Final Cost Surface (Log Scale)")
+    ax.set_xlabel("Easting (m)")
+    ax.set_ylabel("Northing (m)")
+    
+    
+
+    plt.tight_layout()
+    plt.show()
+
+```
+
+## Improve Least Cost Path Analysis
+
+-   `skimage.graph.MCP_Geometric()` implemented
+
+-   Calculations on HPC using Job Array
+
+-   Split all nodes in 890 tasks. Each task calculates the Paths from one or two start nodes to every end node higher then itself (Node 1 to Node 2, Node 3, ...), (Node 2 to Node 3, Node 4, ...), ...
+
+## Bottleneck Analysis
+
+::: {style="font-size: 0.7em;"}
+1.  Find the main corridors by setting the treshold to the top 1% of the traffic raster values (for a more detailed analysis 10%)
+
+    traffic_threshold_val = np.percentile(non_zero_pixels, TRAFFIC_PERCENTILE_THRESHOLD = 99)
+
+2.  Create a traffic mask, which includes only this top 1% of traffic routes
+
+3.  Apply this mask to the resistance surface, to get the resistance surface values on the main corridors
+
+4.  Apply bottleneck treshold (if the main corridors cross a pixel which has a resistance surface value \> 5000 it is a bottleneck)
+
+    bottleneck_condition = (corridor_bottlenecks \>= BOTTLENECK_COST_THRESHOLD)
+
+5.  Get the bottleneck indices and save the result
+
+    bottleneck_indices = np.where(bottleneck_condition)
+:::
+
+## Bottleneck Analysis
+
+![](images/final_annotated_composite_map-3.png){width="80%"}
+
+## Result
+
+![](images/paste-2.png){width="40%"}![](18_11_25/passage.png){width="40%"}
+
+# Challenges
+
+## Is a highway an absolute barrier?
+
+Some studies calculate them as absolute barrier, some calculate them as high barrier.
+
+-   My solution was to modell fenced highways as absolute barriers.
+
+## Natural: Water layer in OSM
+
+The water layer in the Natural section of OSM has a very interesting shape which cannot be correct.
+
+-   I simply omitted this layer.
+
+## What should i do with the rhine?
+
+Are wildlife passages across a river possible and sensible?
+
+## Many traffic routes near each other
+
+How should i handle many traffic routes which cross the same road near each other?
+
+![](18_11_25/multiple_traffic_near_each_other.png){width="60%"}
+
+## Validation
+
+How can i validate my model?
+
+-   By finding already existing wildlife passages?
+
+-   Requesting wildlife data from the canton of Schaffhausen? (Enough time?)
+
+# Next Steps
+
+-   Continue writing Report
+
+-   Adjust parameters for final analysis
+
+-   Presubmission
+
+-   Bring the whole code on the HPC for Reproducible workflow?
+
+-   Validation of the model

@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.24">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Buchmann">
+<meta name="keywords" content="Wildlife Corridors, Connectivity Modeling, Ecological Connectivity, Least-Cost Path (LCP) Analysis, Spatial Analysis">
+
+<title>Modelling Wildlife Corridors: Spatial Analysis of Topographic and Landscape Barriers to determine Ecological Connectivity</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="index_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="index_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting-dc55a5b9e770e841cd82e46aadbfb9b0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap-9e3ffae467580fdb927a41352e75a2e0.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="_extensions/zhaw-lsfm/zhaw-lsfm/zhaw-html.css">
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a>
+  <ul class="collapse">
+  <li><a href="#the-challenge-of-habitat-fragmentation" id="toc-the-challenge-of-habitat-fragmentation" class="nav-link" data-scroll-target="#the-challenge-of-habitat-fragmentation"><span class="header-section-number">1.1</span> The Challenge of Habitat Fragmentation</a></li>
+  <li><a href="#the-role-of-ecological-connectivity" id="toc-the-role-of-ecological-connectivity" class="nav-link" data-scroll-target="#the-role-of-ecological-connectivity"><span class="header-section-number">1.2</span> The Role of Ecological Connectivity</a></li>
+  <li><a href="#focal-species-the-roe-deer-capreolus-capreolus" id="toc-focal-species-the-roe-deer-capreolus-capreolus" class="nav-link" data-scroll-target="#focal-species-the-roe-deer-capreolus-capreolus"><span class="header-section-number">1.3</span> Focal Species: The Roe Deer (<em>Capreolus capreolus</em>)</a></li>
+  <li><a href="#methodology-least-cost-path-lcp-analysis" id="toc-methodology-least-cost-path-lcp-analysis" class="nav-link" data-scroll-target="#methodology-least-cost-path-lcp-analysis"><span class="header-section-number">1.4</span> Methodology: Least-Cost Path (LCP) Analysis</a></li>
+  <li><a href="#project-objectives" id="toc-project-objectives" class="nav-link" data-scroll-target="#project-objectives"><span class="header-section-number">1.5</span> Project Objectives</a></li>
+  </ul></li>
+  <li><a href="#theoretical-framework" id="toc-theoretical-framework" class="nav-link" data-scroll-target="#theoretical-framework"><span class="header-section-number">2</span> Theoretical Framework</a>
+  <ul class="collapse">
+  <li><a href="#ecological-connectivity-and-wildlife-corridors" id="toc-ecological-connectivity-and-wildlife-corridors" class="nav-link" data-scroll-target="#ecological-connectivity-and-wildlife-corridors"><span class="header-section-number">2.1</span> Ecological Connectivity and Wildlife Corridors</a>
+  <ul class="collapse">
+  <li><a href="#functional-vs.-structural-connectivity" id="toc-functional-vs.-structural-connectivity" class="nav-link" data-scroll-target="#functional-vs.-structural-connectivity"><span class="header-section-number">2.1.1</span> Functional vs.&nbsp;Structural Connectivity</a></li>
+  <li><a href="#types-of-corridors" id="toc-types-of-corridors" class="nav-link" data-scroll-target="#types-of-corridors"><span class="header-section-number">2.1.2</span> Types of Corridors</a></li>
+  </ul></li>
+  <li><a href="#roe-deer-capreolus-capreolus-ecology" id="toc-roe-deer-capreolus-capreolus-ecology" class="nav-link" data-scroll-target="#roe-deer-capreolus-capreolus-ecology"><span class="header-section-number">2.2</span> Roe Deer (<em>Capreolus capreolus</em>) Ecology</a>
+  <ul class="collapse">
+  <li><a href="#habitat-preferences" id="toc-habitat-preferences" class="nav-link" data-scroll-target="#habitat-preferences"><span class="header-section-number">2.2.1</span> Habitat Preferences</a></li>
+  <li><a href="#movement-capabilities-and-physical-constraints" id="toc-movement-capabilities-and-physical-constraints" class="nav-link" data-scroll-target="#movement-capabilities-and-physical-constraints"><span class="header-section-number">2.2.2</span> Movement capabilities and Physical Constraints</a></li>
+  <li><a href="#barriers-and-avoidance" id="toc-barriers-and-avoidance" class="nav-link" data-scroll-target="#barriers-and-avoidance"><span class="header-section-number">2.2.3</span> Barriers and Avoidance</a></li>
+  </ul></li>
+  <li><a href="#least-cost-path-lcp-analysis" id="toc-least-cost-path-lcp-analysis" class="nav-link" data-scroll-target="#least-cost-path-lcp-analysis"><span class="header-section-number">2.3</span> Least-Cost Path (LCP) Analysis</a>
+  <ul class="collapse">
+  <li><a href="#the-resistance-surface" id="toc-the-resistance-surface" class="nav-link" data-scroll-target="#the-resistance-surface"><span class="header-section-number">2.3.1</span> The Resistance Surface</a></li>
+  <li><a href="#cost-distance-calculation" id="toc-cost-distance-calculation" class="nav-link" data-scroll-target="#cost-distance-calculation"><span class="header-section-number">2.3.2</span> Cost Distance Calculation</a></li>
+  <li><a href="#the-path" id="toc-the-path" class="nav-link" data-scroll-target="#the-path"><span class="header-section-number">2.3.3</span> The Path</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#material-and-methods" id="toc-material-and-methods" class="nav-link" data-scroll-target="#material-and-methods"><span class="header-section-number">3</span> Material and Methods</a>
+  <ul class="collapse">
+  <li><a href="#study-area" id="toc-study-area" class="nav-link" data-scroll-target="#study-area"><span class="header-section-number">3.1</span> Study Area</a></li>
+  <li><a href="#software-and-computational-environment" id="toc-software-and-computational-environment" class="nav-link" data-scroll-target="#software-and-computational-environment"><span class="header-section-number">3.2</span> Software and Computational Environment</a>
+  <ul class="collapse">
+  <li><a href="#dependency-management-and-stability" id="toc-dependency-management-and-stability" class="nav-link" data-scroll-target="#dependency-management-and-stability"><span class="header-section-number">3.2.1</span> Dependency Management and Stability</a></li>
+  <li><a href="#automated-workflow-orchestration" id="toc-automated-workflow-orchestration" class="nav-link" data-scroll-target="#automated-workflow-orchestration"><span class="header-section-number">3.2.2</span> Automated Workflow Orchestration</a></li>
+  </ul></li>
+  <li><a href="#data-preprocessing-and-preparation" id="toc-data-preprocessing-and-preparation" class="nav-link" data-scroll-target="#data-preprocessing-and-preparation"><span class="header-section-number">3.3</span> Data Preprocessing and Preparation</a>
+  <ul class="collapse">
+  <li><a href="#geospatial-datasets" id="toc-geospatial-datasets" class="nav-link" data-scroll-target="#geospatial-datasets"><span class="header-section-number">3.3.1</span> Geospatial Datasets</a></li>
+  </ul></li>
+  <li><a href="#development-of-the-resistance-surface" id="toc-development-of-the-resistance-surface" class="nav-link" data-scroll-target="#development-of-the-resistance-surface"><span class="header-section-number">3.4</span> Development of the Resistance Surface</a>
+  <ul class="collapse">
+  <li><a href="#weighting-scheme" id="toc-weighting-scheme" class="nav-link" data-scroll-target="#weighting-scheme"><span class="header-section-number">3.4.1</span> Weighting Scheme</a></li>
+  <li><a href="#vector-to-raster-conversion" id="toc-vector-to-raster-conversion" class="nav-link" data-scroll-target="#vector-to-raster-conversion"><span class="header-section-number">3.4.2</span> Vector to Raster Conversion</a></li>
+  </ul></li>
+  <li><a href="#connectivity-modeling" id="toc-connectivity-modeling" class="nav-link" data-scroll-target="#connectivity-modeling"><span class="header-section-number">3.5</span> Connectivity Modeling</a>
+  <ul class="collapse">
+  <li><a href="#node-identification" id="toc-node-identification" class="nav-link" data-scroll-target="#node-identification"><span class="header-section-number">3.5.1</span> Node Identification</a></li>
+  <li><a href="#least-cost-path-lcp-analysis-1" id="toc-least-cost-path-lcp-analysis-1" class="nav-link" data-scroll-target="#least-cost-path-lcp-analysis-1"><span class="header-section-number">3.5.2</span> Least-Cost Path (LCP) Analysis</a></li>
+  </ul></li>
+  <li><a href="#bottleneck-extraction-and-visualisation" id="toc-bottleneck-extraction-and-visualisation" class="nav-link" data-scroll-target="#bottleneck-extraction-and-visualisation"><span class="header-section-number">3.6</span> Bottleneck extraction and Visualisation</a></li>
+  <li><a href="#declaration-of-generative-ai-usage" id="toc-declaration-of-generative-ai-usage" class="nav-link" data-scroll-target="#declaration-of-generative-ai-usage"><span class="header-section-number">3.7</span> Declaration of Generative AI Usage</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">4</span> Results</a>
+  <ul class="collapse">
+  <li><a href="#analysis-of-the-resistance-surface" id="toc-analysis-of-the-resistance-surface" class="nav-link" data-scroll-target="#analysis-of-the-resistance-surface"><span class="header-section-number">4.1</span> Analysis of the Resistance Surface</a>
+  <ul class="collapse">
+  <li><a href="#spatial-patterns-and-barriers" id="toc-spatial-patterns-and-barriers" class="nav-link" data-scroll-target="#spatial-patterns-and-barriers"><span class="header-section-number">4.1.1</span> Spatial Patterns and Barriers</a></li>
+  <li><a href="#habitat-and-matrix" id="toc-habitat-and-matrix" class="nav-link" data-scroll-target="#habitat-and-matrix"><span class="header-section-number">4.1.2</span> Habitat and Matrix</a></li>
+  </ul></li>
+  <li><a href="#the-modeled-connectivity-network" id="toc-the-modeled-connectivity-network" class="nav-link" data-scroll-target="#the-modeled-connectivity-network"><span class="header-section-number">4.2</span> The Modeled Connectivity Network</a>
+  <ul class="collapse">
+  <li><a href="#network-topology-and-traffic-density" id="toc-network-topology-and-traffic-density" class="nav-link" data-scroll-target="#network-topology-and-traffic-density"><span class="header-section-number">4.2.1</span> Network Topology and Traffic Density</a></li>
+  <li><a href="#ecological-observations" id="toc-ecological-observations" class="nav-link" data-scroll-target="#ecological-observations"><span class="header-section-number">4.2.2</span> Ecological Observations</a></li>
+  </ul></li>
+  <li><a href="#identification-of-critical-bottlenecks" id="toc-identification-of-critical-bottlenecks" class="nav-link" data-scroll-target="#identification-of-critical-bottlenecks"><span class="header-section-number">4.3</span> Identification of Critical Bottlenecks</a>
+  <ul class="collapse">
+  <li><a href="#methodological-definition" id="toc-methodological-definition" class="nav-link" data-scroll-target="#methodological-definition"><span class="header-section-number">4.3.1</span> Methodological Definition</a></li>
+  <li><a href="#ecological-interpretation" id="toc-ecological-interpretation" class="nav-link" data-scroll-target="#ecological-interpretation"><span class="header-section-number">4.3.2</span> Ecological Interpretation</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion"><span class="header-section-number">5</span> Discussion</a>
+  <ul class="collapse">
+  <li><a href="#interpretation-of-connectivity-patterns" id="toc-interpretation-of-connectivity-patterns" class="nav-link" data-scroll-target="#interpretation-of-connectivity-patterns"><span class="header-section-number">5.1</span> Interpretation of Connectivity Patterns</a>
+  <ul class="collapse">
+  <li><a href="#network-topology-and-funneling-effects" id="toc-network-topology-and-funneling-effects" class="nav-link" data-scroll-target="#network-topology-and-funneling-effects"><span class="header-section-number">5.1.1</span> Network Topology and Funneling Effects</a></li>
+  <li><a href="#the-role-of-infrastructure-and-settlements" id="toc-the-role-of-infrastructure-and-settlements" class="nav-link" data-scroll-target="#the-role-of-infrastructure-and-settlements"><span class="header-section-number">5.1.2</span> The Role of Infrastructure and Settlements</a></li>
+  </ul></li>
+  <li><a href="#spatial-analysis-of-conflict-zones" id="toc-spatial-analysis-of-conflict-zones" class="nav-link" data-scroll-target="#spatial-analysis-of-conflict-zones"><span class="header-section-number">5.2</span> Spatial Analysis of Conflict Zones</a></li>
+  <li><a href="#model-plausibility-and-real-world-relevance" id="toc-model-plausibility-and-real-world-relevance" class="nav-link" data-scroll-target="#model-plausibility-and-real-world-relevance"><span class="header-section-number">5.3</span> Model Plausibility and Real-World Relevance</a>
+  <ul class="collapse">
+  <li><a href="#cross-verification" id="toc-cross-verification" class="nav-link" data-scroll-target="#cross-verification"><span class="header-section-number">5.3.1</span> Cross-Verification</a></li>
+  <li><a href="#ground-truthing" id="toc-ground-truthing" class="nav-link" data-scroll-target="#ground-truthing"><span class="header-section-number">5.3.2</span> Ground Truthing</a></li>
+  </ul></li>
+  <li><a href="#implications-for-spatial-planning-and-nature-conservation" id="toc-implications-for-spatial-planning-and-nature-conservation" class="nav-link" data-scroll-target="#implications-for-spatial-planning-and-nature-conservation"><span class="header-section-number">5.4</span> Implications for Spatial Planning and Nature Conservation</a>
+  <ul class="collapse">
+  <li><a href="#restoration-of-the-western-corridor" id="toc-restoration-of-the-western-corridor" class="nav-link" data-scroll-target="#restoration-of-the-western-corridor"><span class="header-section-number">5.4.1</span> 1. Restoration of the “Western Corridor”</a></li>
+  <li><a href="#mitigation-measures-at-critical-bottlenecks" id="toc-mitigation-measures-at-critical-bottlenecks" class="nav-link" data-scroll-target="#mitigation-measures-at-critical-bottlenecks"><span class="header-section-number">5.4.2</span> 2. Mitigation Measures at Critical Bottlenecks</a></li>
+  <li><a href="#enhancing-matrix-permeability" id="toc-enhancing-matrix-permeability" class="nav-link" data-scroll-target="#enhancing-matrix-permeability"><span class="header-section-number">5.4.3</span> 3. Enhancing Matrix Permeability</a></li>
+  </ul></li>
+  <li><a href="#methodological-reflection-and-limitations" id="toc-methodological-reflection-and-limitations" class="nav-link" data-scroll-target="#methodological-reflection-and-limitations"><span class="header-section-number">5.5</span> Methodological Reflection and Limitations</a>
+  <ul class="collapse">
+  <li><a href="#computational-artifacts-path-dispersion" id="toc-computational-artifacts-path-dispersion" class="nav-link" data-scroll-target="#computational-artifacts-path-dispersion"><span class="header-section-number">5.5.1</span> Computational Artifacts: Path Dispersion</a></li>
+  <li><a href="#temporal-stationarity" id="toc-temporal-stationarity" class="nav-link" data-scroll-target="#temporal-stationarity"><span class="header-section-number">5.5.2</span> Temporal Stationarity</a></li>
+  <li><a href="#data-granularity-and-topography" id="toc-data-granularity-and-topography" class="nav-link" data-scroll-target="#data-granularity-and-topography"><span class="header-section-number">5.5.3</span> Data Granularity and Topography</a></li>
+  <li><a href="#protocolbuffer-binary-format" id="toc-protocolbuffer-binary-format" class="nav-link" data-scroll-target="#protocolbuffer-binary-format"><span class="header-section-number">5.5.4</span> Protocolbuffer Binary Format</a></li>
+  <li><a href="#scalability-reproducibility-and-high-performance-computing" id="toc-scalability-reproducibility-and-high-performance-computing" class="nav-link" data-scroll-target="#scalability-reproducibility-and-high-performance-computing"><span class="header-section-number">5.5.5</span> Scalability, Reproducibility and High-Performance Computing</a></li>
+  <li><a href="#sensitivity-analysis" id="toc-sensitivity-analysis" class="nav-link" data-scroll-target="#sensitivity-analysis"><span class="header-section-number">5.5.6</span> Sensitivity Analysis</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="header-section-number">6</span> Conclusion</a></li>
+  <li><a href="#sec-refs" id="toc-sec-refs" class="nav-link" data-scroll-target="#sec-refs"><span class="header-section-number">7</span> References</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.pdf"><i class="bi bi-file-pdf"></i>Typst (zhaw-lsfm)</a></li></ul></div></nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header">
+<div class="zhaw-header">
+Zurich University of Applied Sciences<br>
+Departement Life Sciences and Facility Management<br>
+Institute for Computational Life Sciences
+</div>
+
+<h1 class="title display-7">Modelling Wildlife Corridors: Spatial Analysis of Topographic and Landscape Barriers to determine Ecological Connectivity</h1>
+
+<div class="cover-image">
+<img src="cover.png" alt="Cover">
+</div>
+
+
+<p class="thesis-type">Project Work 2</p>
+
+<div class="author-section">
+<p class="von">by</p>
+<p class="author">Lukas Buchmann</p>
+</div>
+
+<p class="degree-type">Bachelor of Science in Applied Digital Life Sciences 2025</p>
+
+<p class="submission-date">Submission date 2025-12-11</p>
+
+<p class="study-direction">Study direction Digital Environment</p>
+
+<div class="supervisors">
+<p>Supervisors:</p>
+<ul>
+<li> Ratnaweera Nils<br>
+ZHAW Life Sciences und Facility Management, Wädenswil</li>
+</ul>
+</div>
+
+</header>
+
+
+<section id="abstract" class="level1 unnumbered unlisted">
+<h1 class="unnumbered unlisted">Abstract</h1>
+<p>Habitat fragmentation poses a critical threat to biodiversity in the Swiss Lowlands. This project investigates ecological connectivity for the Roe Deer (<em>Capreolus capreolus</em>) in the Canton of Schaffhausen, a region heavily dissected by transport infrastructure and urban settlements. The primary objective was to develop a reproducible, data-driven connectivity model to identify functional wildlife corridors and critical bottlenecks using open-source data.</p>
+<p>A fully automated Python-based geospatial workflow was implemented to generate a high-resolution (10 m) resistance surface by integrating OpenStreetMap (OSM) and Corine Land Cover (CLC) data. Using a Least-Cost Path (LCP) analysis based on a “Barrier Dominance” principle, potential movement routes between core habitat patches were simulated across the transboundary study area.</p>
+<p>The results reveal a highly fragmented landscape where wildlife movement is constrained to a specific dendritic topology. A key finding is the identification of a vital North-South corridor to the west of the Schaffhausen urban agglomeration, acting as the primary biological link between German habitats and the Swiss Plateau in this region. The model’s plausability was confirmed through a spatial cross-verification with independent traffic accident risk models and the successful independent identification of the existing Schneitenberg wildlife passage. The study concludes that regional connectivity relies on a few fragile bottlenecks. To ensure long-term population viability, spatial planning must prioritize the protection of the western corridor from further urban sprawl and implement targeted mitigation measures at identified conflict zones along the A4 motorway.</p>
+</section>
+<section id="zusammenfassung" class="level1 unnumbered unlisted">
+<h1 class="unnumbered unlisted">Zusammenfassung</h1>
+<p>Die Lebensraumfragmentierung stellt eine ernsthafte Bedrohung für die Biodiversität im Schweizer Mittelland dar. Diese Arbeit untersucht die ökologische Vernetzung für das Reh (<em>Capreolus capreolus</em>) im Kanton Schaffhausen, einer Region, die stark durch Verkehrsinfrastruktur und Siedlungsgebiete zerschnitten ist. Das primäre Ziel war die Entwicklung eines reproduzierbaren, datengestützten Konnektivitätsmodells zur Identifikation funktionaler Wildtierkorridore und kritischer Stellen unter Verwendung von Open-Source-Daten.</p>
+<p>Ein vollautomatisierter Python-basierter Workflow wurde implementiert, um durch die Integration von OpenStreetMap (OSM) und Corine Land Cover (CLC) daten eine hochauflösende (10 m) Widerstandskarte zu erstellen. Mittels einer Least-Cost Path (LCP) Analyse, basierend auf dem Prinzip der “Barrieren-Dominanz”, wurden potenzielle Wanderbewegungen zwischen Kernhabitaten im grenzüberschreitenden Untersuchungsgebiet simuliert.</p>
+<p>Die Ergebnisse zeigen eine stark fragmentierte Landschaft, in der Bewegungen auf eine spezifische netzartige Topologie beschränkt sind. Ein zentrales Ergebnis ist die Identifikation eines vitalen Nord-Süd-Korridors westlich der Agglomeration Schaffhausen, der als primäre biologische Verbindung zwischen den deutschen Habitaten und dem Schweizer Mittelland in dieser region fungiert. Die Validität des Modells wurde durch einen räumlichen Abgleich mit unabhängigen Unfallrisikomodellen sowie durch die erfolgreiche, unabhängige Identifikation der bestehenden Wildtierüberführung Schneitenberg bestätigt. Die Studie schliesst, dass die regionale Vernetzung von wenigen, fragilen Engpässen abhängt. Um die langfristige Lebensfähigkeit der Population zu sichern, muss die Raumplanung den Schutz des westlichen Korridors vor weiterer Zersiedelung priorisieren und gezielte Entschärfungsmassnahmen an den identifizierten Konfliktzonen entlang der A4 umsetzen.</p>
+</section>
+<section id="list-of-abbreviations" class="level1 unnumbered unlisted">
+<h1 class="unnumbered unlisted">List of abbreviations</h1>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 48%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>OSM</td>
+<td>Open Street Map</td>
+</tr>
+<tr class="even">
+<td>CLC</td>
+<td>Corine Landcover</td>
+</tr>
+<tr class="odd">
+<td>LCP</td>
+<td>Least Cost Path</td>
+</tr>
+<tr class="even">
+<td>GIS</td>
+<td>Geographic Information Science</td>
+</tr>
+<tr class="odd">
+<td>crs</td>
+<td>Coordinate Reference System</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<section id="the-challenge-of-habitat-fragmentation" class="level2" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="the-challenge-of-habitat-fragmentation"><span class="header-section-number">1.1</span> The Challenge of Habitat Fragmentation</h2>
+<p>Across Europe, landscapes are undergoing rapid transformation driven by the expansion of transportation infrastructure, urban sprawl, and the intensification of agriculture <span class="citation" data-cites="europeanenvironmentagencyLandscapeFragmentationEurope2011">(<a href="#ref-europeanenvironmentagencyLandscapeFragmentationEurope2011" role="doc-biblioref">European Environment Agency and Swiss Federal Office for the Environment (FOEN) 2011</a>)</span>. This process leads to habitat fragmentation: the division of large, continuous habitats into smaller, more isolated patches. Fragmentation is recognized as a primary driver of global biodiversity loss <span class="citation" data-cites="haddadHabitatFragmentationIts2015">(<a href="#ref-haddadHabitatFragmentationIts2015" role="doc-biblioref">Haddad et al. 2015</a>)</span>. Its ecological consequences are severe: it limits wildlife mobility, isolates populations, and restricts gene flow <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>. This, in turn, can lead to inbreeding, a loss of adaptive genetic diversity, and reduced long-term population resilience, making populations more vulnerable to local extinction <span class="citation" data-cites="haddadHabitatFragmentationIts2015">(<a href="#ref-haddadHabitatFragmentationIts2015" role="doc-biblioref">Haddad et al. 2015</a>)</span>; <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>.</p>
+<p>The situation in Switzerland is particularly acute <span class="citation" data-cites="jaeferDegreeLandscapeFragmentation2007">(<a href="#ref-jaeferDegreeLandscapeFragmentation2007" role="doc-biblioref">Jaefer, Bertiller, and Schwick 2007</a>)</span>. The Swiss Federal Office for the Environment (FOEN) has identified fragmentation from artificial barriers as a key pressure on biodiversity. This fragmentation is most severe in the Swiss Central Lowlands <span class="citation" data-cites="europeanenvironmentagencyLandscapeFragmentationEurope2011">(<a href="#ref-europeanenvironmentagencyLandscapeFragmentationEurope2011" role="doc-biblioref">European Environment Agency and Swiss Federal Office for the Environment (FOEN) 2011</a>)</span>. A comprehensive study by the Swiss Federal Institute for Forest, Snow and Landscape Research (WSL) identified the Canton of Schaffhausen as one of the eight most fragmented cantons in the country, underscoring the urgent need for regional connectivity planning <span class="citation" data-cites="jaeferDegreeLandscapeFragmentation2007">(<a href="#ref-jaeferDegreeLandscapeFragmentation2007" role="doc-biblioref">Jaefer, Bertiller, and Schwick 2007</a>)</span>.</p>
+</section>
+<section id="the-role-of-ecological-connectivity" class="level2" data-number="1.2">
+<h2 data-number="1.2" class="anchored" data-anchor-id="the-role-of-ecological-connectivity"><span class="header-section-number">1.2</span> The Role of Ecological Connectivity</h2>
+<p>To counteract these effects, conservation efforts increasingly focus on maintaining and restoring ecological connectivity, defined as the unimpeded movement of species and the flow of natural processes that sustain life. A primary tool for achieving this is the identification and protection of wildlife corridors. These are linear landscape elements that link otherwise isolated habitat patches. By facilitating animal movement, corridors are essential for enabling dispersal, maintaining genetic diversity, and allowing species to migrate in response to seasonal needs or long-term climate change <span class="citation" data-cites="hiltyGuidelinesConservingConnectivity2020">(<a href="#ref-hiltyGuidelinesConservingConnectivity2020" role="doc-biblioref">Hilty et al. 2020</a>)</span>.</p>
+</section>
+<section id="focal-species-the-roe-deer-capreolus-capreolus" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="focal-species-the-roe-deer-capreolus-capreolus"><span class="header-section-number">1.3</span> Focal Species: The Roe Deer (<em>Capreolus capreolus</em>)</h2>
+<p>The successful planning of such corridors depends on a species-specific approach <span class="citation" data-cites="beierUncertaintyAnalysisLeastcost2009">(<a href="#ref-beierUncertaintyAnalysisLeastcost2009" role="doc-biblioref">Beier, Majka, and Newell 2009</a>)</span>. This project focuses on the roe deer, an ideal focal species for connectivity modelling in the Swiss landscape. As one of Europe’s most common wild ungulates, the roe deer is highly adaptable. It demonstrates significant behavioral flexibility, inhabiting not only its traditional forest-mosaic habitats but also does well in open agricultural plains <span class="citation" data-cites="jepsenModellingRoeDeer2004">(<a href="#ref-jepsenModellingRoeDeer2004" role="doc-biblioref">Jepsen and Topping 2004</a>)</span>.</p>
+<p>Despite this adaptability, roe deer are highly vulnerable to fragmentation. Transportation networks pose a dual threat: direct mortality from wildlife-vehicle collisions and the barrier effect, where high-traffic roads hinder access to critical resources <span class="citation" data-cites="martzCrossingsCollisionsExploring2024">(<a href="#ref-martzCrossingsCollisionsExploring2024" role="doc-biblioref">Märtz, Brieger, and Bhardwaj 2024</a>)</span>. This barrier effect can be as damaging as direct habitat loss, leading to the genetic isolation of populations. A study on roe deer in Central Switzerland, for example, demonstrated significant genetic differentiation between populations separated by a fenced motorway. Because roe deer are widespread, mobile, and frequently interact with infrastructure, they serve as an excellent model for assessing landscape-level connectivity for large mammals <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>.</p>
+</section>
+<section id="methodology-least-cost-path-lcp-analysis" class="level2" data-number="1.4">
+<h2 data-number="1.4" class="anchored" data-anchor-id="methodology-least-cost-path-lcp-analysis"><span class="header-section-number">1.4</span> Methodology: Least-Cost Path (LCP) Analysis</h2>
+<p>This study employs Least-Cost Path (LCP) analysis, a standard and widely used methodology in GIS-based connectivity modelling <span class="citation" data-cites="beierUncertaintyAnalysisLeastcost2009">(<a href="#ref-beierUncertaintyAnalysisLeastcost2009" role="doc-biblioref">Beier, Majka, and Newell 2009</a>)</span>. The LCP approach is built on the concept of a resistance surface <span class="citation" data-cites="cushmanBiologicalCorridorsConnectivity2013">(<a href="#ref-cushmanBiologicalCorridorsConnectivity2013" role="doc-biblioref">Cushman et al. 2013</a>)</span>. This is a GIS raster layer where each pixel is assigned a “cost” value representing the difficulty, energy expenditure, or mortality risk a species encounters when moving through that specific landscape type <span class="citation" data-cites="zellerEstimatingLandscapeResistance2012">(<a href="#ref-zellerEstimatingLandscapeResistance2012" role="doc-biblioref">Zeller, McGarigal, and Whiteley 2012</a>)</span>. This “cost” is derived from expert knowledge and ecological literature, assigning low resistance to preferred habitats and high resistance to barriers <span class="citation" data-cites="beierUncertaintyAnalysisLeastcost2009">(<a href="#ref-beierUncertaintyAnalysisLeastcost2009" role="doc-biblioref">Beier, Majka, and Newell 2009</a>)</span>. The LCP algorithm then calculates the most efficient route between defined core habitat patches, the path of least cumulative resistance <span class="citation" data-cites="cushmanBiologicalCorridorsConnectivity2013">(<a href="#ref-cushmanBiologicalCorridorsConnectivity2013" role="doc-biblioref">Cushman et al. 2013</a>)</span>.</p>
+</section>
+<section id="project-objectives" class="level2" data-number="1.5">
+<h2 data-number="1.5" class="anchored" data-anchor-id="project-objectives"><span class="header-section-number">1.5</span> Project Objectives</h2>
+<p>The primary objective of this project is to develop, improve, and evaluate a GIS-based connectivity model for roe deer (<em>Capreolus capreolus</em>) in the highly fragmented landscape of the Canton of Schaffhausen, implemented using the Python programming language.</p>
+<p>The specific aims are to:</p>
+<ul>
+<li><p>Create a detailed resistance surface using OpenStreetMap and Corine Land Cover data.</p></li>
+<li><p>Perform a Least-Cost Path (LCP) analysis to compute cumulative movement costs and identify potential wildlife corridors connecting suitable habitat patches.</p></li>
+<li><p>Analyze the resulting model to identify and map key bottlenecks, major obstacles, and other landscape patterns that limit ecological connectivity.</p></li>
+</ul>
+<p>The final output will be a transparent, code-based connectivity model and a set of cartographic products. This work is intended to serve as a practical, data-driven decision-making aid for regional conservation and spatial planning.</p>
+</section>
+</section>
+<section id="theoretical-framework" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Theoretical Framework</h1>
+<section id="ecological-connectivity-and-wildlife-corridors" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="ecological-connectivity-and-wildlife-corridors"><span class="header-section-number">2.1</span> Ecological Connectivity and Wildlife Corridors</h2>
+<section id="functional-vs.-structural-connectivity" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="functional-vs.-structural-connectivity"><span class="header-section-number">2.1.1</span> Functional vs.&nbsp;Structural Connectivity</h3>
+<p>There are two distinct forms of Landscape connectivity: structural and functional. Structural connectivity refers only to the physical arrangement and contiguity of landscape elements, such as the spatial proximity of habitat patches, without regard for the specific mobility of an organism. In contrast, functional connectivity explicitly includes the behavioral response of a species to these landscape features and describes the degree to which the landscape actually facilitates or impedes movement <span class="citation" data-cites="tischendorfUsageMeasurementLandscape2000">(<a href="#ref-tischendorfUsageMeasurementLandscape2000" role="doc-biblioref">Tischendorf and Fahrig 2000</a>)</span>.</p>
+<p>Although structural connectivity can be measured using landscape metrics alone, this often fails to predict the actual movement of organisms when the matrix between habitats is hostile. For example, two forest patches might be structurally close, but functionally isolated by a highway. That is why this project focuses on a functional approach. By integrating the roe deer’s specific movement behavior and habitat preferences into the model, the resulting connectivity map reflects the organism’s ability to traverse the landscape, rather than merely the geometric arrangement of features <span class="citation" data-cites="haddadHabitatFragmentationIts2015">(<a href="#ref-haddadHabitatFragmentationIts2015" role="doc-biblioref">Haddad et al. 2015</a>)</span>.</p>
+</section>
+<section id="types-of-corridors" class="level3" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="types-of-corridors"><span class="header-section-number">2.1.2</span> Types of Corridors</h3>
+<p>In the context of connectivity conservation, corridors are generally classified into two functional categories: continuous linear corridors and stepping stones.</p>
+<p>Linear corridors are unbroken strips of suitable habitat that physically connect two larger core areas. Typical examples include hedgerows, riparian strips along rivers, or wooded belts. For ungulates like the roe deer, such continuous features are vital as they offer uninterrupted cover and forage during movement, significantly reducing predation risk and stress.</p>
+<p>Stepping stones, in contrast, are a series of small, discontinuous habitat patches located within a hostile matrix. While they do not provide a physical connection, they facilitate movement by offering temporary refuge for resting and feeding during Movement <span class="citation" data-cites="sauraEDITORSCHOICEStepping2014">(<a href="#ref-sauraEDITORSCHOICEStepping2014" role="doc-biblioref">Saura, Bodin, and Fortin 2014</a>)</span>. In fragmented cultural landscapes like the Swiss Plateau, where continuous forest belts are often interrupted by agriculture and infrastructure, these stepping stones are essential for maintaining functional connectivity <span class="citation" data-cites="jaeferDegreeLandscapeFragmentation2007">(<a href="#ref-jaeferDegreeLandscapeFragmentation2007" role="doc-biblioref">Jaefer, Bertiller, and Schwick 2007</a>)</span>; <span class="citation" data-cites="sauraEDITORSCHOICEStepping2014">(<a href="#ref-sauraEDITORSCHOICEStepping2014" role="doc-biblioref">Saura, Bodin, and Fortin 2014</a>)</span>.</p>
+<p>For this GIS analysis, the distinction is crucial: while the Least-Cost Path (LCP) algorithm seeks a continuous route of minimized resistance, the biological reality of the roe deer allows it to traverse short distances of higher-resistance “matrix” (e.g., open fields) to reach the next stepping stone. Consequently, the resistance surface must be weighted to penalize open areas and barriers without rendering them completely impassable, thereby modeling the landscape’s overall permeability rather than just identifying structural links.</p>
+</section>
+</section>
+<section id="roe-deer-capreolus-capreolus-ecology" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="roe-deer-capreolus-capreolus-ecology"><span class="header-section-number">2.2</span> Roe Deer (<em>Capreolus capreolus</em>) Ecology</h2>
+<section id="habitat-preferences" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="habitat-preferences"><span class="header-section-number">2.2.1</span> Habitat Preferences</h3>
+<p>Ecologically, the roe deer is classified as a “concentrate selector”. Unlike grazers that can digest high-fiber grass, roe deer require high-energy, easily digestible plant parts such as buds, shoots, and herbs. This physiological constraint dictates a close association with habitats offering high plant diversity.</p>
+<p>Roe deer are characterized as “edge species,” exhibiting a strong preference for the transition zones (ecotones) between closed forest cover and open agricultural land. These zones allow them to optimize the trade-off between accessing high-quality forage in open fields and maintaining immediate access to cover for predator avoidance <span class="citation" data-cites="mysterudHabitatSelectionRoe1999">(<a href="#ref-mysterudHabitatSelectionRoe1999" role="doc-biblioref">Mysterud et al. 1999</a>)</span>. Consequently, forest environments (landuse=forest, natural=wood) represent the primary diurnal resting habitat and are essential for concealment. Open habitats such as meadows, orchards, and farmlands are utilized primarily during nocturnal or crepuscular periods for foraging, but lack the necessary cover for permanent habitation.</p>
+</section>
+<section id="movement-capabilities-and-physical-constraints" class="level3" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="movement-capabilities-and-physical-constraints"><span class="header-section-number">2.2.2</span> Movement capabilities and Physical Constraints</h3>
+<p>While roe deer are physically capable of swimming, they generally avoid crossing large water bodies due to the high energy expenditure required and physical risks (e.g., currents), in addition to the lack of cover. Consequently, large rivers and lakes act as significant barriers, whereas smaller streams are passable but associated with higher movement costs due to the lack of concealment. Similarly, wetlands (natural=wetland) are physically passable but energetically costly due to unstable ground conditions and lack of dense canopy cover compared to forest environments.</p>
+</section>
+<section id="barriers-and-avoidance" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="barriers-and-avoidance"><span class="header-section-number">2.2.3</span> Barriers and Avoidance</h3>
+<p>Anthropogenic features constitute the primary barriers to connectivity. Roe deer are highly sensitive to visual and acoustic disturbances:</p>
+<ul>
+<li><p>Urbanization: Settlements and industrial areas are generally avoided due to human presence and lack of vegetation.</p></li>
+<li><p>Infrastructure: Heavily used roads and railways act as barriers not only due to the physical risk of collision but also due to traffic noise, which deters crossing <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>.</p></li>
+<li><p>Linear Obstacles: Fences and dense hedges can physically impede movement, effectively fragmenting habitat patches.</p></li>
+<li><p>Recreation: Small paths are structurally passable, but human recreational activity, specifically the presence of walkers and dogs during the day, creates a “landscape of fear”, causing deer to avoid these areas despite low physical resistance.</p></li>
+</ul>
+</section>
+</section>
+<section id="least-cost-path-lcp-analysis" class="level2" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="least-cost-path-lcp-analysis"><span class="header-section-number">2.3</span> Least-Cost Path (LCP) Analysis</h2>
+<section id="the-resistance-surface" class="level3" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="the-resistance-surface"><span class="header-section-number">2.3.1</span> The Resistance Surface</h3>
+<p>The resistance surface is the fundamental spatial data layer in connectivity modeling. It is a raster grid where every cell (pixel) is assigned a numerical value representing the “cost” or “energy” an organism needs when traversing that specific location <span class="citation" data-cites="zellerEstimatingLandscapeResistance2012">(<a href="#ref-zellerEstimatingLandscapeResistance2012" role="doc-biblioref">Zeller, McGarigal, and Whiteley 2012</a>)</span>. This value integrates the biological factors defined in Section 2.2 and combines land cover suitability, anthropogenic barriers, and topographic constraints into a single indicator.</p>
+<p>Mathematically, the resistance surface represents the reciprocal of landscape permeability. High values indicate barriers (high energy expenditure), while low values indicate preferred habitat (low energy expenditure). The accuracy of the entire LCP analysis is contingent upon the biological validity of these resistance assignments <span class="citation" data-cites="beierUncertaintyAnalysisLeastcost2009">(<a href="#ref-beierUncertaintyAnalysisLeastcost2009" role="doc-biblioref">Beier, Majka, and Newell 2009</a>)</span>.</p>
+</section>
+<section id="cost-distance-calculation" class="level3" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="cost-distance-calculation"><span class="header-section-number">2.3.2</span> Cost Distance Calculation</h3>
+<p>Unlike Euclidean distance, which measures the “as-the-crow-flies” separation between two points, cost distance measures the cumulative “expense” of movement. The calculation employs graph theory algorithms, most notably a raster-based adaptation of Dijkstra’s algorithm <span class="citation" data-cites="adriaensenApplicationLeastcostModelling2003">(<a href="#ref-adriaensenApplicationLeastcostModelling2003" role="doc-biblioref">Adriaensen et al. 2003</a>)</span>.</p>
+<p>The algorithm treats the center of each raster cell as a node and connects it to its neighboring cells. The cost to move between two adjacent cells is calculated as the distance multiplied by the average resistance of the two cells.</p>
+<p>The algorithm propagates outwards from the source habitat, calculating the “Accumulated Cost” to reach every other pixel in the study area. The result is an Accumulated Cost Surface, where the value of a pixel represents the lowest possible total cost to travel to that location from the source, avoiding high-resistance barriers where possible <span class="citation" data-cites="etheringtonLeastCostModellingLandscape2016">(<a href="#ref-etheringtonLeastCostModellingLandscape2016" role="doc-biblioref">Etherington 2016</a>)</span>.</p>
+</section>
+<section id="the-path" class="level3" data-number="2.3.3">
+<h3 data-number="2.3.3" class="anchored" data-anchor-id="the-path"><span class="header-section-number">2.3.3</span> The Path</h3>
+<p>The final Least-Cost Path is derived from the Accumulated Cost Surface. The algorithm identifies the Target node (the destination habitat) and “backtracks” to the Source node by consistently choosing the steepest downhill gradient on the accumulated cost surface.</p>
+<p>Ecologically, this single line represents the theoretically optimal route where an animal minimizes energy expenditure and risk <span class="citation" data-cites="sawyerStopoverEcologyMigratory2011">(<a href="#ref-sawyerStopoverEcologyMigratory2011" role="doc-biblioref">Sawyer and Kauffman 2011</a>)</span>. However, it is important to note that LCP models assume the animal possesses “omniscience” (perfect knowledge) of the landscape, which is a theoretical idealization. In reality, animals may deviate from this optimal path. Therefore, the LCP should be interpreted as the center line of the most probable movement corridor rather than a deterministic route <span class="citation" data-cites="cushmanBiologicalCorridorsConnectivity2013">(<a href="#ref-cushmanBiologicalCorridorsConnectivity2013" role="doc-biblioref">Cushman et al. 2013</a>)</span>.</p>
+</section>
+</section>
+</section>
+<section id="material-and-methods" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Material and Methods</h1>
+<section id="study-area" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="study-area"><span class="header-section-number">3.1</span> Study Area</h2>
+<p>The study focuses on the Canton of Schaffhausen, situated in Northern Switzerland and bordering Germany, as defined in the project disposition. Geographically, the region is characterized by a heterogeneous mosaic of scrub and mixed forests alternating with intensively farmed agricultural land and expanding settlements. As shown in <a href="#fig-study-area" class="quarto-xref">Figure&nbsp;1</a>, the area is dissected by the Rhine River to the south and a dense network of transport infrastructure throughout. Another typical feature of the landscape is the A4 highway (black line in <a href="#fig-study-area" class="quarto-xref">Figure&nbsp;1</a>), which runs from north to south and the Rhine river (Blue line in <a href="#fig-study-area" class="quarto-xref">Figure&nbsp;1</a>), which runs from east to west.</p>
+<p>This region was selected specifically because it has been identified as one of the most fragmented cantons in Switzerland <span class="citation" data-cites="jaeferDegreeLandscapeFragmentation2007">(<a href="#ref-jaeferDegreeLandscapeFragmentation2007" role="doc-biblioref">Jaefer, Bertiller, and Schwick 2007</a>)</span>. Consequently, it serves as a critical case study for modeling connectivity in a pressured Central European landscape.</p>
+<p>To ensure geometric consistency across the transboundary study area (Switzerland and Germany), all spatial datasets were reprojected to EPSG:32632 (WGS 84 / UTM zone 32N). The analysis extent (indicated by the red frame in <a href="#fig-study-area" class="quarto-xref">Figure&nbsp;1</a>) covers the political boundaries of the canton(indicated by the yellow frame in <a href="#fig-study-area" class="quarto-xref">Figure&nbsp;1</a>), including a buffer zone of 1000m. This specific buffer size was selected to minimize edge effects while constraining the LCP analysis to the regional context, ensuring that the model identifies necessary crossing points across infrastructure barriers rather than routing paths via extensive detours outside the study area.</p>
+<p>In the Code, the Study area was calculated by the <code>geocode_to_gdf</code> function of the <code>osmnx</code> module. This function retrieves OSM elements by place name or OSM ID with the Nominatim API. By using “Kanton Schaffhausen” as Query, the function sucessfully returned a GeoDataFrame with the geometries and positions of the Canton Schaffhausen boundary in WGS84 (EPSG:4326). The area was then converted to the EPSG:32632 (WGS 84 / UTM zone 32N) crs of the project. Then the buffering of the cantonal boundaries was carried out and subsequently a rectangular box was defined around the area, using the function <code>box</code> of the <code>shapely.geometry</code> module. The final study area geometry was directly used for clipping the manually loaded CLC data, and was backtransformed to the OSM’s WGS84 (EPSG:4326) crs to access its data.</p>
+<div id="fig-study-area" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-study-area-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Study_Area.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-study-area-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: <strong>Overview of the Study Area.</strong> The map displays the political borders of the Canton of Schaffhausen (yellow) and the defined analysis extent (red frame). Major anthropogenic and natural barriers include the A4 motorway and the Rhine River. Visualization based on swissBOUNDARIES3D; analysis extent derived from OpenStreetMap data. Background: Bing Satellite.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="software-and-computational-environment" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="software-and-computational-environment"><span class="header-section-number">3.2</span> Software and Computational Environment</h2>
+<p>The analysis was implemented in Python 3.10, with the computational environment managed via Mamba (an efficient, C++ based implementation of the Conda package manager) to ensure strict dependency resolution. The workflow relies on a specific stack of open-source geospatial libraries. To guarantee the long-term reproducibility of the results and the stability of the analysis pipeline, strict version pinning was applied to the core dependencies.</p>
+<section id="dependency-management-and-stability" class="level3" data-number="3.2.1">
+<h3 data-number="3.2.1" class="anchored" data-anchor-id="dependency-management-and-stability"><span class="header-section-number">3.2.1</span> Dependency Management and Stability</h3>
+<p>Geospatial software stacks are particularly prone to binary incompatibilities (“dependency hell”) due to their reliance on shared C/C++ libraries, most notably GDAL (Geospatial Data Abstraction Library). To mitigate these risks, the following version constraints were enforced in the project’s environment.yml configuration:</p>
+<ul>
+<li><p>GDAL Stack Consistency: The environment aligns <code>libgdal (v. 3.8)</code> and the gdal python bindings strictly with <code>Rasterio (v. 1.3)</code>. This alignment prevents the dynamic link library (DLL) loading errors and symbol lookup failures that frequently occur when the Python bindings diverge from the underlying C libraries.</p></li>
+<li><p>NumPy Compatibility: The fundamental numerical library <code>NumPy</code> was pinned to version 1.26. This decision was made to explicitly avoid an upgrade to <code>NumPy 2.0</code>, which introduced significant Application Binary Interface (ABI) changes that are currently incompatible with many pre-compiled geospatial binaries (wheels), ensuring the stability of the dependent stack.</p></li>
+<li><p>Vector Processing Stability: <code>GeoPandas</code> was held at the Long-Term Support (LTS) release 0.14.4 to maintain compatibility with existing <code>Shapely (v. 2.0)</code> geometries and to avoid breaking API changes introduced in the v. 1.0 release cycle.</p></li>
+</ul>
+</section>
+<section id="automated-workflow-orchestration" class="level3" data-number="3.2.2">
+<h3 data-number="3.2.2" class="anchored" data-anchor-id="automated-workflow-orchestration"><span class="header-section-number">3.2.2</span> Automated Workflow Orchestration</h3>
+<p>To adhere to the FAIR principles (Findable, Accessible, Interoperable, Reusable) <span class="citation" data-cites="wilkinsonFAIRGuidingPrinciples2016">(<a href="#ref-wilkinsonFAIRGuidingPrinciples2016" role="doc-biblioref">Wilkinson et al. 2016</a>)</span>, the entire workflow is orchestrated via a custom automation script (<code>run_pipeline.py</code>). This script serves as an “Infrastructure-as-Code” wrapper that ensures the execution environment is identical across different operating systems. Upon execution, the pipeline performs the following automated steps:</p>
+<ol type="1">
+<li><p>Environment Validation: It verifies the existence and integrity of the Conda environment defined in <code>environment.yml</code>. If discrepancies are detected, it triggers Mamba to align the local environment with the specified version pins.</p></li>
+<li><p>Context Enforcement: The script detects the active Python interpreter and, if necessary, automatically re-launches the process inside the dedicated project environment to prevent leakage from the user’s base system.</p></li>
+<li><p>Sequential Execution: It orchestrates the processing of the modules: surface preparation, LCP calculation, and bottleneck extraction, ensuring that input dependencies for each stage are met before proceeding.</p></li>
+</ol>
+<p>This approach replaces manual environment configuration with an automated pipeline, ensuring that the complex dependency chain required for the spatial analysis is reproducible with a single command.</p>
+</section>
+</section>
+<section id="data-preprocessing-and-preparation" class="level2" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="data-preprocessing-and-preparation"><span class="header-section-number">3.3</span> Data Preprocessing and Preparation</h2>
+<section id="geospatial-datasets" class="level3" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="geospatial-datasets"><span class="header-section-number">3.3.1</span> Geospatial Datasets</h3>
+<p>To ensure reproducibility and accessibility, the model relies exclusively on open-source geospatial data.</p>
+<section id="primary-feature-data-openstreetmap-osm" class="level4" data-number="3.3.1.1">
+<h4 data-number="3.3.1.1" class="anchored" data-anchor-id="primary-feature-data-openstreetmap-osm"><span class="header-section-number">3.3.1.1</span> Primary Feature Data: OpenStreetMap (OSM)</h4>
+<p>High-resolution landscape features were derived from OpenStreetMap (OSM). This dataset is structured as a topological network where features are described using a flexible key-value tagging system (e.g., highway=primary).</p>
+<p>Acquisition and Processing Raw data was retrieved in Protocolbuffer Binary Format (.pbf) from Geofabrik GmbH using the requests library. This format was selected for its high storage efficiency and parsing speed <span class="citation" data-cites="DownloadOpenStreetMapOpenStreetMap">(<a href="#ref-DownloadOpenStreetMapOpenStreetMap" role="doc-biblioref"><span>“Download <span>OpenStreetMap</span> for <span>OpenStreetMap Data Extracts</span>”</span> n.d.</a>)</span>. To efficiently cover the transboundary study area, extracts for Switzerland and the administrative region of Baden-Württemberg were downloaded in chunks and subsequently processed.</p>
+<p>A custom filtering strategy was implemented using the <code>pyrosm</code> library. The OSM class was initialized for each dataset, and features were extracted using the <code>get_data_by_custom_criteria</code> method. This method applied specific key-value filters defined in an external configuration file (<code>osm_resistance_costs.csv</code>) to retain only ecologically relevant features, such as structural barriers (tags: barrier, building, waterway) and anthropogenic disturbances (tag: highway). Simultaneously, the data was clipped to the study area bounding box. The resulting datasets were combined into a single consistent GeoDataFrame using <code>pandas.concat</code> and cached for reproducibility.</p>
+<div id="fb6b7d88" class="cell" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsing German data</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>osm_de <span class="op">=</span> pyrosm.OSM(<span class="bu">str</span>(PBF_DE), bounding_box<span class="op">=</span>bbox).get_data_by_custom_criteria(custom_filter<span class="op">=</span>custom_filter)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Parsing Swiss data        </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>osm_ch <span class="op">=</span> pyrosm.OSM(<span class="bu">str</span>(PBF_CH), bounding_box<span class="op">=</span>bbox).get_data_by_custom_criteria(custom_filter<span class="op">=</span>custom_filter)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the GeoDataFrames        </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>osm <span class="op">=</span> pd.concat([osm_de, osm_ch]).drop_duplicates(subset<span class="op">=</span>[<span class="st">'id'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Feature Selection: Not all OSM features are relevant to wildlife movement. A filtering strategy was applied to retain only features with functional ecological impact. The selection focused on structural barriers (tags: barrier, building, waterway) and anthropogenic disturbances (tag: highway). Specifically, the highway tag was used to distinguish between minor paths (permeable) and major motorways (impermeable), while the landuse tag defined the vegetative cover.</p>
+</section>
+<section id="base-land-cover-data-corine-land-cover-clc" class="level4" data-number="3.3.1.2">
+<h4 data-number="3.3.1.2" class="anchored" data-anchor-id="base-land-cover-data-corine-land-cover-clc"><span class="header-section-number">3.3.1.2</span> Base Land Cover Data: CORINE Land Cover (CLC)</h4>
+<p>The CORINE Land Cover (CLC) 2018 dataset served as the foundational environmental layer. Acquired from the Copernicus Land Monitoring Service, this dataset provides standardized European land cover classification. To ensure alignment with the high-resolution OSM data, the CLC was acquired in vector format and rasterized directly to the project’s 10 m target grid, mitigating aliasing artifacts <span class="citation" data-cites="CORINELandCover">(<a href="#ref-CORINELandCover" role="doc-biblioref"><span>“<span>CORINE Land Cover</span> 2018 (Vector/Raster 100 m), <span>Europe</span>, 6-Yearly”</span> n.d.</a>)</span>.</p>
+<p>Functioning as a “fallback layer,” the CLC dataset assigns a generalized resistance value to the landscape matrix. As illustrated in <a href="#fig-clc-resistance" class="quarto-xref">Figure&nbsp;2</a>, this layer ensures that the entire study area is covered by continuous cost values, preventing “NoData” gaps. Green areas represent low-resistance habitats (e.g., forests), while red areas indicate high-resistance zones (e.g., urban centers) that serve as broad-scale barriers before finer infrastructure details are added.</p>
+<div id="fig-clc-resistance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-clc-resistance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/CLC.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-clc-resistance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: <strong>Base Resistance Surface derived from CORINE Land Cover (CLC) 2018.</strong> The map visualizes the generalized landscape resistance prior to the integration of high-resolution OSM infrastructure. Resistance values are dimensionless relative costs ranging from 1 (optimal habitat, dark green) to 5,000 (strong barriers, red). The yellow outline indicates the Canton of Schaffhausen. (Data source: Copernicus Land Monitoring Service 2018, swissBOUNDARIES3D).
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+</section>
+<section id="development-of-the-resistance-surface" class="level2" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="development-of-the-resistance-surface"><span class="header-section-number">3.4</span> Development of the Resistance Surface</h2>
+<p>A hybrid rasterization approach was developed to create the final cost surface. To ensure transparency and reproducibility, all resistance values were defined in two external configuration files (<code>osm_resistance_costs.csv</code> and <code>clc_resistance_costs.csv</code>). In a first step, the CLC data was rasterized on a predefined mastergrid and used as the base map, filling up the areas where the more detailed OSM data had no values.</p>
+<p>In a second step each individual OSM Key (e.g.&nbsp;landuse, natural, highway) with its OSM Values (e.g.&nbsp;natural: wood, grassland, cliff) was seperatly rasterized. This Rasterization step of each individual OSM Layer was conducted using the Priority values from the <code>osm_resistance_costs.csv</code> file. By activating the <code>merge_alg=MergeAlg.replace</code> parameter in the rasterisation function, the OSM values with a low priority (e.g.&nbsp;wood, grassland) were overwritten by the OSM values with a high priority (e.g., cliff, bare_rock), in each individual OSM layer (OSM Key) when they overlapped.</p>
+<div id="194d56fc" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>features.rasterize(shapes<span class="op">=</span>shapes, out<span class="op">=</span>raster, transform<span class="op">=</span>meta[<span class="st">'transform'</span>], </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                   merge_alg<span class="op">=</span>MergeAlg.replace, all_touched<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>In the final step all distinct OSM Layers (OSM Key) were integrated following a “Barrier Dominance” principle: High-resolution OSM Layers (OSM Key) were combined with the CLC base map using a maximization function. This ensured that if a high-cost barrier (e.g.&nbsp;a motorway in OSM) intersects a lower-cost land cover (e.g.&nbsp;a Mixed forest in CLC), the higher resistance value is retained, ensuring barriers are not underestimated. Resistance values range from 1 (optimal habitat) to 5000 (functional barrier).</p>
+<div id="99c8dac8" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> osm_paths:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> rasterio.<span class="bu">open</span>(p) <span class="im">as</span> src:</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        overlay <span class="op">=</span> src.read(<span class="dv">1</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        overlay <span class="op">=</span> np.nan_to_num(overlay, nan<span class="op">=</span><span class="fl">0.0</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>        final_arr <span class="op">=</span> np.maximum(final_arr, overlay)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="weighting-scheme" class="level3" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="weighting-scheme"><span class="header-section-number">3.4.1</span> Weighting Scheme</h3>
+<p>To translate ecological behaviors into the resistance model, specific resistance values were assigned based on the “COST 341” framework for transport infrastructure and scientific literature regarding Roe Deer habitat preferences <span class="citation" data-cites="iuellCOST341Habitat2003">(<a href="#ref-iuellCOST341Habitat2003" role="doc-biblioref">Iuell et al. 2003</a>)</span>; <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>.</p>
+<p>Optimal Habitat (Cost 1): Dense Forested areas (landuse=forest) were assigned the lowest cost, as they provide primary cover and resting habitat.</p>
+<p>Permeable Matrix (Cost 5–20): Agricultural lands were assigned moderate costs. While permeable, they lack cover and expose the animal to predation risk.</p>
+<p>Infrastructure Gradient: A steep cost gradient was applied to roads based on traffic intensity and fencing probability. Minor tracks received a cost of 20, while primary roads and motorways received costs of 2000 and 5000, respectively, reflecting their status as major behavioral and physical barriers.</p>
+<p>Functional Barriers: A theoretical maximum cost of 5000 was assigned to buildings and motorways. These values are not set to “Infinity” to allow the model to identify critical bottlenecks: if a calculated path is forced through a building, it highlights a severe connectivity deficit rather than failing to find a path entirely.</p>
+</section>
+<section id="vector-to-raster-conversion" class="level3" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="vector-to-raster-conversion"><span class="header-section-number">3.4.2</span> Vector to Raster Conversion</h3>
+<p>To integrate the vector-based Data into the grid-based resistance model, a rasterization process was executed using the <code>features.rasterize</code> module from the <code>Rasterio</code> library.</p>
+<p>This function serves as the bridge between vector and raster data structures. It accepts a list of geometry-value pairs and “burns” the assigned resistance cost into a target array that matches the spatial properties of the project’s 10-meter resolution master grid. The function iterates through the vector geometries and identifies which grid cells are spatially coincident with the polygon or line features.</p>
+<p>A critical technical specification in this workflow was the activation of the <code>all_touched=True</code> parameter. Standard rasterization algorithms typically use a “center-point” rule, where a pixel is only assigned a value if the vector geometry covers its center. By enforcing the <code>all_touched=True</code> rule, any pixel intersected by a vector geometry was assigned the feature’s resistance value. This step was essential to ensure the topological continuity of linear barriers (e.g., fences, walls, and narrow streams). Without this parameter, the rasterization process would create artificial gaps in these barriers, through which the Least-Cost Path algorithm could incorrectly route a wildlife corridor, leading to biologically invalid results.</p>
+</section>
+</section>
+<section id="connectivity-modeling" class="level2" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="connectivity-modeling"><span class="header-section-number">3.5</span> Connectivity Modeling</h2>
+<p>The connectivity analysis was performed using a node-based approach, where “nodes” represent core habitat patches capable of supporting a roe deer population.</p>
+<section id="node-identification" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="node-identification"><span class="header-section-number">3.5.1</span> Node Identification</h3>
+<p>To model connectivity systematically across the study area, a regular grid sampling approach was implemented to define potential start and end nodes.</p>
+<p>Grid Resolution Optimization: The spacing of the sampling grid was determined through iterative sensitivity testing. Initial trials with a coarse grid (10 km spacing) yielded insufficient node density to capture local corridor dynamics, while a fine grid (1 km spacing) resulted in excessive computational overhead and path redundancies. A 2 km grid spacing was established as the optimal trade-off, balancing spatial coverage with computational efficiency.</p>
+<p>Node Validation: To ensure ecological realism, a validation filter was applied to the raw grid (<a href="#fig-grid" class="quarto-xref">Figure&nbsp;3 (a)</a>). Connectivity models must simulate movement between viable habitats, not arbitrary points in space. Therefore, grid nodes were strictly filtered to retain only those located in optimal habitat (Resistance Value = 1). As shown in <a href="#fig-nodes" class="quarto-xref">Figure&nbsp;3 (b)</a>, points falling on barriers (e.g., settlements, water) or sub-optimal matrix were discarded.</p>
+<p>Valid Habitat Classes: The specific land cover classes accepted as valid start/end nodes included:</p>
+<p>OSM: landuse=forest, natural=wood</p>
+<p>CLC: Broad-leaved forest, Mixed forest</p>
+<p>This step ensures that all simulated trajectories (<a href="#fig-traj" class="quarto-xref">Figure&nbsp;3 (c)</a>) originate and terminate in core habitat patches, reflecting realistic roe deer behavior.</p>
+<div id="fig-methodology" class="quarto-layout-panel">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-methodology-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-methodology" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-grid" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/method_01_grid.png" class="img-fluid figure-img" data-ref-parent="fig-methodology">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-grid-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(a) <strong>Grid Overlay.</strong> Initial 2 km sampling grid superimposed on the resistance surface.
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-methodology" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-nodes" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-nodes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/method_02_valid_nodes.png" class="img-fluid figure-img" data-ref-parent="fig-methodology">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-nodes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(b) <strong>Node Validation.</strong> Grid points are filtered based on underlying resistance values. Red crosses indicate invalid nodes; Green dots indicate valid nodes.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell-subref quarto-layout-cell" data-ref-parent="fig-methodology" style="flex-basis: 50.0%;justify-content: flex-start;">
+<div id="fig-traj" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-subfloat-fig figure">
+<div aria-describedby="fig-traj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/method_03_trajectories.png" class="img-fluid figure-img" data-ref-parent="fig-methodology">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-subfloat-caption quarto-subfloat-fig" id="fig-traj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+(c) <strong>Path Simulation.</strong> Exemplar Least-Cost Paths calculated between a subset of valid nodes (n=8).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-methodology-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: <strong>Methodological workflow for modeling wildlife connectivity.</strong> The process consists of three stages: <strong>(a)</strong> Systematically sampling the study area with a 2 km grid (<a href="#fig-grid" class="quarto-xref">Figure&nbsp;3 (a)</a>); <strong>(b)</strong> Validating nodes to ensure paths originate in suitable habitat (<a href="#fig-nodes" class="quarto-xref">Figure&nbsp;3 (b)</a>); and <strong>(c)</strong> Computing pairwise Least-Cost Paths between valid nodes (<a href="#fig-traj" class="quarto-xref">Figure&nbsp;3 (c)</a>).
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="least-cost-path-lcp-analysis-1" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="least-cost-path-lcp-analysis-1"><span class="header-section-number">3.5.2</span> Least-Cost Path (LCP) Analysis</h3>
+<p>Functional connectivity between the identified habitat nodes was modeled using the <code>skimage.graph.MCP_Geometric</code> class. Unlike standard raster pathfinding algorithms that rely on Manhattan distance (4-connectivity), this class implements a cost-distance algorithm that accounts for the Euclidean distance between cell centers. By correctly weighting diagonal movements by a factor of <span class="math inline">\(\sqrt{2}\)</span>, it prevents the geometric distortion (the “elongation” effect) common in simple grid-based models.</p>
+<p>Algorithm Implementation: The analysis followed a three-step computational workflow: 1. Graph Initialization: An <code>MCP_Geometric</code> object was instantiated using the resistance surface. The parameter <code>fully_connected=True</code> was explicitly set to enable 8-neighbor connectivity, ensuring that the algorithm considers both cardinal and diagonal cell transitions during pathfinding. 2. Cost Surface Computation: The <code>find_costs</code> method was executed to calculate the least-cost distance from a source node to all other pixels in the landscape. This step generates the “traceback graph” required for path reconstruction. 3. Path Reconstruction and Optimization: To optimize computational efficiency, the algorithm iterated through the list of valid nodes using a non-redundant pairwise approach (calculating paths only for node pairs <span class="math inline">\(i, j\)</span> where <span class="math inline">\(j &gt; i\)</span>). This effectively halved the required processing time by avoiding duplicate calculations for the reverse directions of the same trajectory. The <code>traceback</code> method was then used to retrieve the discrete coordinates of the optimal path for each unique pair.</p>
+<p>Corridor Density Map: Finally, to visualize the spatial concentration of movement, a pixel density raster was generated. For every successfully simulated path, the values of the traversed pixels were incremented by 1. The resulting heatmap highlights “pinch points” and high-movement corridors where multiple trajectories converge, identifying key areas for connectivity conservation.</p>
+</section>
+</section>
+<section id="bottleneck-extraction-and-visualisation" class="level2" data-number="3.6">
+<h2 data-number="3.6" class="anchored" data-anchor-id="bottleneck-extraction-and-visualisation"><span class="header-section-number">3.6</span> Bottleneck extraction and Visualisation</h2>
+<p>The <code>03_extract_bottlenecks.py</code> script was used for generating plots of the Grid definition and an example LCP calculation without interfering the actual calculations in <code>02_local_lcp_analysis.py</code>. Furthermore, this script created a useful CSV table (<code>clustered_bottlenecks.csv</code>) with all bottlenecks, their exact locations, their intensity, and the number of pixels belonging to each bottleneck. After that, main corridors were defined as the pixels that have been crossed most frequently (5% highest values in the LCP output). These main corridors were then filtered again based on the resistance surface. Values above 3000 correspond to major problem areas that a deer would avoid if possible. The bottleneck pixels were therefore defined as pixels with a high number of crossings (top 5%) and high resistance (3000-5000). Subsequently, these pixels were clustered using <code>scipy.ndimage</code> to combine several adjacent problem pixels into one bottleneck. These bottlenecks can be seen in <a href="#fig-bottlenecks" class="quarto-xref">Figure&nbsp;6</a> and <a href="#tbl-bottlenecks" class="quarto-xref">Table&nbsp;1</a> in the Results section.</p>
+<p>All other visualizations were produced in QGIS, as this software offered substantially higher output quality and enabled the creation of maps that closely followed official cartographic standards. This approach also ensured consistent formatting, clearer spatial representation, and a more professional appearance across all map products.</p>
+</section>
+<section id="declaration-of-generative-ai-usage" class="level2" data-number="3.7">
+<h2 data-number="3.7" class="anchored" data-anchor-id="declaration-of-generative-ai-usage"><span class="header-section-number">3.7</span> Declaration of Generative AI Usage</h2>
+<p>In accordance with the ZHAW guidelines regarding scientific integrity and the use of digital tools, generative AI systems were utilized to support the technical implementation and linguistic quality of this project. Specifically, Large Language Models (Google Gemini) were employed for the following purposes:</p>
+<ul>
+<li><p>Code Assistance: The AI served as a technical assistant for debugging Python scripts and optimizing the automation pipeline (e.g., run_pipeline.py). All generated code snippets were critically reviewed, tested, and adapted by the author to ensure functionality and reproducibility.</p></li>
+<li><p>Linguistic Refinement: AI tools were used to improve the grammatical accuracy and readability of the English text. The underlying scientific arguments and structure remain the original work of the author.</p></li>
+</ul>
+<p>The verification of the accuracy and relevance of the AI-generated outputs, as well as the responsibility for the final content, lies solely with the author. A detailed list of the specific tools used is provided in the Appendix.</p>
+</section>
+</section>
+<section id="results" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Results</h1>
+<section id="analysis-of-the-resistance-surface" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="analysis-of-the-resistance-surface"><span class="header-section-number">4.1</span> Analysis of the Resistance Surface</h2>
+<p>As illustrated in <a href="#fig-resistance" class="quarto-xref">Figure&nbsp;4</a>, the generated resistance surface visualizes landscape permeability for Roe Deer across the Canton of Schaffhausen. To highlight landscape heterogeneity, the data is visualized using a categorical color scheme based on land cover types.</p>
+<section id="spatial-patterns-and-barriers" class="level3" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="spatial-patterns-and-barriers"><span class="header-section-number">4.1.1</span> Spatial Patterns and Barriers</h3>
+<p>The analysis reveals a highly fragmented landscape. The urban agglomeration of Schaffhausen forms a massive high-resistance block (indicated in red in <a href="#fig-resistance" class="quarto-xref">Figure&nbsp;4</a>) centrally located in the study area. This urban core connects southward to the A4 motorway, creating a continuous east-west barrier that effectively bifurcates the region. Similarly, the urban area of Singen presents a significant obstacle in the northeastern sector. The Rhine River functions as a prominent linear barrier, delineating the southern boundary of the canton with consistently high resistance values.</p>
+</section>
+<section id="habitat-and-matrix" class="level3" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="habitat-and-matrix"><span class="header-section-number">4.1.2</span> Habitat and Matrix</h3>
+<p>Conversely, the Randen massif in the northwest and the forested hilltops throughout the canton form large, contiguous patches of low-resistance habitats (Dark Green, corresponding to Dense and Open Forest). These optimal habitats are embedded within an agricultural matrix (light Green/Yellow, corresponding to Agriculture and Grassland). While this matrix allows for movement, <a href="#fig-resistance" class="quarto-xref">Figure&nbsp;4</a> shows that it is heavily dissected by a dense network of secondary roads and railways (Orange lines), effectively isolating the core habitat patches into discrete islands.</p>
+<div id="fig-resistance" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-resistance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/resistance_surface.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-resistance-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: <strong>Integrated Resistance Surface modeling landscape permeability.</strong> The map displays the cost for roe deer movement, categorized by land cover type. <strong>Dark Green areas</strong> represent optimal habitat (Dense Forests, Cost=1); <strong>Green areas</strong> represent very suitable habitat (Open Forests, Cost=2-5); <strong>Light Green areas</strong> represent suitable habitat (Grassland, Cost=5-10); <strong>Yellow areas</strong> represent the permeable agricultural matrix (Cost=10-100); <strong>Light Orange areas</strong> indicate Contact Zones with human (Parks, small roads);<strong>Dark Orange lines</strong> indicate intermediate barriers (Secondary Roads, Railways); and <strong>Red features</strong> denote high-resistance barriers (Motorways, Urban Settlements, Cost=5000). <strong>Inset A</strong> shows the structure of the resistance surface at the pixel level. (Data sources: Copernicus Land Monitoring Service 2018, OpenStreetMap 2025).
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="the-modeled-connectivity-network" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-modeled-connectivity-network"><span class="header-section-number">4.2</span> The Modeled Connectivity Network</h2>
+<p>The Least-Cost Path (LCP) analysis successfully identified 53 core habitat nodes suitable for Roe Deer. The resulting connectivity network (<a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>) visualizes the pixel crossing intensity of all modeled movement trajectories.</p>
+<section id="network-topology-and-traffic-density" class="level3" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="network-topology-and-traffic-density"><span class="header-section-number">4.2.1</span> Network Topology and Traffic Density</h3>
+<p>The network is anchored by nodes distributed on a 2 km grid. A critical methodological constraint restricted start and end points exclusively to optimal habitat pixels (Cost = 1) to ensure biological realism. The calculated paths are visualized in <a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a> as Resampled Raster Paths and are highlighted using a vectorized version with the enable Symbol layer parameter.</p>
+<ul>
+<li><p>Dispersed Movement (White / light Red): The brighter lines represent dispersed routes used by only a few trajectories. These indicate permeable landscape sections where movement is not spatially constrained to a single track.</p></li>
+<li><p>High-Intensity Corridors (Bright Red): The prominent red segments (up to ~482 overlapping paths) identify functional “hotspots”. In these locations, landscape barriers funnel movement from multiple origins into narrow, high-traffic channels.</p></li>
+</ul>
+</section>
+<section id="ecological-observations" class="level3" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="ecological-observations"><span class="header-section-number">4.2.2</span> Ecological Observations</h3>
+<p>The overlay of the network onto the resistance surface highlights two primary ecological dynamics:</p>
+<ul>
+<li><p>Barrier Avoidance: The modeled paths show clear avoidance behavior, “flowing” around high-resistance urban clusters (shown on the Basemap in <a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>) and major infrastructure. Notably, there are no direct traversals through the city center of Schaffhausen or across wide sections of the Rhine, validating the model’s penalty sensitivity.</p></li>
+<li><p>The “Western Corridor” (Klettgau): A significant funneling effect is observed to the west of the Schaffhausen urban agglomeration. A high-intensity corridor (Red in <a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>) runs North-South, connecting the German border region/Randen massif towards the Rhine. This suggests that the urban sprawl of Schaffhausen effectively blocks eastward movement, forcing the regional wildlife flow into this specific bypass route. In addition, this “western corridor” encompasses a lot of agricultural land and therefore consists of several pixels with higher resistance than the optimal forest, which is another reason why it is always completely bypassed.</p></li>
+</ul>
+<div id="fig-connectivity" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-connectivity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Corridors.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-connectivity-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: <strong>Modeled Wildlife Corridors (Pixel Intensity/Crossings).</strong> The map visualizes functional connectivity for Roe Deer on a 2 km sampling grid. The background displays satellite imagery from Bing Satellite. <strong>White/light Red</strong> lines indicate dispersed movement, while <strong>Bright Red</strong> zones identify high-Crossing bottlenecks where barriers funnel trajectories into narrow corridors. (Data source: Model simulation, Bing Satellite).
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="identification-of-critical-bottlenecks" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="identification-of-critical-bottlenecks"><span class="header-section-number">4.3</span> Identification of Critical Bottlenecks</h2>
+<section id="methodological-definition" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="methodological-definition"><span class="header-section-number">4.3.1</span> Methodological Definition</h3>
+<p>Critical bottlenecks were spatially defined by intersecting high-crossing Pixels with high-resistance landscape features. First, “Main Corridors” were isolated by selecting the top 5% of pixels with the highest intensity/crossing number. These pixels were then overlaid with the resistance surface. If such a main corridor pixel, simultaneously possess a high resistance value (Cost 3000–5000), it was classified as a High-Risk Bottleneck (highlighted by Black Circles in <a href="#fig-bottlenecks" class="quarto-xref">Figure&nbsp;6</a>).</p>
+</section>
+<section id="ecological-interpretation" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="ecological-interpretation"><span class="header-section-number">4.3.2</span> Ecological Interpretation</h3>
+<p>The background of <a href="#fig-bottlenecks" class="quarto-xref">Figure&nbsp;6</a> visualizes the resistance surface, where white/light areas represent high-resistance barriers (urban/infrastructure) and dark grey areas represent permeable land (forests). The identified points (1–6) mark locations where wildlife is forced to cross these high-risk features.</p>
+<p>Ecologically, these bottlenecks represent “least-bad” options. The energetic cost of traversing the barrier at these specific points is lower than the cost of a long-distance detour. For instance, a road might run between two adjacent forest patches, even if the road is a barrier, the short gap between the forests represents the most viable crossing point compared to the surrounding open agricultural matrix.</p>
+<div id="fig-bottlenecks" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottlenecks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottlenecks.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottlenecks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: <strong>Map of Critical Bottlenecks.</strong> The analysis identifies 6 high-priority conflict points (Black Circles 1–6) where major wildlife corridors intersect with high-resistance barriers. The background displays the resistance surface (White = High Resistance/Urban; Dark = Low Resistance/Habitat). The size of the black circles corresponds to the amount of pixel crossings at the bottleneck, indicating the intensity of use. (Data source: Model simulation).
+</figcaption>
+</figure>
+</div>
+<div id="tbl-bottlenecks" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="4">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-bottlenecks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: List of Top Critical Bottlenecks identified by the model. IDs correspond to the labels in Figure 6. Coordinates are in CH1903+ / LV95 (EPSG:2056).
+</figcaption>
+<div aria-describedby="tbl-bottlenecks-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="cell caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 29%">
+<col style="width: 16%">
+<col style="width: 23%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Map ID</th>
+<th style="text-align: left;">Coordinates (EPSG:2056)</th>
+<th style="text-align: center;">Pixel Count</th>
+<th style="text-align: center;">Average_Intensity</th>
+<th style="text-align: center;">Path Intensity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">2687708 / 1283101</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">444</td>
+<td style="text-align: center;">444</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">3</td>
+<td style="text-align: left;">2685018 / 1276993</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">421</td>
+<td style="text-align: center;">421</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">2687126 / 1275914</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">421</td>
+<td style="text-align: center;">2526</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">2693799 / 1274266</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">235</td>
+<td style="text-align: center;">235</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">6</td>
+<td style="text-align: left;">2692500 / 1274170</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">235</td>
+<td style="text-align: center;">235</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">2693414 / 1288008</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">171</td>
+<td style="text-align: center;">513</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</section>
+</section>
+</section>
+<section id="discussion" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Discussion</h1>
+<section id="interpretation-of-connectivity-patterns" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="interpretation-of-connectivity-patterns"><span class="header-section-number">5.1</span> Interpretation of Connectivity Patterns</h2>
+<p>The results of this study confirm the hypothesis that the Canton of Schaffhausen functions as a highly fragmented landscape for large mammals. The resistance surface and subsequent LCP analysis highlight that ecological connectivity for Roe Deer is not limited by physical distance, but by the permeability of the anthropogenic matrix.</p>
+<section id="network-topology-and-funneling-effects" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="network-topology-and-funneling-effects"><span class="header-section-number">5.1.1</span> Network Topology and Funneling Effects</h3>
+<p>The modeled connectivity network (<a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>) reveals that the landscape does not support diffuse, free-flowing movement. Instead, the path geometry exhibits a distinct “dendritic” or spider-web topology. This pattern indicates that movement is severely constrained by the high-resistance zones identified in the resistance surface (<a href="#fig-resistance" class="quarto-xref">Figure&nbsp;4</a>).</p>
+<p>A primary finding is the identification of a significant North-South funnel located to the west of the Schaffhausen urban agglomeration. This “western corridor” appears to be the only functional biological link connecting the German habitats in the north (Baden-Württemberg) with the Swiss plateau in the south for this region. This distinct channeling effect is driven by two landscape factors:</p>
+<ul>
+<li><p>Landscape Composition: The intense agricultural activity in the Klettgau region and the abundance of specific coniferous forest structures, which offer less optimal cover than dense mixed forests, constrain wildlife into specific routes.</p></li>
+<li><p>Impermeable Blockades: The City of Schaffhausen combined with the adjacent A4 motorway acts as a massive barrier, effectively severing eastward movement.</p></li>
+</ul>
+<p>Consequently, the high path density observed in these corridors (red lines in <a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>) does not represent “preferred” habitat, but rather obligatory passage. As noted by <span class="citation" data-cites="haddadHabitatFragmentationIts2015">(<a href="#ref-haddadHabitatFragmentationIts2015" role="doc-biblioref">Haddad et al. 2015</a>)</span>, such reliance on singular, high-intensity connections reduces the resilience of the metapopulation, the blockage of a single bottleneck (e.g., by new construction) could disproportionately isolate large habitat areas.</p>
+</section>
+<section id="the-role-of-infrastructure-and-settlements" class="level3" data-number="5.1.2">
+<h3 data-number="5.1.2" class="anchored" data-anchor-id="the-role-of-infrastructure-and-settlements"><span class="header-section-number">5.1.2</span> The Role of Infrastructure and Settlements</h3>
+<p>The spatial distribution of critical bottlenecks (<a href="#fig-bottlenecks" class="quarto-xref">Figure&nbsp;6</a>) confirms that linear barriers, specifically the A4 highway and the Rhine river, constitutes a primary limitation to connectivity. The model successfully captures the “Barrier Effect”, where calculated paths run parallel to highways or the Rhine river for long distances, searching for a gap with lower resistance. The clustering of bottlenecks where high movement intersects with high resistance values (<span class="math inline">\(\ge 3000\)</span>) confirms these as conflict zones where biological needs collide with anthropogenic land use.</p>
+<p>However, while linear barriers create specific conflict points, the model suggests that settlement boundaries are the dominant force shaping the overall network topology. The high cost weights assigned to urban areas force the Least-Cost Paths to circumnavigate towns and cities entirely. Thus, while roads act as filters that are occasionally crossed, settlements act as obstacles that dictate the macro-structure of the wildlife corridors.</p>
+</section>
+</section>
+<section id="spatial-analysis-of-conflict-zones" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="spatial-analysis-of-conflict-zones"><span class="header-section-number">5.2</span> Spatial Analysis of Conflict Zones</h2>
+<p>A quantitative summary of the most critical pinch points is presented in <a href="#tbl-bottlenecks" class="quarto-xref">Table&nbsp;1</a>. The spatial distribution highlights specific conflict zones:</p>
+<p><strong>Bottleneck 1 (Thayngen)</strong> Located along the A4 motorway between Schaffhausen and Thayngen, this point represents a critical constriction where the transport infrastructure creates a continuous, high-resistance barrier. The barrier effect is compounded by the railway line running parallel to the motorway.</p>
+<p>Despite the high anthropogenic resistance, the model identifies this location as the optimal local crossing point. This is due to the presence of two opposing forest patches that approach the infrastructure closely on both sides (see <a href="#fig-bottleneck1" class="quarto-xref">Figure&nbsp;7</a>). Ecologically, this minimizes the distance Roe Deer must travel through open, unprotected terrain. While the crossing entails significant mortality risk and energetic cost, the immediate availability of protective cover makes it the “least-cost” option compared to the surrounding open grass landscape.</p>
+<p>At the moment, there are only deer warning signs for drivers, which suggests that collisions between cars and deer do indeed occur frequently at this location. Therefore, a wildlife underpass at this location would be highly recommended, as it would significantly improve the north-south connections of the wildlife corridors.</p>
+<div id="fig-bottleneck1" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: <strong>Detail Analysis of Bottleneck 1 (Thayngen).</strong> A comparison between high-resolution aerial imagery (Left) and the modeled resistance surface (Right). The model successfully identifies the narrow vegetated strip between the railway line and the A4 motorway as a viable, albeit high-risk, migration corridor (Red pixels). (Aerial Image: Google Maps).
+</figcaption>
+</figure>
+</div>
+<p><strong>Bottleneck 2 (Western Corridor)</strong> The Beringen Constriction Bottleneck 2 recorded the highest crossing intensity of the entire network. The model identified this location as the sole functional link connecting the northern and southern populations within the western sector (Klettgau). Spatially, the corridor aligns with a narrow strip of forest sandwiched between a primary road, a railway line, and the Beringen settlement edge.</p>
+<p>While the LCP algorithm identified this as an optimal path based on land cover (forest), a closer inspection of the topography reveals a critical potential barrier. As shown in <a href="#fig-bottleneck2" class="quarto-xref">Figure&nbsp;8</a> (Right), the OpenStreetMap data indicates cliffs (toothed lines) running parallel to the infrastructure. The discontinuity of the cliff features in the vector data allowed the algorithm to find a “gap” beside the cliff. However, this is not very realistic, as there is usually still very steep terrain next to a cliff, which is also very difficult for Roe deer to overcome. Because the resistance surface was derived primarily from land cover (2D), the steep vertical gradients of these regions were likely underestimated. In reality, the topographic slope may render this corridor impassable for Roe Deer.</p>
+<p>If this corridor is indeed impassable due to topography, the western sector suffers from complete functional isolation. The only alternative for wildlife would be to traverse the open, higher-resistance agricultural plains of the Klettgau, which entails significantly higher mortality risks. This highlights the importance of integrating a Digital Elevation Model (DEM) in future iterations to account for slope-based resistance.</p>
+<div id="fig-bottleneck2" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: <strong>Topographic Analysis of Bottleneck 2 (Beringen).</strong> <strong>Left:</strong> Aerial imagery shows the narrow forest strip along the transport infrastructure. <strong>Right:</strong> The model trajectory (Red pixels) follows the forest cover. However, the topographic map background reveals <strong>cliff features</strong> (indicated by toothed lines) parallel to the road. This suggests the modeled path may be physically impassable due to steep slopes, highlighting a limitation of the 2D resistance surface. (Map Data: OpenStreetMap; Aerial: Google Maps).
+</figcaption>
+</figure>
+</div>
+<p><strong>Bottleneck 3 (Jestetten-Lotstetten)</strong> This location highlights a limitation regarding the weighting of resistance parameters. The model identifies the railway line as a critical bottleneck due to the high resistance value assigned to rail infrastructure (3000). However, this likely represents an overestimation of the barrier effect. Unlike motorways, where traffic noise and collision risk are continuous, regional railway traffic is intermittent. Physically, standard tracks (absent of noise protection walls) present negligible obstruction to Roe Deer. Consequently, the model treats this railway as a “hard barrier” similar to a highway, whereas in reality, it likely possesses a much higher permeability. This finding suggests that future model iterations should refine the input sensitivity to distinguish between high-speed fenced rail lines and permeable regional tracks, potentially lowering the cost for the latter to shift focus toward high-risk roadways.</p>
+<div id="fig-bottleneck3" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck3.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: <strong>Parameter Sensitivity Analysis at Bottleneck 3.</strong> <strong>Left:</strong> Aerial view of the regional railway line near Jestetten, showing a permeable structure without fences. <strong>Right:</strong> The model identifies a bottleneck (Red pixels) crossing the high-resistance railway pixels (Grey). This highlights the model’s sensitivity to the assigned cost values (<span class="math inline">\(R=3000\)</span>), which likely overestimates the fragmentation effect of regional rail compared to roads. (Aerial: Google Maps).
+</figcaption>
+</figure>
+</div>
+<p><strong>Bottleneck 4 (Rhine)</strong> The Rhine River functions as the primary linear barrier separating the northern and southern sub-populations of the canton. While Roe Deer are capable of swimming, the high flow velocity and steep, anthropogenically modified banks create high resistance values throughout the river course.</p>
+<p>The model identifies the location in the south of Rheinau (<a href="#fig-bottleneck4" class="quarto-xref">Figure&nbsp;10</a>) as the primary connectivity link across this barrier. This selection is driven by two landscape metrics:</p>
+<ul>
+<li><p>River Morphology: It represents one of the narrowest sections of the Rhine in the study area.</p></li>
+<li><p>Land Cover Continuity: As seen in the aerial comparison, dense riparian forest extends to the riverbank on both sides.</p></li>
+</ul>
+<p>This creates a “stepping stone” effect where the exposure to open terrain is minimized. From a conservation planning perspective, this location represents the most effective site for restoring functional connectivity, whether through bank renaturation to facilitate swimming or the construction of a dedicated wildlife crossing structure.</p>
+<div id="fig-bottleneck4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck4.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: <strong>Connectivity Analysis at Bottleneck 4 (Rhine River).</strong> <strong>Left:</strong> Aerial imagery reveals dense riparian forest bordering the riverbanks. <strong>Right:</strong> The model identifies this specific reach as the optimal crossing point (Red pixels). The selection minimizes the crossing distance over the high-resistance water body (Grey) while maximizing travel through low-resistance forest cover. (Aerial: Google Maps).
+</figcaption>
+</figure>
+</div>
+<p><strong>Bottleneck 5 (Schneitenberg / Andelfingen)</strong> This location serves as a critical “Ground Truth” validation for the entire connectivity model. Located along the A4 motorway near Andelfingen, the model identified a high-priority crossing point where the motorway bisects two expansive forest blocks.</p>
+<p>The LCP algorithm selected this specific coordinate because it minimizes the crossing distance over the high-resistance road surface while maximizing the proximity to protective cover on both sides. As illustrated in the split-view comparison (<a href="#fig-bottleneck5" class="quarto-xref">Figure&nbsp;11</a>), this modeled trajectory aligns precisely with the existing Schneitenberg Wildlife Overpass.</p>
+<p>Because the specific low resistance of the bridge was not explicitly hard-coded into the resistance surface (i.e., the model viewed it as a standard road segment), this result confirms the model’s high predictive power. It demonstrates that the geometric approach successfully identifies the same optimal ecological links that have been prioritized by real-world landscape planning. The model correctly “predicted” the location of a conservation structure based solely on landscape connectivity principles.</p>
+<div id="fig-bottleneck5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck5.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: <strong>Model Validation at Bottleneck 5 (Schneitenberg).</strong> <strong>Left:</strong> Aerial imagery confirms the existence of a dedicated wildlife overpass (Green Bridge) connecting the forest patches across the A4 motorway. <strong>Right:</strong> The model, driven solely by landscape resistance and habitat geometry, independently places the optimal crossing trajectory (Red pixels) at the exact location of the existing structure. This serves as a robust validation of the LCP algorithm’s accuracy. (Aerial: Google Maps).
+</figcaption>
+</figure>
+</div>
+<p><strong>Bottleneck 6 (Marthalen / Andelfingen)</strong> Similar to Bottleneck 3, the identification of this crossing is partially driven by the high resistance value assigned to railway infrastructure (<span class="math inline">\(R=3000\)</span>). However, unlike the isolated rural track at Jestetten, this location represents a larger barrier system. As visible in the aerial imagery (<a href="#fig-bottleneck6" class="quarto-xref">Figure&nbsp;12</a>), the railway runs in immediate proximity to a secondary cantonal road. While the railway itself may be permeable, the combined width of the multi-modal transport corridor significantly increases the “exposure time” for crossing wildlife, validating its classification as a risk zone.</p>
+<p>Despite the confirmed risk, this location represents a lower priority for structural intervention compared to the massif barriers at the A4, Rhine river or “western Corridor” (Klettgau). In those locations, functional connectivity is completely severed. At Bottleneck 6, permeability likely still exists during periods of low traffic. Therefore, mitigation resources should be allocated to the A4, Rhine and western Corridor crossings first.</p>
+<div id="fig-bottleneck6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bottleneck6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Bottleneck6.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bottleneck6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: <strong>Multiple Barrier Analysis at Bottleneck 6.</strong> <strong>Left:</strong> Aerial imagery showing the parallel alignment of the railway line and the road network. <strong>Right:</strong> The model identifies a crossing point (Red pixels) where the gap in the forest cover is narrowest. While identified as a bottleneck, this location is considered a secondary priority compared to the impermeable barriers of the A4 motorway. (Aerial: Google Maps).
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="model-plausibility-and-real-world-relevance" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="model-plausibility-and-real-world-relevance"><span class="header-section-number">5.3</span> Model Plausibility and Real-World Relevance</h2>
+<section id="cross-verification" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="cross-verification"><span class="header-section-number">5.3.1</span> Cross-Verification</h3>
+<p>The plausability of the modell is supported by a spatial cross-verification with an independent traffic accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen (IUNR) <span class="citation" data-cites="PraeventionWildtierunfaellenAuf">(<a href="#ref-PraeventionWildtierunfaellenAuf" role="doc-biblioref"><span>“<span>Prävention von Wildtierunfällen Auf Verkehrsinfrastrukturen</span>”</span> n.d.</a>)</span>.</p>
+<p><a href="#fig-accidents" class="quarto-xref">Figure&nbsp;13</a> visualizes the spatial distribution of the modeled high-risk bottlenecks (Red Dots) against the regional infrastructure network. A visual inspection reveals a nuanced relationship between the connectivity model (LCP) and the accident risk model (RML).</p>
+<p>High-Risk Alignment: A strong correlation is observed at Bottleneck 2 and Bottleneck 6. Bottleneck 2 coincides with a “very high” risk segment (red line), confirming the model’s prediction of high animal movement pressure, although local topological constraints may severely limit the feasibility of a wildlife overpass at this specific location. Similarly, while Bottleneck 6 is centered on a railway line, the immediately adjacent road segment is classified as “very high” risk, suggesting a corridor that spans both infrastructure types.</p>
+<p>Mitigated or Latent Risk: In some instances, the connectivity model identifies bottlenecks where the recorded accident risk is “very low” (light green lines). Bottleneck 5, located on the A4 motorway, is classified as low risk, this is likely attributable to an existing wildlife overpass at this location which successfully mitigates collisions while confirming the high connectivity value of the segment. Bottleneck 1 is also situated on a low-risk road segment, though the presence of roe deer warning signs suggests a known hazard potential that may not be fully reflected in the accident statistics.</p>
+<p>Non-Road Barriers: Finally, the model identifies barriers outside the road network. Bottleneck 3 is located on a railway line, and Bottleneck 4 is situated on the Rhine river. As the RML dataset is specific to road traffic accidents, these significant landscape barriers do not possess a corresponding risk classification in the reference model.</p>
+<div id="fig-accidents" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-accidents-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/traffic_accidents.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-accidents-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: <strong>Spatial cross-verification of modeled ecological connectivity against independent accident risk data.</strong> The map displays the locations of identified high-density bottlenecks (red markers, numbered 1–6), derived from the Least-Cost Path (LCP) analysis, superimposed on the infrastructure network classified by the Risk of Wildlife Accidents model. Road segments are color-coded by collision risk ranging from very low (light green) to very high (red). The numbered bottlenecks illustrate specific interaction types discussed in the text: alignment with high-risk roads (2, 6), mitigation by existing structures (5), and non-road barriers such as railways (3, 6) and the Rhine river (4). <span class="citation" data-cites="PraeventionWildtierunfaellenAuf"><span>“<span>Prävention von Wildtierunfällen Auf Verkehrsinfrastrukturen</span>”</span> (<a href="#ref-PraeventionWildtierunfaellenAuf" role="doc-biblioref">n.d.</a>)</span>; Base map: Bing Satellite.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="ground-truthing" class="level3" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="ground-truthing"><span class="header-section-number">5.3.2</span> Ground Truthing</h3>
+<p>A critical “ground truth” validation is provided by the specific analysis of Bottleneck 5 (identified in <a href="#tbl-bottlenecks" class="quarto-xref">Table&nbsp;1</a>). The Least-Cost Path (LCP) model pinpointed this location as a high-priority crossing point based on the underlying resistance surface without explicit prior programming of the specific infrastructure.</p>
+<p><a href="#fig-overpass" class="quarto-xref">Figure&nbsp;14</a> presents a direct comparison between the physical reality and the simulation output. The left panel displays satellite imagery of the Schneitenberg wildlife overpass spanning the A4 motorway. The right panel illustrates the corresponding LCP analysis. As highlighted by the red circle, the modeled path does not traverse the highway barrier arbitrarily. Instead, the pathfinding algorithm funnels the route effectively to the precise coordinates of the existing bridge.</p>
+<p>The fact that the algorithm independently navigated the path to the location where civil engineers previously sited a green bridge serves as a strong indicator of model robustness. It suggests that the resistance surface correctly captures the landscape features that naturally guide Roe Deer to the most energetically efficient crossing points.</p>
+<div id="fig-overpass" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-overpass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/Wildlife_Passage.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-overpass-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: <strong>Ground-truthing of the connectivity model at the A4 motorway (Bottleneck 5).</strong> <strong>Left:</strong> Satellite imagery showing the existing Schneitenberg wildlife overpass. <strong>Right:</strong> Result of the Least-Cost Path analysis for the same spatial extent. The modeled corridor (teal line) traverses the high-resistance motorway barrier (black) exactly at the location of the existing structure (red circle), validating the resistance surface’s ability to identify optimal crossing points based on surrounding landscape morphology.
+</figcaption>
+</figure>
+</div>
+</section>
+</section>
+<section id="implications-for-spatial-planning-and-nature-conservation" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="implications-for-spatial-planning-and-nature-conservation"><span class="header-section-number">5.4</span> Implications for Spatial Planning and Nature Conservation</h2>
+<p>The results of this study underscore that ecological connectivity in the Canton of Schaffhausen relies on a fragile network of specific corridors. The identification of these functional pathways provides a data-driven basis for prioritizing conservation efforts.</p>
+<section id="restoration-of-the-western-corridor" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="restoration-of-the-western-corridor"><span class="header-section-number">5.4.1</span> 1. Restoration of the “Western Corridor”</h3>
+<p>The analysis reveals a critical disconnect in the North-South connectivity to the west of the Schaffhausen urban agglomeration (see <a href="#fig-connectivity" class="quarto-xref">Figure&nbsp;5</a>). Unlike the eastern sectors, the model identifies no continuous functional corridor here. Instead, the potential route is severed by an extensive, contiguous zone of intensive agriculture in the Klettgau valley. This “agricultural desert” currently acts as a high-resistance barrier, forcing roe deer into energetically costly detours or completely blocking dispersal between the German Randen habitats and the Swiss Plateau.</p>
+<ul>
+<li><p>Planning Implication: Simply preserving the status quo is insufficient, as the current landscape structure does not support migration. Spatial planning policies must shift from preservation to active habitat restoration. Without intervention, the eastern roe deer populations remain at risk of genetic isolation due to the lack of a viable western alternative.</p></li>
+<li><p>Recommendation: To re-establish this biological lifeline, a system of “stepping stones” must be integrated into the agricultural matrix. This includes planting hedgerows, creating wildflower strips, and re-naturalizing stream banks to provide necessary cover and reduce the effective distance between forest patches. This area should be prioritized for ecological compensation measures to lower the resistance of the landscape and eventually facilitate a functional “Wildlife Corridor of National Importance”.</p></li>
+</ul>
+</section>
+<section id="mitigation-measures-at-critical-bottlenecks" class="level3" data-number="5.4.2">
+<h3 data-number="5.4.2" class="anchored" data-anchor-id="mitigation-measures-at-critical-bottlenecks"><span class="header-section-number">5.4.2</span> 2. Mitigation Measures at Critical Bottlenecks</h3>
+<p>The bottlenecks identified in <a href="#tbl-bottlenecks" class="quarto-xref">Table&nbsp;1</a> represent acute conflict zones. The validation of Bottleneck 5 (Schneitenberg) confirms that the model correctly identifies locations requiring engineering solutions.</p>
+<ul>
+<li><p>Targeted Retrofitting: The remaining unmitigated bottlenecks should be assessed for retrofitting. Where wildlife overpasses (Green Bridges) are not establishing feasible, cost-effective alternatives such as underpasses combined with guiding fences is recommended to channel animals away from road surfaces.</p></li>
+<li><p>Traffic Management: For bottlenecks on secondary roads where structural mitigation is too costly, dynamic traffic signaling (e.g., speed reduction warnings during crepuscular hours) could reduce collision risk.</p></li>
+</ul>
+</section>
+<section id="enhancing-matrix-permeability" class="level3" data-number="5.4.3">
+<h3 data-number="5.4.3" class="anchored" data-anchor-id="enhancing-matrix-permeability"><span class="header-section-number">5.4.3</span> 3. Enhancing Matrix Permeability</h3>
+<p>The LCP analysis shows that roe deer are forced to cross vast stretches of agricultural land (“stepping stones”) to reach cover.</p>
+<p>Ecological Infrastructure: To support the function of these corridors, the agricultural matrix must be structurally enriched. The promotion of hedgerows, field margins, and riparian strips (Buntbrachen) within the identified high-traffic corridors would lower the resistance cost, providing visual cover and reducing stress for migrating animals.</p>
+</section>
+</section>
+<section id="methodological-reflection-and-limitations" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="methodological-reflection-and-limitations"><span class="header-section-number">5.5</span> Methodological Reflection and Limitations</h2>
+<section id="computational-artifacts-path-dispersion" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="computational-artifacts-path-dispersion"><span class="header-section-number">5.5.1</span> Computational Artifacts: Path Dispersion</h3>
+<p>A technical challenge encountered during the LCP analysis was the “path smearing” effect. Because the algorithm calculates optimal routes on a pixel-by-pixel basis, distinct paths often crossed linear barriers in close proximity but on different pixels. This resulted in a spatial dispersion of the crossed pixels, leading to an initial underestimation of traffic intensity at specific bottlenecks. Future iterations of the model could mitigate this by applying a focal statistics filter (e.g., a Kernel Density Estimator) to the traffic raster. This would aggregate adjacent pixel values into a coherent “corridor width”, better representing the biological reality of animal movement zones rather than exact linear trajectories.</p>
+</section>
+<section id="temporal-stationarity" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="temporal-stationarity"><span class="header-section-number">5.5.2</span> Temporal Stationarity</h3>
+<p>A fundamental limitation of the model is its static nature. The landscape is represented as a fixed snapshot based on the CLC 2018 and current OSM datasets. Consequently, the model does not account for temporal dynamics, such as:</p>
+<ul>
+<li><p>Seasonal Variations: The permeability of agricultural land changes drastically between harvest (high visibility/risk) and peak growth (high cover).</p></li>
+<li><p>Diurnal Traffic Patterns: The resistance of roads is treated as constant, whereas in reality, traffic volume fluctuates significantly between day and night, influencing crossing success probabilities.</p></li>
+</ul>
+<p>In addition, future improvements could better adapt the preferred areas of deer. Since deer tend to stay at the edge of the forest, the model could be made even more accurate by explicitly selecting these forest edges as starting points for the LCP calculation.</p>
+</section>
+<section id="data-granularity-and-topography" class="level3" data-number="5.5.3">
+<h3 data-number="5.5.3" class="anchored" data-anchor-id="data-granularity-and-topography"><span class="header-section-number">5.5.3</span> Data Granularity and Topography</h3>
+<p>The model’s precision is intrinsically linked to the resolution of the input data.</p>
+<ul>
+<li><p>Topographic Simplification: The exclusion of slope data represents a geometric simplification. While this approach is valid for the relatively flat agricultural plateau of the Klettgau, it likely overestimates connectivity in the rugged Randen massif, where steep gradients impose significant energetic costs on roe deer. As described in the report, the lack of Slope data has created a bottleneck that appears impossible for deer to cross due to the cliffs.</p></li>
+<li><p>Data Heterogeneity: While OpenStreetMap provides high-resolution data for infrastructure, the attribute completeness (e.g., fence heights or exact forest types) varies. Proprietary data (e.g., LiDAR-derived vegetation height models) would be required to model micro-habitat features, such as understory density, which significantly influences shelter availability.</p></li>
+</ul>
+</section>
+<section id="protocolbuffer-binary-format" class="level3" data-number="5.5.4">
+<h3 data-number="5.5.4" class="anchored" data-anchor-id="protocolbuffer-binary-format"><span class="header-section-number">5.5.4</span> Protocolbuffer Binary Format</h3>
+<p>Another notable limitation of the model arises from the way OpenStreetMap (OSM) data are loaded and processed from .pbf files. OSM stores geographic information as raw primitives (nodes, ways, and relations), which must be reconstructed into complete geometries. When this reconstruction is performed in Python, certain features appeared distorted and incorrectly assembled. These inconsistencies resulted from missing relation components, clipped or filtered PBF extracts, or differences in how Python libraries interpret coordinate encodings and topology. As a consequence, some OSM-derived inputs contain irregular geometries or attribute inconsistencies, which introduce some uncertainty into the model and limit the reliability of analyses based on these features. A future improvement to the model could be made by downloading these OSM features correctly in Python. It would also be possible to download the data in QGIS and import it into Python, but this would lead to a loss of reproducibility and was therefore avoided.</p>
+</section>
+<section id="scalability-reproducibility-and-high-performance-computing" class="level3" data-number="5.5.5">
+<h3 data-number="5.5.5" class="anchored" data-anchor-id="scalability-reproducibility-and-high-performance-computing"><span class="header-section-number">5.5.5</span> Scalability, Reproducibility and High-Performance Computing</h3>
+<p>The developed workflow demonstrates high transferability. Since the resistance surface generation relies on the standardized osmnx geocoding system, the model can theoretically be applied to any region covered by OSM. A current constraint to full automation is the manual acquisition and preprocessing of the Corine Land Cover (CLC) data. Integrating an API-based download and automatic clipping of the CLC layer (or switching to the global ESA WorldCover dataset) would render the pipeline 100% reproducible and scalable to a European context without manual intervention.</p>
+<p>To manage the computational demands of the Least-Cost Path (LCP) analysis, the calculation was first executed on the ZHAW High-Performance Computing (HPC) cluster using a job array architecture. By parallelizing the workload, distributing the origin-destination pairs across multiple computing nodes, the processing time was significantly reduced compared to a sequential execution on a local machine.</p>
+<ul>
+<li><p>Implementation Efficiency: The use of Python’s multiprocessing capabilities within the HPC environment allowed for the efficient handling of the large resistance surface matrix, ensuring that memory constraints were not exceeded during the pathfinding operations.</p></li>
+<li><p>Scalability for Larger Areas: While the current study focused on the Canton of Schaffhausen, the successful implementation of this parallelized workflow demonstrates its scalability. For future research expanding to the entire Swiss Plateau or analyzing multiple species simultaneously, the use of HPC resources will be indispensable. The ability to distribute computations across multiple nodes ensures that exponentially growing processing times, inherent to LCP algorithms on larger raster datasets, remain feasible.</p></li>
+</ul>
+<p>The implementation of a 2 km grid with specific node validation, significantly optimized the computational load, allowing the final model to be executed successfully on standard local hardware. This decision enhances the general applicability of the workflow, demonstrating that robust connectivity models can be reproduced by researchers without access to specialized supercomputing infrastructure.</p>
+</section>
+<section id="sensitivity-analysis" class="level3" data-number="5.5.6">
+<h3 data-number="5.5.6" class="anchored" data-anchor-id="sensitivity-analysis"><span class="header-section-number">5.5.6</span> Sensitivity Analysis</h3>
+<p>Finally, no systematic sensitivity analysis was conducted. The resistance values were assigned based on expert literature, but it remains unquantified how sensitive the location of the predicted corridors is to minor changes in these weights (e.g., varying road cost between 1000 and 5000). As shown in the project some cost values should be improved and set to a more realistic value.</p>
+</section>
+</section>
+</section>
+<section id="conclusion" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Conclusion</h1>
+<p>This project successfully implemented a fully reproducible, Python-based workflow to model ecological connectivity for Roe Deer in the Canton of Schaffhausen. By integrating high-resolution OpenStreetMap feature data with Corine Land Cover data, the analysis generated a 10-meter resolution resistance surface that effectively identifies critical barriers and functional corridors.</p>
+<p>The study concludes that the connectivity of the canton is defined by a distinct “Funnel and Barrier” system. The urban agglomeration of Schaffhausen, the rhine river and the A4 motorway act as major obstacles, severing eastward movement and forcing regional wildlife flow into a single, critical corridor in the west. However, this “western funnel” was incorrectly identified due to missing slope data, which makes the “western corridor” an even bigger problem.</p>
+<p>The plausability of these findings is supported by a robust cross-verification with an independent accident risk model provided by the ZHAW Institut für Umwelt und Natürliche Ressourcen. Furthermore, the model demonstrated significant predictive power by independently pinpointing the location of the existing Schneitenberg wildlife passage, confirming that the “Barrier Dominance” resistance surface correctly captures the landscape features driving movement behavior.</p>
+<p>Despite methodological limitations regarding topographic simplification and temporal stationarity, the identified bottlenecks provide actionable data for spatial planning. To ensure the long-term genetic viability of the regional roe deer population, the identified conflict zones must be prioritized for mitigation, and the remaining functional corridors must be actively protected from further fragmentation. The developed automated pipeline offers a scalable foundation for extending this analysis to other regions, contributing a transparent and data-driven tool to the field of conservation planning.</p>
+</section>
+<section id="sec-refs" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-adriaensenApplicationLeastcostModelling2003" class="csl-entry" role="listitem">
+Adriaensen, F., J. P. Chardon, G. De Blust, E. Swinnen, S. Villalba, H. Gulinck, and E. Matthysen. 2003. <span>“The Application of <span>‘Least-Cost’</span> Modelling as a Functional Landscape Model.”</span> <em>Landscape and Urban Planning</em> 64 (4): 233–47. <a href="https://doi.org/10.1016/S0169-2046(02)00242-6">https://doi.org/10.1016/S0169-2046(02)00242-6</a>.
+</div>
+<div id="ref-beierUncertaintyAnalysisLeastcost2009" class="csl-entry" role="listitem">
+Beier, Paul, Daniel R. Majka, and Shawn L. Newell. 2009. <span>“Uncertainty Analysis of Least-Cost Modeling for Designing Wildlife Linkages.”</span> <em>Ecological Applications</em> 19 (8): 2067–77. <a href="https://doi.org/10.1890/08-1898.1">https://doi.org/10.1890/08-1898.1</a>.
+</div>
+<div id="ref-CORINELandCover" class="csl-entry" role="listitem">
+<span>“<span>CORINE Land Cover</span> 2018 (Vector/Raster 100 m), <span>Europe</span>, 6-Yearly.”</span> n.d. https://land.copernicus.eu/en/products/corine-land-cover/clc2018. Accessed November 27, 2025.
+</div>
+<div id="ref-cushmanBiologicalCorridorsConnectivity2013" class="csl-entry" role="listitem">
+Cushman, Samuel A., Brad McRae, Frank Adriaensen, Paul Beier, Mark Shirley, and Kathy Zeller. 2013. <span>“Biological Corridors and Connectivity.”</span> In <em>Key <span>Topics</span> in <span>Conservation Biology</span> 2</em>, edited by David W. Macdonald and Katherine J. Willis, 1st ed., 384–404. Wiley. <a href="https://doi.org/10.1002/9781118520178.ch21">https://doi.org/10.1002/9781118520178.ch21</a>.
+</div>
+<div id="ref-DownloadOpenStreetMapOpenStreetMap" class="csl-entry" role="listitem">
+<span>“Download <span>OpenStreetMap</span> for <span>OpenStreetMap Data Extracts</span>.”</span> n.d. <em>Geofabrik Download Server</em>. https://download.geofabrik.de/. Accessed November 27, 2025.
+</div>
+<div id="ref-etheringtonLeastCostModellingLandscape2016" class="csl-entry" role="listitem">
+Etherington, Thomas R. 2016. <span>“Least-<span>Cost Modelling</span> and <span>Landscape Ecology</span>: <span>Concepts</span>, <span>Applications</span>, and <span>Opportunities</span>.”</span> <em>Current Landscape Ecology Reports</em> 1 (1): 40–53. <a href="https://doi.org/10.1007/s40823-016-0006-9">https://doi.org/10.1007/s40823-016-0006-9</a>.
+</div>
+<div id="ref-europeanenvironmentagencyLandscapeFragmentationEurope2011" class="csl-entry" role="listitem">
+European Environment Agency, and Swiss Federal Office for the Environment (FOEN). 2011. <em>Landscape Fragmentation in <span>Europe</span> : Joint <span>EEA-FOEN</span> Report</em>. LU: Publications Office.
+</div>
+<div id="ref-haddadHabitatFragmentationIts2015" class="csl-entry" role="listitem">
+Haddad, Nick M., Lars A. Brudvig, Jean Clobert, Kendi F. Davies, Andrew Gonzalez, Robert D. Holt, Thomas E. Lovejoy, et al. 2015. <span>“Habitat Fragmentation and Its Lasting Impact on <span>Earth</span>’s Ecosystems.”</span> <em>Science Advances</em> 1 (2): e1500052. <a href="https://doi.org/10.1126/sciadv.1500052">https://doi.org/10.1126/sciadv.1500052</a>.
+</div>
+<div id="ref-hiltyGuidelinesConservingConnectivity2020" class="csl-entry" role="listitem">
+Hilty, Jodi, Graeme L. Worboys, Annika Keeley, Stephen Woodley, Barbara J. Lausche, Harvey Locke, Mark Carr, et al. 2020. <em>Guidelines for Conserving Connectivity Through Ecological Networks and Corridors</em>. Edited by Craig Groves. IUCN, International Union for Conservation of Nature. <a href="https://doi.org/10.2305/IUCN.CH.2020.PAG.30.en">https://doi.org/10.2305/IUCN.CH.2020.PAG.30.en</a>.
+</div>
+<div id="ref-iuellCOST341Habitat2003" class="csl-entry" role="listitem">
+Iuell, Bjørn, Hans Bekker, Ruud Cuperus, Jiri Dufek, Gary Fry, Carsten Hicks, Vaclav Hlavac, et al., eds. 2003. <em>Wildlife and Traffic: A European Handbook for Identifying Conflicts and Designing Solutions</em>. COST 341. Brussels: KNNV Publishers.
+</div>
+<div id="ref-jaeferDegreeLandscapeFragmentation2007" class="csl-entry" role="listitem">
+Jaefer, Jochen, René. Bertiller, and Christian Schwick. 2007. <em>Degree of Landscape Fragmentation in <span>Switzerland</span>: Quantitative Analysis 1885-2002 and Implications for Traffic Planning and Regional Planning : Condensed Version</em>. Neuchâtel: Federal Statistic Office.
+</div>
+<div id="ref-jepsenModellingRoeDeer2004" class="csl-entry" role="listitem">
+Jepsen, J U, and C J Topping. 2004. <span>“Modelling Roe Deer ( <span><em>Capreolus</em></span><span> <em>Capreolus</em></span> ) in a Gradient of Forest Fragmentation: Behavioural Plasticity and Choice of Cover.”</span> <em>Canadian Journal of Zoology</em> 82 (9): 1528–41. <a href="https://doi.org/10.1139/z04-131">https://doi.org/10.1139/z04-131</a>.
+</div>
+<div id="ref-kuehnGeneticEffectTransportation2007" class="csl-entry" role="listitem">
+Kuehn, Ralph, Karin E. Hindenlang, Otto Holzgang, Josef Senn, Bernhard Stoeckle, and Christoph Sperisen. 2007. <span>“Genetic <span>Effect</span> of <span>Transportation Infrastructure</span> on <span>Roe Deer Populations</span> (<span>Capreolus</span> Capreolus).”</span> <em>Journal of Heredity</em> 98 (1): 13–22. <a href="https://doi.org/10.1093/jhered/esl056">https://doi.org/10.1093/jhered/esl056</a>.
+</div>
+<div id="ref-martzCrossingsCollisionsExploring2024" class="csl-entry" role="listitem">
+Märtz, Johanna, Falko Brieger, and Manisha Bhardwaj. 2024. <span>“Crossings and Collisions – <span>Exploring</span> How Roe Deer Navigate the Road Network.”</span> <em>Landscape Ecology</em> 39 (5): 101. <a href="https://doi.org/10.1007/s10980-024-01897-x">https://doi.org/10.1007/s10980-024-01897-x</a>.
+</div>
+<div id="ref-mysterudHabitatSelectionRoe1999" class="csl-entry" role="listitem">
+Mysterud, Atle, Per Kristian Larsen, Rolf Anker Ims, and Eivind Østbye. 1999. <span>“Habitat Selection by Roe Deer and Sheep: Does Habitat Ranking Reflect Resource Availability?”</span>
+</div>
+<div id="ref-PraeventionWildtierunfaellenAuf" class="csl-entry" role="listitem">
+<span>“<span>Prävention von Wildtierunfällen Auf Verkehrsinfrastrukturen</span>.”</span> n.d. <em>ZHAW Institut Für Umwelt Und Natürliche Ressourcen IUNR</em>. https://www.zhaw.ch/de/lsfm/institute-zentren/iunr/geooekologie/geoinformatik/projekte/praevention-von-wildtierunfaellen-auf-verkehrsinfrastrukturen. Accessed November 27, 2025.
+</div>
+<div id="ref-sauraEDITORSCHOICEStepping2014" class="csl-entry" role="listitem">
+Saura, Santiago, Örjan Bodin, and Marie-Josée Fortin. 2014. <span>“<span>EDITOR</span>’<span>S CHOICE</span>: <span>Stepping</span> Stones Are Crucial for Species’ Long-Distance Dispersal and Range Expansion Through Habitat Networks.”</span> Edited by Jacqueline Frair. <em>Journal of Applied Ecology</em> 51 (1): 171–82. <a href="https://doi.org/10.1111/1365-2664.12179">https://doi.org/10.1111/1365-2664.12179</a>.
+</div>
+<div id="ref-sawyerStopoverEcologyMigratory2011" class="csl-entry" role="listitem">
+Sawyer, Hall, and Matthew J. Kauffman. 2011. <span>“Stopover Ecology of a Migratory Ungulate: <span><em>Ungulate</em></span><span> <em>Stopover Ecology</em></span>.”</span> <em>Journal of Animal Ecology</em> 80 (5): 1078–87. <a href="https://doi.org/10.1111/j.1365-2656.2011.01845.x">https://doi.org/10.1111/j.1365-2656.2011.01845.x</a>.
+</div>
+<div id="ref-tischendorfUsageMeasurementLandscape2000" class="csl-entry" role="listitem">
+Tischendorf, Lutz, and Lenore Fahrig. 2000. <span>“On the Usage and Measurement of Landscape Connectivity.”</span> <em>Oikos</em> 90 (1): 7–19. <a href="https://doi.org/10.1034/j.1600-0706.2000.900102.x">https://doi.org/10.1034/j.1600-0706.2000.900102.x</a>.
+</div>
+<div id="ref-wadeResistancesurfacebasedWildlifeConservation2015" class="csl-entry" role="listitem">
+Wade, Alisa A., Kevin S. McKelvey, and Michael K. Schwartz. 2015. <span>“Resistance-Surface-Based Wildlife Conservation Connectivity Modeling: <span>Summary</span> of Efforts in the <span>United States</span> and Guide for Practitioners.”</span> RMRS-GTR-333. Ft. Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky Mountain Research Station. <a href="https://doi.org/10.2737/RMRS-GTR-333">https://doi.org/10.2737/RMRS-GTR-333</a>.
+</div>
+<div id="ref-wilkinsonFAIRGuidingPrinciples2016" class="csl-entry" role="listitem">
+Wilkinson, Mark D., Michel Dumontier, IJsbrand Jan Aalbersberg, Gabrielle Appleton, Myles Axton, Arie Baak, Niklas Blomberg, et al. 2016. <span>“The <span>FAIR Guiding Principles</span> for Scientific Data Management and Stewardship.”</span> <em>Scientific Data</em> 3 (1): 160018. <a href="https://doi.org/10.1038/sdata.2016.18">https://doi.org/10.1038/sdata.2016.18</a>.
+</div>
+<div id="ref-zellerEstimatingLandscapeResistance2012" class="csl-entry" role="listitem">
+Zeller, Katherine A., Kevin McGarigal, and Andrew R. Whiteley. 2012. <span>“Estimating Landscape Resistance to Movement: A Review.”</span> <em>Landscape Ecology</em> 27 (6): 777–97. <a href="https://doi.org/10.1007/s10980-012-9737-0">https://doi.org/10.1007/s10980-012-9737-0</a>.
+</div>
+</div>
+</section>
+<section id="appendix" class="level1 unnumbered unlisted">
+<h1 class="unnumbered unlisted">Appendix</h1>
+<section id="appendix-a-directory-of-generative-ai-tools" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-a-directory-of-generative-ai-tools">Appendix A: Directory of Generative AI Tools</h2>
+<ul>
+<li><p>Google. (2025). Gemini (Model Version 1.5 Pro). https://gemini.google.com/</p>
+<ul>
+<li><p>Debugging of Python error messages and script logic (specifically <code>01_resistance_surface_generation.py</code> and <code>02_local_lcp_analysis.py</code>).</p></li>
+<li><p>Optimization of the automated reproducibility pipeline (<code>run_pipeline.py</code>).</p></li>
+<li><p>Linguistic refinement and stylistic polishing of the Introduction, Methods, Results and Discussion sections.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="appendix-b-computational-project-structure" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-b-computational-project-structure">Appendix B: Computational Project Structure</h2>
+<p>To ensure reproducibility, the digital submission of this project follows a strict directory structure managed by the <code>run_pipeline.py</code> orchestrator. Here you can see a summarized version of the GitHub folder structure:</p>
+<pre class="text"><code>PA2-Modelling_Wildlife_Corridors/
+│
+├── data/                        # ALL data lives here
+│   ├── U2018_CLC2018_V2020_20u1.gpkg
+│   ├── Wildtierunfaelle_auf_Verkehrsinfrastruktur_SH.gpkg
+│   ├── baden-wuerttemberg-latest.osm.pbf
+│   |── switzerland-latest.osm.pbf
+│   ├── clc_resistance_costs.csv
+│   └── osm_resistance_costs.csv
+│
+├── docs/                        # Quarto report
+│   ├── images/                  # Static images for the report
+│   ├── references.bib           # Bibliography file
+│   ├── index.qmd                # Main Quarto document
+│   └── index.pdf                # Rendered report
+│
+├── results/                     # Final outputs generated by the pipeline
+│   ├── temp_files/              # Intermediate files
+|   ├── clustered_bottlenecks.csv
+│   ├── final_corridor_traffic.tif
+│   └── final_resistance_surface.tif
+│
+├── src/                         # Source code (Analysis scripts)
+│   ├── depriciated_code/        # Depriciated HPC Code
+│   ├── 01_resistance_surface_generation.py
+│   ├── 02_local_lcp_analysis.py
+│   └── 03_extract_bottlenecks.py
+│
+├── .gitignore                   # Files to ignore in Git
+├── environment.yml              # Conda environment definition
+├── README.md                    # Project documentation/overview
+└── run_pipeline.py              # Orchestrator script (Entry Point)</code></pre>
+</section>
+<section id="appendix-c-resistance-parameter-table" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-c-resistance-parameter-table">Appendix C: Resistance Parameter Table</h2>
+<div id="resistance" class="cell" data-tbl-cap="These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value." data-execution_count="5">
+<section id="clc-resistance-costs" class="level3" data-number="7.0.1">
+<h3 data-number="7.0.1" class="anchored" data-anchor-id="clc-resistance-costs"><span class="header-section-number">7.0.1</span> CLC Resistance Costs</h3>
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 77%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">clc_code</th>
+<th style="text-align: left;">LABEL3</th>
+<th style="text-align: right;">resistance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">111</td>
+<td style="text-align: left;">Continuous urban fabric</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">112</td>
+<td style="text-align: left;">Discontinuous urban fabric</td>
+<td style="text-align: right;">3500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">121</td>
+<td style="text-align: left;">Industrial or commercial units</td>
+<td style="text-align: right;">4500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">122</td>
+<td style="text-align: left;">Road and rail networks and associated land</td>
+<td style="text-align: right;">3000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">123</td>
+<td style="text-align: left;">Port areas</td>
+<td style="text-align: right;">4000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">124</td>
+<td style="text-align: left;">Airports</td>
+<td style="text-align: right;">4500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">131</td>
+<td style="text-align: left;">Mineral extraction sites</td>
+<td style="text-align: right;">1500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">132</td>
+<td style="text-align: left;">Dump sites</td>
+<td style="text-align: right;">2000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">133</td>
+<td style="text-align: left;">Construction sites</td>
+<td style="text-align: right;">2500</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">141</td>
+<td style="text-align: left;">Green urban areas</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">142</td>
+<td style="text-align: left;">Sport and leisure facilities</td>
+<td style="text-align: right;">300</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">211</td>
+<td style="text-align: left;">Non-irrigated arable land</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">212</td>
+<td style="text-align: left;">Permanently irrigated land</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">213</td>
+<td style="text-align: left;">Rice fields</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">221</td>
+<td style="text-align: left;">Vineyards</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">222</td>
+<td style="text-align: left;">Fruit trees and berry plantations</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">223</td>
+<td style="text-align: left;">Olive groves</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">231</td>
+<td style="text-align: left;">Pastures</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">241</td>
+<td style="text-align: left;">Annual crops associated with permanent crops</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">242</td>
+<td style="text-align: left;">Complex cultivation patterns</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">243</td>
+<td style="text-align: left;">Land principally occupied by agriculture, with significant areas of natural vegetation</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">244</td>
+<td style="text-align: left;">Agro-forestry areas</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">311</td>
+<td style="text-align: left;">Broad-leaved forest</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">312</td>
+<td style="text-align: left;">Coniferous forest</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">313</td>
+<td style="text-align: left;">Mixed forest</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">321</td>
+<td style="text-align: left;">Natural grasslands</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">322</td>
+<td style="text-align: left;">Moors and heathland</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">323</td>
+<td style="text-align: left;">Sclerophyllous vegetation</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">324</td>
+<td style="text-align: left;">Transitional woodland-shrub</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">331</td>
+<td style="text-align: left;">Beaches, dunes, sands</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">332</td>
+<td style="text-align: left;">Bare rocks</td>
+<td style="text-align: right;">300</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">333</td>
+<td style="text-align: left;">Sparsely vegetated areas</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">334</td>
+<td style="text-align: left;">Burnt areas</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">335</td>
+<td style="text-align: left;">Glaciers and perpetual snow</td>
+<td style="text-align: right;">1000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">411</td>
+<td style="text-align: left;">Inland marshes</td>
+<td style="text-align: right;">75</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">412</td>
+<td style="text-align: left;">Peat bogs</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">421</td>
+<td style="text-align: left;">Salt marshes</td>
+<td style="text-align: right;">150</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">422</td>
+<td style="text-align: left;">Salines</td>
+<td style="text-align: right;">1000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">423</td>
+<td style="text-align: left;">Intertidal flats</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">511</td>
+<td style="text-align: left;">Water courses</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">512</td>
+<td style="text-align: left;">Water bodies</td>
+<td style="text-align: right;">5000</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">521</td>
+<td style="text-align: left;">Coastal lagoons</td>
+<td style="text-align: right;">800</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">522</td>
+<td style="text-align: left;">Estuaries</td>
+<td style="text-align: right;">800</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">523</td>
+<td style="text-align: left;">Sea and ocean</td>
+<td style="text-align: right;">5000</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="osm-resistance-costs" class="level3" data-number="7.0.2">
+<h3 data-number="7.0.2" class="anchored" data-anchor-id="osm-resistance-costs"><span class="header-section-number">7.0.2</span> OSM Resistance Costs</h3>
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">osm_key</th>
+<th style="text-align: left;">osm_value</th>
+<th style="text-align: right;">resistance</th>
+<th style="text-align: right;">priority</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">forest</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">wood</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">scrub</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">heath</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">meadow</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">grassland</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">farmland</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">orchard</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">vineyard</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">allotments</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">grass</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">recreation_ground</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">park</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">golf_course</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">leisure</td>
+<td style="text-align: left;">nature_reserve</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">path</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">footway</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">bridleway</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">cycleway</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">track</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">ditch</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">stream</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">hedge</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">residential</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">service</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">unclassified</td>
+<td style="text-align: right;">200</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">residential</td>
+<td style="text-align: right;">3500</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">tertiary</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">tertiary_link</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">cemetery</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">quarry</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">scree</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">shingle</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">secondary</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">secondary_link</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">fence</td>
+<td style="text-align: right;">800</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">wall</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">barrier</td>
+<td style="text-align: left;">cattle_grid</td>
+<td style="text-align: right;">50</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">primary</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">primary_link</td>
+<td style="text-align: right;">2000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">waterway</td>
+<td style="text-align: left;">river</td>
+<td style="text-align: right;">4000</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">wetland</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">bare_rock</td>
+<td style="text-align: right;">300</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">commercial</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">industrial</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">retail</td>
+<td style="text-align: right;">4500</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">railway</td>
+<td style="text-align: left;">rail</td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">landuse</td>
+<td style="text-align: left;">railway</td>
+<td style="text-align: right;">3000</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">trunk</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">trunk_link</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">motorway</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">highway</td>
+<td style="text-align: left;">motorway_link</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">building</td>
+<td style="text-align: left;">yes</td>
+<td style="text-align: right;">5000</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">natural</td>
+<td style="text-align: left;">cliff</td>
+<td style="text-align: right;">4000</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<p>These two CSV files contain all resistance values used for the project, along with the source that was decisive for assigning the value.</p>
+</section>
+</div>
+<p>Sources: <span class="citation" data-cites="kuehnGeneticEffectTransportation2007">(<a href="#ref-kuehnGeneticEffectTransportation2007" role="doc-biblioref">Kuehn et al. 2007</a>)</span>; <span class="citation" data-cites="wadeResistancesurfacebasedWildlifeConservation2015">(<a href="#ref-wadeResistancesurfacebasedWildlifeConservation2015" role="doc-biblioref">Wade, McKelvey, and Schwartz 2015</a>)</span>; <span class="citation" data-cites="iuellCOST341Habitat2003">(<a href="#ref-iuellCOST341Habitat2003" role="doc-biblioref">Iuell et al. 2003</a>)</span>; <span class="citation" data-cites="jepsenModellingRoeDeer2004">(<a href="#ref-jepsenModellingRoeDeer2004" role="doc-biblioref">Jepsen and Topping 2004</a>)</span>; <span class="citation" data-cites="mysterudHabitatSelectionRoe1999">(<a href="#ref-mysterudHabitatSelectionRoe1999" role="doc-biblioref">Mysterud et al. 1999</a>)</span>; Values derived logically for the specific context of Project Work 2 (e.g., assigning high resistance to glaciers or barriers like walls).</p>
+</section>
+<section id="appendix-d-statement-of-reproducibility-reusability-and-collaboration" class="level2 unnumbered unlisted">
+<h2 class="unnumbered unlisted anchored" data-anchor-id="appendix-d-statement-of-reproducibility-reusability-and-collaboration">Appendix D: Statement of Reproducibility, Reusability, and Collaboration</h2>
+<p>This project was engineered to strictly adhere to the principles of Reproducibility, Reusability, and Collaboration as defined by the Institute for Computational Life Sciences guidelines.</p>
+<section id="reproducibility" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="reproducibility">Reproducibility</h3>
+<p>To guarantee that the analysis can be replicated on any machine with identical results, the computational environment is fully defined as code.</p>
+<ul>
+<li><p>Environment Locking: The <code>environment.yml</code> file serves as the single source of truth for the software stack. It enforces strict version pinning for core dependencies, most notably locking <code>numpy=1.26</code> to avoid binary incompatibilities with version 2.0, and aligning <code>libgdal (v. 3.8)</code> with <code>rasterio (v. 1.3)</code>. This prevents the “dependency hell” often associated with complex geospatial workflows.</p></li>
+<li><p>Automated Orchestration: The custom automation script, <code>run_pipeline.py</code> was implemented. This script functions as an “Infrastructure-as-Code” wrapper that:</p>
+<ol type="1">
+<li><p>Validates the local Conda environment against the <code>environment.yml</code> specification.</p></li>
+<li><p>Automatically installs missing dependencies via Mamba.</p></li>
+<li><p>Executes the analysis modules (<code>01_resistance_surface_generation.py</code>, <code>02_local_lcp_analysis.py</code>, <code>03_extract_bottlenecks.py</code>) in the correct sequential order. This “one-click” execution model ensures that the entire workflow, from raw data ingestion to final map generation, is reproducible without manual configuration.</p></li>
+</ol></li>
+</ul>
+</section>
+<section id="reusability" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="reusability">Reusability</h3>
+<p>The project applies the FAIR principles (Findable, Accessible, Interoperable, Reusable) by relying exclusively on open-source data standards.</p>
+<ul>
+<li>Data Interoperability: All OSM input data is retrieved programmatically from Geofabrik. A preclipped CLC file from Copernicus is already downloaded in the data folder. The code is designed to be agnostic to the specific region, by simply changing the geocode for osmnx in the configuration, the entire model can be reused to analyze connectivity in other European regions covered by OpenStreetMap and Corine Land Cover. The preclipped CLC data has to be manually downloaded for this new area.</li>
+</ul>
+<p>Modular Code: The codebase is structured into distinct, modular Python scripts (Data Preparation vs.&nbsp;Analysis vs.&nbsp;Visualization), allowing individual components (e.g., the resistance surface generator) to be reused in other projects without the need to run the full pipeline.</p>
+</section>
+<section id="collaboration" class="level3 unnumbered unlisted">
+<h3 class="unnumbered unlisted anchored" data-anchor-id="collaboration">Collaboration</h3>
+<p>To facilitate potential collaboration and transparent development:</p>
+<ul>
+<li><p>Version Control: The project history, including code changes and methodology updates, was tracked using Git.</p></li>
+<li><p>Documentation: The code includes comprehensive docstrings and in-line comments explaining the logic behind critical parameters (e.g., the all_touched=True rasterization rule). A README.md file provides clear instructions on how to initialize the environment and execute the pipeline, ensuring that future contributors can onboard quickly.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

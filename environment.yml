@@ -1,0 +1,31 @@
+name: pa2_env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+
+  # STABILITY STACK (Relaxed for Solver, Strict for Safety)
+  # We pin Major.Minor to ensure compatibility, but allow Patch updates
+  - numpy=1.26.* # Keeps 1.26.4, avoids 2.0
+  - libgdal=3.8.* # Allows 3.8.5 (which rasterio needs), blocks 3.9/3.10
+  - gdal=3.8.* # Matches libgdal
+
+  # GEOSPATIAL (Pinned to match the GDAL 3.8 stack)
+  - rasterio=1.3.* # Allows 1.3.10 or 1.3.11, blocks 1.4 (DLL hell)
+  - fiona=1.9.* # Compatible with GDAL 3.8
+  - pyogrio=0.7.2            # Known stable version
+  
+  # LOGIC
+  - shapely=2.0.*
+  - geopandas=0.14.4         # Stable LTS release
+  - osmnx=1.9.3
+  - pyrosm=0.6.2
+
+  # DATA SCIENCE
+  - pandas=2.2.*
+  - scikit-image=0.22.*
+  - matplotlib=3.8.*
+  - requests
+  - networkx
+  - tqdm
